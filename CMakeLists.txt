@@ -1,9 +1,13 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.27.8)
 project(Leslie_ChessEngine)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(${PROJECT_NAME} tests/tests.cpp)
+add_executable(${PROJECT_NAME} tests/tests.cpp
+        src/board.cpp
+        src/move.cpp
+        src/uci.cpp
+        src/engine.cpp)
 
 include_directories(src)
 
