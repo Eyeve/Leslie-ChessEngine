@@ -5,16 +5,15 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+#include "move.h"
+#include "types.h"
+
 #include <string>
 #include <vector>
 
-#include "types.h"
-#include "move.h"
-
-
 namespace Leslie
 {
-    constexpr bitboard Rank1 = 0xFFull;
+	constexpr bitboard Rank1 = 0xFFull;
 	constexpr bitboard Rank2 = Rank1 << (8 * 1);
 	constexpr bitboard Rank3 = Rank1 << (8 * 2);
 	constexpr bitboard Rank4 = Rank1 << (8 * 3);
@@ -34,13 +33,14 @@ namespace Leslie
 
 	std::string to_str(bitboard board);
 
-	class Board {
-
+	class Board
+	{
 	  public:
 		Board(std::string fen);
 
 		Board make_moves(Move* moves, size_type size);
-		void get_moves(std::vector<Move>& vec);
+		void get_moves(std::vector< Move >& vec);
+		std::string to_str();
 
 	  private:
 		bitboard kings[2];
@@ -60,22 +60,21 @@ namespace Leslie
 		bool blackKingCastle;
 		bool blackQueenCastle;
 
-		void add_moves(void (Board::* adder)(bitboard, std::vector<Move>&), bitboard pieces, std::vector<Move>& vec);
-		void add_piece_moves(bitboard from, bitboard to, PieceType type, std::vector<Move>& vec);
+		void add_moves(void (Board::*adder)(bitboard, std::vector< Move >&), bitboard pieces, std::vector< Move >& vec);
+		void add_piece_moves(bitboard from, bitboard to, PieceType type, std::vector< Move >& vec);
 
-		void add_king_moves(bitboard position, std::vector<Move>& vec);
-		void add_queen_moves(bitboard position, std::vector<Move>& vec);
-		void add_rook_moves(bitboard position, std::vector<Move>& vec);
-		void add_bishop_moves(bitboard position, std::vector<Move>& vec);
-		void add_knight_moves(bitboard position, std::vector<Move>& vec);
-		void add_white_pawn_moves(bitboard position, std::vector<Move>& vec);
-		void add_black_pawn_moves(bitboard position, std::vector<Move>& vec);
+		void add_king_moves(bitboard position, std::vector< Move >& vec);
+		void add_queen_moves(bitboard position, std::vector< Move >& vec);
+		void add_rook_moves(bitboard position, std::vector< Move >& vec);
+		void add_bishop_moves(bitboard position, std::vector< Move >& vec);
+		void add_knight_moves(bitboard position, std::vector< Move >& vec);
+		void add_white_pawn_moves(bitboard position, std::vector< Move >& vec);
+		void add_black_pawn_moves(bitboard position, std::vector< Move >& vec);
 
 		inline static bitboard up_one(bitboard board) { return board << 8; }
 		inline static bitboard down_one(bitboard board) { return board >> 8; }
-
 	};
 
-}
+}	 // namespace Leslie
 
-#endif //BOARD_H
+#endif	  // BOARD_H
