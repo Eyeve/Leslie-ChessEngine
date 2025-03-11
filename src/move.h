@@ -7,20 +7,21 @@
 
 #include "types.h"
 
-
 namespace Leslie
 {
 	struct Move
 	{
-		Move(PieceType piece, Color color, Square from, Square to, PieceType type): piece(piece), color(color), from(from), to(to), type(type) {}
+		Move(PieceType piece, Color color, bitboard from, bitboard to, PieceType transformation) :
+			piece(piece), color(color), from(from), to(to), transformation(transformation)
+		{
+		}
 
 		PieceType piece;
 		Color color;
-		Square from;
-		Square to;
-		PieceType type;
-    };
-}
+		bitboard from;
+		bitboard to;
+		PieceType transformation;
+	};
+}	 // namespace Leslie
 
-
-#endif //MOVE_H
+#endif	  // MOVE_H

@@ -6,7 +6,6 @@
 #define BOARD_H
 
 #include <string>
-#include <cinttypes>
 #include <vector>
 
 #include "types.h"
@@ -15,10 +14,6 @@
 
 namespace Leslie
 {
-	using bitboard = uint64_t;
-	using counter = uint8_t;
-	using size_type = size_t;
-
     constexpr bitboard Rank1 = 0xFFull;
 	constexpr bitboard Rank2 = Rank1 << (8 * 1);
 	constexpr bitboard Rank3 = Rank1 << (8 * 2);
@@ -65,7 +60,9 @@ namespace Leslie
 		bool blackKingCastle;
 		bool blackQueenCastle;
 
-		void add_piece_moves(void (Board::* adder)(bitboard, std::vector<Move>&), bitboard pieces, std::vector<Move>& vec);
+		void add_moves(void (Board::* adder)(bitboard, std::vector<Move>&), bitboard pieces, std::vector<Move>& vec);
+		void add_piece_moves(bitboard from, bitboard to, PieceType type, std::vector<Move> &vec);
+
 		void add_king_moves(bitboard position, std::vector<Move>& vec);
 		void add_queen_moves(bitboard position, std::vector<Move>& vec);
 		void add_rook_moves(bitboard position, std::vector<Move>& vec);
