@@ -23,18 +23,18 @@ namespace Leslie
 	void Board::get_moves(std::vector<Move>& vec)
 	{
 		vec.clear();
-		add_piece_moves(&add_king_moves, kings[turn], vec);
-		add_piece_moves(&add_queen_moves, queens[turn], vec);
-		add_piece_moves(&add_rook_moves, rooks[turn], vec);
-		add_piece_moves(&add_bishop_moves, bishops[turn], vec);
-		add_piece_moves(&add_knight_moves, knights[turn], vec);
+		add_moves(&add_king_moves, kings[turn], vec);
+		add_moves(&add_queen_moves, queens[turn], vec);
+		add_moves(&add_rook_moves, rooks[turn], vec);
+		add_moves(&add_bishop_moves, bishops[turn], vec);
+		add_moves(&add_knight_moves, knights[turn], vec);
 		if (turn == Color::WHITE)
-			add_piece_moves(&add_white_pawn_moves, pawns[turn], vec);
+			add_moves(&add_white_pawn_moves, pawns[turn], vec);
 		else
-			add_piece_moves(&add_black_pawn_moves, pawns[turn], vec);
+			add_moves(&add_black_pawn_moves, pawns[turn], vec);
 	}
 
-	void Board::add_piece_moves(void (Board::* adder)(bitboard, std::vector<Move>&), bitboard pieces, std::vector<Move>& vec)
+	void Board::add_moves(void (Board::* adder)(bitboard, std::vector<Move>&), bitboard pieces, std::vector<Move>& vec)
 	{
 		while (pieces)
 		{
@@ -44,9 +44,25 @@ namespace Leslie
 		}
 	}
 
-	void Board::add_king_moves(bitboard position, std::vector<Move> &vec) {}
+	void Board::add_piece_moves(bitboard from, bitboard to, PieceType type, std::vector<Move> &vec)
+	{
+		while (to)
+		{
+			bitboard position = 1ull << std::countr_zero(to);
+			vec.emplace_back(type, turn, from, position, PieceType::NONE);
+			to ^= position;
+		}
+	}
 
-	void Board::add_queen_moves(bitboard position, std::vector<Move> &vec){}
+
+	void Board::add_king_moves(bitboard position, std::vector<Move> &vec)
+	{
+		bitboard to = (((position << 7) | (position >> 9) | (position >> 1)) & (~Leslie::FileH)) |
+			(((position >> 7) | (position << 9) | (position << 1)) & (~Leslie::FileA)) |
+			((position >> 8) | (position << 8));
+	}
+
+	void Board::add_queen_moves(bitboard position, std::vector<Move> &vec) {}
 
 	void Board::add_rook_moves(bitboard position, std::vector<Move> &vec) {}
 
