@@ -37,7 +37,7 @@ namespace Leslie
 	class Board {
 
 	  public:
-		Board();
+		Board(std::string fen);
 
 		Board make_moves(Move* moves, size_type size);
 		void get_moves(std::vector<Move>& vec);
@@ -61,7 +61,7 @@ namespace Leslie
 		bool blackQueenCastle;
 
 		void add_moves(void (Board::* adder)(bitboard, std::vector<Move>&), bitboard pieces, std::vector<Move>& vec);
-		void add_piece_moves(bitboard from, bitboard to, PieceType type, std::vector<Move> &vec);
+		void add_piece_moves(bitboard from, bitboard to, PieceType type, std::vector<Move>& vec);
 
 		void add_king_moves(bitboard position, std::vector<Move>& vec);
 		void add_queen_moves(bitboard position, std::vector<Move>& vec);

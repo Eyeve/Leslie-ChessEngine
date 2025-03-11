@@ -11,10 +11,8 @@ namespace Leslie
 {
 	struct Move
 	{
-		Move(PieceType piece, Color color, bitboard from, bitboard to, PieceType transformation) :
-			piece(piece), color(color), from(from), to(to), transformation(transformation)
-		{
-		}
+		inline Move(PieceType piece, Color color, bitboard from, bitboard to, PieceType transformation) :
+			piece(piece), color(color), from(from), to(to), transformation(transformation) {}
 
 		PieceType piece;
 		Color color;
