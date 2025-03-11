@@ -21,6 +21,11 @@ TEST(general, fileF)
 	EXPECT_EQ(expected, Leslie::FileF);
 }
 
+TEST(general, knight)
+{
+
+}
+
 int main(int argc, char* argv[])
 {
 	::testing::InitGoogleTest(&argc, argv);

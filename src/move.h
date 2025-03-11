@@ -12,9 +12,10 @@ namespace Leslie
 {
 	struct Move
 	{
-		Move(Piece piece, Square from, Square to, PieceType type): piece(piece), from(from), to(to), type(type) {}
+		Move(PieceType piece, Color color, Square from, Square to, PieceType type): piece(piece), color(color), from(from), to(to), type(type) {}
 
-		Piece piece;
+		PieceType piece;
+		Color color;
 		Square from;
 		Square to;
 		PieceType type;
