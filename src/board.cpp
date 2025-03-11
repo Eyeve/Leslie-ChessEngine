@@ -21,6 +21,12 @@ namespace Leslie
 		return std::string{ result };
 	}
 
+	Board::Board(std::string fen)
+	{
+
+	}
+
+
 	void Board::get_moves(std::vector< Move > &vec)
 	{
 		vec.clear();
@@ -46,7 +52,7 @@ namespace Leslie
 		}
 	}
 
-	void Board::add_piece_moves(bitboard from, bitboard to, PieceType type, std::vector< Move > &vec)
+	void Board::add_piece_moves(bitboard from, bitboard to, PieceType type, std::vector< Move >& vec)
 	{
 		while (to)
 		{
@@ -58,9 +64,10 @@ namespace Leslie
 
 	void Board::add_king_moves(bitboard position, std::vector< Move > &vec)
 	{
-		bitboard to =
-			(((position << 7) | (position >> 9) | (position >> 1)) & (~Leslie::FileH)) |
-			(((position >> 7) | (position << 9) | (position << 1)) & (~Leslie::FileA)) | ((position >> 8) | (position << 8));
+		bitboard result = (((position << 7) | (position >> 9) | (position >> 1)) & (~Leslie::FileH)) |
+			(((position >> 7) | (position << 9) | (position << 1)) & (~Leslie::FileA)) |
+			((position >> 8) | (position << 8));
+		add_piece_moves(position, result, PieceType::KING, vec);
 	}
 
 	void Board::add_queen_moves(bitboard position, std::vector< Move > &vec) {}

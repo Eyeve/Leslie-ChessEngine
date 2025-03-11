@@ -21,7 +21,12 @@ TEST(general, fileF)
 	EXPECT_EQ(expected, Leslie::FileF);
 }
 
-TEST(general, knight)
+TEST(knight_moves, test1)
+{
+
+}
+
+TEST(king_moves, test1)
 {
 
 }
