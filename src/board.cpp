@@ -76,6 +76,7 @@ namespace Leslie
 		bitboard r1 = (position >> 1) & ~Leslie::FileA;
 		bitboard r2 = (position >> 2) & ~(Leslie::FileA & Leslie::FileB);
 		bitboard result = (l1 | r1) << 16 | (l1 | r1) >> 16 | (l2 | r2) << 8 | (l2 | r2) >> 8;
+		add_piece_moves(position, result, PieceType::KNIGHT, vec);
 	}
 
 	void Board::add_white_pawn_moves(bitboard position, std::vector< Move > &vec) {}
