@@ -6,11 +6,12 @@
 #define MOVE_H
 
 
+namespace Leslie
+{
+	class Move {
 
-class Move {
-
-};
-
+    };
+}
 
 
 #endif //MOVE_H

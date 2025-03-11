@@ -6,11 +6,12 @@
 #define ENGINE_H
 
 
+namespace Leslie
+{
+	class Engine {
 
-class Engine {
-
-};
-
+	};
+}
 
 
 #endif //ENGINE_H
