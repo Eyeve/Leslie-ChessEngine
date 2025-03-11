@@ -5,11 +5,21 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
+#include "board.h"
+
 
 namespace Leslie
 {
-	class Engine {
+	class Engine
+	{
+	  public:
+		Engine();
 
+		float evaluate();
+
+	  private:
+		Board board;
+		float searchTime = 2.0f;
 	};
 }
 

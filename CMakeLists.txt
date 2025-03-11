@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(${PROJECT_NAME} tests/tests.cpp
         src/board.cpp
-        src/move.cpp
         src/uci.cpp
         src/engine.cpp)
 

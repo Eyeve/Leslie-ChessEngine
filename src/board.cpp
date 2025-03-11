@@ -1,5 +1,7 @@
 #include "board.h"
 
+#include <bit>
+
 
 namespace Leslie
 {
@@ -15,17 +17,55 @@ namespace Leslie
 			*ptr++ = '\n';
 		}
 		*ptr = '\0';
-
-		return std::string(result);
+		return std::string{result};
 	}
 
-	bitboard Board::get_white_pawn_advances()
-    {
-        return (whitePawns << 8) | (whitePawns & Rank2) << 16;
-    }
+	void Board::get_moves(std::vector<Move>& vec)
+	{
+		vec.clear();
+		add_piece_moves(&add_king_moves, kings[turn], vec);
+		add_piece_moves(&add_queen_moves, queens[turn], vec);
+		add_piece_moves(&add_rook_moves, rooks[turn], vec);
+		add_piece_moves(&add_bishop_moves, bishops[turn], vec);
+		add_piece_moves(&add_knight_moves, knights[turn], vec);
+		if (turn == Color::WHITE)
+			add_piece_moves(&add_white_pawn_moves, pawns[turn], vec);
+		else
+			add_piece_moves(&add_black_pawn_moves, pawns[turn], vec);
+	}
 
-    bitboard Board::get_black_pawn_advances()
-    {
-        return (blackPawns >> 8) | (blackPawns & Rank7) >> 16;
-    }
+	void Board::add_piece_moves(void (Board::* adder)(bitboard, std::vector<Move>&), bitboard pieces, std::vector<Move>& vec)
+	{
+		while (pieces)
+		{
+			bitboard position = 1ull << std::countr_zero(pieces);
+			(this->*adder)(position, vec);
+			pieces ^= position;
+		}
+	}
+
+	void Board::add_king_moves(bitboard position, std::vector<Move> &vec) {}
+
+	void Board::add_queen_moves(bitboard position, std::vector<Move> &vec){}
+
+	void Board::add_rook_moves(bitboard position, std::vector<Move> &vec) {}
+
+	void Board::add_bishop_moves(bitboard position, std::vector<Move> &vec) {}
+
+	void Board::add_knight_moves(bitboard position, std::vector<Move> &vec) {}
+
+	void Board::add_white_pawn_moves(bitboard position, std::vector<Move> &vec) {}
+
+	void Board::add_black_pawn_moves(bitboard position, std::vector<Move> &vec) {}
+
+
+	// bitboard Board::get_white_pawn_advances()
+ //    {
+ //        return (whitePawns << 8) | (whitePawns & Rank2) << 16;
+ //    }
+ //
+ //    bitboard Board::get_black_pawn_advances()
+ //    {
+ //        return (blackPawns >> 8) | (blackPawns & Rank7) >> 16;
+ //    }
 }

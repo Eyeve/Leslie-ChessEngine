@@ -6,15 +6,20 @@
 #define BOARD_H
 
 #include <string>
-#include <inttypes.h>
+#include <cinttypes>
+#include <vector>
+
+#include "types.h"
+#include "move.h"
 
 
 namespace Leslie
 {
 	using bitboard = uint64_t;
-	using counter = int16_t;
+	using counter = uint8_t;
+	using size_type = size_t;
 
-    constexpr bitboard Rank1 = 0xFF;
+    constexpr bitboard Rank1 = 0xFFull;
 	constexpr bitboard Rank2 = Rank1 << (8 * 1);
 	constexpr bitboard Rank3 = Rank1 << (8 * 2);
 	constexpr bitboard Rank4 = Rank1 << (8 * 3);
@@ -23,7 +28,7 @@ namespace Leslie
 	constexpr bitboard Rank7 = Rank1 << (8 * 6);
 	constexpr bitboard Rank8 = Rank1 << (8 * 7);
 
-	constexpr bitboard FileA = 0x8080808080808080;
+	constexpr bitboard FileA = 0x8080808080808080ull;
 	constexpr bitboard FileB = FileA >> 1;
 	constexpr bitboard FileC = FileA >> 2;
 	constexpr bitboard FileD = FileA >> 3;
@@ -39,84 +44,35 @@ namespace Leslie
 	  public:
 		Board();
 
-		inline bitboard get_white_king_moves() { return get_white_king_advances() | get_white_king_attacks(); }
-		inline bitboard get_white_queen_moves() { return get_white_queen_advances() | get_white_queen_attacks(); }
-		inline bitboard get_white_rook_moves() { return get_white_rook_advances() | get_white_rook_attacks(); }
-		inline bitboard get_white_bishop_moves() { return get_white_bishop_advances() | get_white_bishop_attacks(); }
-		inline bitboard get_white_knight_moves() { return get_white_knight_advances() | get_white_knight_attacks(); }
-		inline bitboard get_white_pawn_moves() { return get_white_pawn_advances() | get_white_pawn_attacks(); }
-
-		inline bitboard get_black_king_moves() { return get_black_king_advances() | get_black_king_attacks(); }
-		inline bitboard get_black_queen_moves() { return get_black_queen_advances() | get_black_queen_attacks(); }
-		inline bitboard get_black_rook_moves() { return get_black_rook_advances() | get_black_rook_attacks(); }
-		inline bitboard get_black_bishop_moves() { return get_black_bishop_advances() | get_black_bishop_attacks(); }
-		inline bitboard get_black_knight_moves() { return get_black_knight_advances() | get_black_knight_attacks(); }
-		inline bitboard get_black_pawn_moves() { return get_black_pawn_advances() | get_black_pawn_attacks(); }
-
-		inline bitboard get_white_king_advances() { return get_king_advances(whiteKings); }
-		inline bitboard get_white_queen_advances() { return get_queen_advances(whiteQueens); }
-		inline bitboard get_white_rook_advances() { return get_rook_advances(whiteRooks); }
-		inline bitboard get_white_bishop_advances() { return get_bishop_advances(whiteBishops); }
-		inline bitboard get_white_knight_advances() { return get_knight_advances(whiteKnights); }
-		bitboard get_white_pawn_advances();
-
-		inline bitboard get_white_king_attacks() { return get_king_attacks(whiteKings); }
-		inline bitboard get_white_queen_attacks() { return get_queen_attacks(whiteQueens); }
-		inline bitboard get_white_rook_attacks() { return get_rook_attacks(whiteRooks); }
-		inline bitboard get_white_bishop_attacks() { return get_bishop_attacks(whiteBishops); }
-		inline bitboard get_white_knight_attacks() { return get_knight_attacks(whiteKnights); }
-		bitboard get_white_pawn_attacks();
-
-		inline bitboard get_black_king_advances() { return get_king_advances(blackKings); }
-		inline bitboard get_black_queen_advances() { return get_queen_advances(blackQueens); }
-		inline bitboard get_black_rook_advances() { return get_rook_advances(blackRooks); }
-		inline bitboard get_black_bishop_advances() { return get_bishop_advances(blackBishops); }
-		inline bitboard get_black_knight_advances() { return get_knight_advances(blackKnights); }
-		bitboard get_black_pawn_advances();
-
-		inline bitboard get_black_king_attacks() { return get_king_attacks(blackKings); }
-		inline bitboard get_black_queen_attacks() { return get_queen_attacks(blackQueens); }
-		inline bitboard get_black_rook_attacks() { return get_rook_attacks(blackRooks); }
-		inline bitboard get_black_bishop_attacks() { return get_bishop_attacks(blackBishops); }
-		inline bitboard get_black_knight_attacks() { return get_knight_attacks(blackKnights); }
-		bitboard get_black_pawn_attacks();
+		Board make_moves(Move* moves, size_type size);
+		void get_moves(std::vector<Move>& vec);
 
 	  private:
-		bitboard whiteKings;
-		bitboard whiteQueens;
-		bitboard whiteRooks;
-		bitboard whiteBishops;
-		bitboard whiteKnights;
-		bitboard whitePawns;
-
-		bitboard blackKings;
-		bitboard blackQueens;
-		bitboard blackRooks;
-		bitboard blackBishops;
-		bitboard blackKnights;
-		bitboard blackPawns;
+		bitboard kings[2];
+		bitboard queens[2];
+		bitboard rooks[2];
+		bitboard bishops[2];
+		bitboard knights[2];
+		bitboard pawns[2];
 
 		bitboard enPassantCapture;
-		counter halfMovesCount;
+		counter rule50;
 		counter movesCount;
 
-		bool isWhiteTurn;
+		Color turn;
 		bool whiteKingCastle;
 		bool whiteQueenCastle;
 		bool blackKingCastle;
 		bool blackQueenCastle;
 
-		static bitboard get_king_advances(bitboard kings);
-		static bitboard get_queen_advances(bitboard queens);
-		static bitboard get_rook_advances(bitboard rooks);
-		static bitboard get_bishop_advances(bitboard bishops);
-		static bitboard get_knight_advances(bitboard knights);
-
-		static bitboard get_king_attacks(bitboard kings);
-		static bitboard get_queen_attacks(bitboard queens);
-		static bitboard get_rook_attacks(bitboard rooks);
-		static bitboard get_bishop_attacks(bitboard bishops);
-		static bitboard get_knight_attacks(bitboard knights);
+		void add_piece_moves(void (Board::* adder)(bitboard, std::vector<Move>&), bitboard pieces, std::vector<Move>& vec);
+		void add_king_moves(bitboard position, std::vector<Move>& vec);
+		void add_queen_moves(bitboard position, std::vector<Move>& vec);
+		void add_rook_moves(bitboard position, std::vector<Move>& vec);
+		void add_bishop_moves(bitboard position, std::vector<Move>& vec);
+		void add_knight_moves(bitboard position, std::vector<Move>& vec);
+		void add_white_pawn_moves(bitboard position, std::vector<Move>& vec);
+		void add_black_pawn_moves(bitboard position, std::vector<Move>& vec);
 
 		inline static bitboard up_one(bitboard board) { return board << 8; }
 		inline static bitboard down_one(bitboard board) { return board >> 8; }
@@ -124,6 +80,5 @@ namespace Leslie
 	};
 
 }
-
 
 #endif //BOARD_H

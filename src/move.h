@@ -5,11 +5,19 @@
 #ifndef MOVE_H
 #define MOVE_H
 
+#include "types.h"
+
 
 namespace Leslie
 {
-	class Move {
+	struct Move
+	{
+		Move(Piece piece, Square from, Square to, PieceType type): piece(piece), from(from), to(to), type(type) {}
 
+		Piece piece;
+		Square from;
+		Square to;
+		PieceType type;
     };
 }
 
