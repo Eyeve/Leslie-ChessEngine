@@ -72,7 +72,7 @@ namespace Leslie
 				}
 
 				if (pieceArray)
-					pieceArray[color] |= (1ULL << (rank * 8 + file));
+					pieceArray[color] |= (1ULL << (rank * 8 + 7 - file));
 
 				file++;
 			}
@@ -100,7 +100,7 @@ namespace Leslie
 
 		for (int rank = 7; rank >= 0; --rank) {
 			for (int file = 0; file < 8; ++file) {
-				bitboard pos = 1ULL << (rank * 8 + file);
+				bitboard pos = 1ULL << (rank * 8 + 7 - file);
 				char piece = '.';
 
 				if (kings[WHITE] & pos) piece = 'K';
@@ -162,9 +162,10 @@ namespace Leslie
 
 	void Board::add_king_moves(bitboard position, std::vector< Move > &vec)
 	{
-		bitboard result =
-			(((position << 7) | (position >> 9) | (position >> 1)) & (~Leslie::FileH)) |
-			(((position >> 7) | (position << 9) | (position << 1)) & (~Leslie::FileA)) | ((position >> 8) | (position << 8));
+		bitboard a = (((position << 7) | (position >> 9) | (position >> 1)) & (~Leslie::FileH));
+		bitboard b = (((position >> 7) | (position << 9) | (position << 1)) & (~Leslie::FileA));
+		bitboard c = ((position >> 8) | (position << 8));
+		bitboard result = a | b | c;
 		add_piece_moves(position, result, PieceType::KING, vec);
 	}
 

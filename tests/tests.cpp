@@ -3,6 +3,7 @@
 
 #include <gtest/gtest.h>
 
+
 TEST(general, to_str)
 {
 	std::string expected = "00000000\n10100101\n11111111\n00000000\n11110000\n00000000\n00000000\n11111111\n";
@@ -22,27 +23,25 @@ TEST(general, fileF)
 	EXPECT_EQ(expected, Leslie::FileF);
 }
 
-TEST(knight_moves, test1)
-{
-	Leslie::Board board("N7/8/8/8/8/8/8/8 w KQkq - 0 1");
-	std::vector< Leslie::Move > moves;
-	board.get_moves(moves);
-	std::unordered_set< Leslie::Move, Leslie::MoveHash > expected = {
-		Leslie::Move(Leslie::PieceType::KNIGHT, Leslie::Color::WHITE, Leslie::FileA & Leslie::Rank8, Leslie::FileC & Leslie::Rank7, Leslie::PieceType::NONE),
-		Leslie::Move(Leslie::PieceType::KNIGHT, Leslie::Color::WHITE, Leslie::FileA & Leslie::Rank8, Leslie::FileB & Leslie::Rank6, Leslie::PieceType::NONE)
-	};
-	for (Leslie::Move move : moves)
-	{
-		expected.erase(move);
-	}
-	EXPECT_TRUE(expected.empty());
-}
-
 TEST(board, board_ctr)
 {
 	Leslie::Board board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
 	std::string expected = "rnbqkbnr\npppppppp\n........\n........\n....P...\n........\nPPPP.PPP\nRNBQKBNR\n";
 	EXPECT_EQ(board.to_str(), expected);
+}
+
+TEST(knight_moves, test1)
+{
+	Leslie::Board board("N7/8/8/8/8/8/8/8 w - - 0 1");
+	std::vector< Leslie::Move > moves;
+	board.get_moves(moves);
+	std::unordered_set< Leslie::Move, Leslie::MoveHash > expected = {
+		Leslie::Move(Leslie::PieceType::KNIGHT, Leslie::Color::WHITE, Leslie::FileA & Leslie::Rank8, Leslie::FileC & Leslie::Rank7, Leslie::PieceType::NONE),
+		Leslie::Move(Leslie::PieceType::KNIGHT, Leslie::Color::WHITE, Leslie::FileA & Leslie::Rank8, Leslie::FileB & Leslie::Rank6, Leslie::PieceType::NONE),
+	};
+	for (Leslie::Move move : moves)
+		expected.erase(move);
+	EXPECT_TRUE(expected.empty());
 }
 
 TEST(king_moves, test1)
@@ -56,9 +55,7 @@ TEST(king_moves, test1)
 		Leslie::Move(Leslie::PieceType::KING, Leslie::Color::WHITE, Leslie::FileA & Leslie::Rank8, Leslie::FileA & Leslie::Rank7, Leslie::PieceType::NONE)
 	};
 	for (Leslie::Move move : moves)
-	{
 		expected.erase(move);
-	}
 	EXPECT_TRUE(expected.empty());
 }
 
