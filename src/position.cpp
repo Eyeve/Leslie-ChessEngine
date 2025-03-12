@@ -46,7 +46,7 @@ namespace Leslie
 			bitboard *pieceBitboards = get_piece_bitboards(c);
 			Color color = isupper(c) ? WHITE : BLACK;
 
-			if (pieceBitboards)
+			if (pieceBitboards != nullptr)
 				pieceBitboards[color] |= i;
 			i = Board::next(i);
 		}
@@ -114,10 +114,14 @@ namespace Leslie
 		return std::string{ str };
 	}
 
-	bitboard Position::get_blockers() const
+	Color Position::get_opponent() const
 	{
-		const auto opponentColor = static_cast<Color>(~static_cast<int>(turn) & 0b11);
-		return queens[opponentColor] | rooks[opponentColor] | bishops[opponentColor] | knights[opponentColor] | pawns[opponentColor];
+		return static_cast<Color>(static_cast<int>(turn) ^ 0b1);
+	}
+
+	bitboard Position::get_blockers(Color color) const
+	{
+		return queens[color] | rooks[color] | bishops[color] | pawns[color];
 	}
 
 	void Position::get_moves(std::vector< Move > &vec) const
@@ -166,9 +170,15 @@ namespace Leslie
 
 	void Position::add_queen_moves(bitboard position, std::vector< Move > &vec) const {}
 
-	void Position::add_rook_moves(bitboard position, std::vector< Move > &vec) const {}
+	void Position::add_rook_moves(bitboard position, std::vector< Move > &vec) const
+	{
+		// add_piece_moves(position, result, PieceType::ROOK, vec);
+	}
 
-	void Position::add_bishop_moves(bitboard position, std::vector< Move > &vec) const {}
+	void Position::add_bishop_moves(bitboard position, std::vector< Move > &vec) const
+	{
+		// add_piece_moves(position, result, PieceType::BISHOP, vec);
+	}
 
 	void Position::add_knight_moves(bitboard position, std::vector< Move > &vec) const
 	{
@@ -185,7 +195,7 @@ namespace Leslie
 		bitboard white_pawns = pawns[Color::WHITE];
 		bitboard short_moves = white_pawns << 8;
 		bitboard long_moves = (white_pawns & Rank2) << 16;
-		bitboard attacks = get_blockers() & (((short_moves << 1) & ~FileH) | ((short_moves >> 1) & ~FileA));
+		bitboard attacks = get_blockers(get_opponent()) & (((short_moves << 1) & ~FileH) | ((short_moves >> 1) & ~FileA));
 		bitboard result = short_moves | long_moves | attacks;
 
 		add_piece_moves(position, result, PieceType::PAWN, vec);
@@ -196,7 +206,7 @@ namespace Leslie
 		bitboard black_pawns = pawns[Color::BLACK];
 		bitboard short_moves = black_pawns >> 8;
 		bitboard long_moves = (black_pawns & Rank7) >> 16;
-		bitboard attacks = get_blockers() & (((short_moves << 1) & ~FileH) | ((short_moves >> 1) & ~FileA));
+		bitboard attacks = get_blockers(get_opponent()) & (((short_moves << 1) & ~FileH) | ((short_moves >> 1) & ~FileA));
 		bitboard result = short_moves | long_moves | attacks;
 
 		add_piece_moves(position, result, PieceType::PAWN, vec);
