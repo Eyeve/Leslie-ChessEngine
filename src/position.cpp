@@ -157,8 +157,8 @@ namespace Leslie
 
 	void Position::add_king_moves(bitboard position, std::vector< Move > &vec) const
 	{
-		bitboard a = (((position << 7) | (position >> 9) | (position >> 1)) & (~Leslie::FileH));
-		bitboard b = (((position >> 7) | (position << 9) | (position << 1)) & (~Leslie::FileA));
+		bitboard a = (((position << 7) | (position >> 9) | (position >> 1)) & (~Leslie::FileA));
+		bitboard b = (((position >> 7) | (position << 9) | (position << 1)) & (~Leslie::FileH));
 		bitboard c = ((position >> 8) | (position << 8));
 		bitboard result = a | b | c;
 		add_piece_moves(position, result, PieceType::KING, vec);
@@ -172,10 +172,10 @@ namespace Leslie
 
 	void Position::add_knight_moves(bitboard position, std::vector< Move > &vec) const
 	{
-		bitboard l1 = (position >> 1) & ~Leslie::FileH;
-		bitboard l2 = (position >> 2) & ~(Leslie::FileH & Leslie::FileG);
-		bitboard r1 = (position << 1) & ~Leslie::FileA;
-		bitboard r2 = (position << 2) & ~(Leslie::FileA & Leslie::FileB);
+		bitboard l1 = (position >> 1) & ~Leslie::FileA;
+		bitboard l2 = (position >> 2) & ~(Leslie::FileA | Leslie::FileB);
+		bitboard r1 = (position << 1) & ~Leslie::FileH;
+		bitboard r2 = (position << 2) & ~(Leslie::FileH | Leslie::FileG);
 		bitboard result = (l1 | r1) << 16 | (l1 | r1) >> 16 | (l2 | r2) << 8 | (l2 | r2) >> 8;
 		add_piece_moves(position, result, PieceType::KNIGHT, vec);
 	}
