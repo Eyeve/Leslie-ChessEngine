@@ -192,10 +192,14 @@ namespace Leslie
 
 	void Position::add_white_pawn_moves(bitboard position, std::vector< Move > &vec) const
 	{
-		bitboard white_pawns = pawns[Color::WHITE];
-		bitboard short_moves = white_pawns << 8;
-		bitboard long_moves = (white_pawns & Rank2) << 16;
-		bitboard attacks = get_blockers(get_opponent()) & (((short_moves << 1) & ~FileH) | ((short_moves >> 1) & ~FileA));
+		bitboard white_blockers = get_blockers(turn);
+		bitboard black_blockers = get_blockers(get_opponent());
+		bitboard blockers = white_blockers | black_blockers;
+
+		bitboard white_pawns = position; //pawns[Color::WHITE];
+		bitboard short_moves = (white_pawns << 8) & ~blockers;
+		bitboard long_moves = ((white_pawns & Rank2) << 16) & ~blockers & (short_moves << 8);
+		bitboard attacks = black_blockers & (((white_pawns << 9) & ~FileH) | ((white_pawns << 7) & ~FileA));
 		bitboard result = short_moves | long_moves | attacks;
 
 		add_piece_moves(position, result, PieceType::PAWN, vec);
