@@ -1,7 +1,9 @@
 #include "position.h"
 
 #include <bit>
+#include <magic.h>
 #include <sstream>
+#include <immintrin.h>
 
 
 namespace Leslie
@@ -121,7 +123,7 @@ namespace Leslie
 
 	bitboard Position::get_blockers(Color color) const
 	{
-		return queens[color] | rooks[color] | bishops[color] | pawns[color];
+		return kings[color] | queens[color] | rooks[color] | bishops[color] | knights[color] | pawns[color];
 	}
 
 	void Position::get_moves(std::vector< Move > &vec) const
@@ -172,6 +174,9 @@ namespace Leslie
 
 	void Position::add_rook_moves(bitboard position, std::vector< Move > &vec) const
 	{
+		bitboard my_blockers = get_blockers(turn);
+		bitboard opp_blockers = get_blockers(get_opponent());
+		// bitboard res = rook_magic[std::countr_zero(position)][_pext_u64()];
 		// add_piece_moves(position, result, PieceType::ROOK, vec);
 	}
 

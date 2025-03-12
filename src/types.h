@@ -23,6 +23,7 @@ namespace Leslie
 	using bitboard = uint64_t;
 	using counter = uint8_t;
 	using size_type = size_t;
+	using blockers_mask = uint16_t;
 
 	static constexpr auto StartFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 

@@ -8,7 +8,8 @@ add_executable(${PROJECT_NAME} tests/tests.cpp
         src/lichess_shell.cpp
         src/engine.cpp
         src/move.cpp
-        src/options.cpp)
+        src/options.cpp
+        src/magic.cpp)
 
 include_directories(src)
 
