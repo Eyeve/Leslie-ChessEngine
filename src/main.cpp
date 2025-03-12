@@ -3,6 +3,7 @@
 
 int main(int argc, char* argv[])
 {
+
     Leslie::LichessShell shell(argc, argv);
 
 	int return_code = shell.start();

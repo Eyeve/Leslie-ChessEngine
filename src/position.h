@@ -1,11 +1,12 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include "move.h"
-#include "types.h"
-
 #include <string>
 #include <vector>
+
+#include "move.h"
+#include "types.h"
+#include "position.h"
 
 
 namespace Leslie
