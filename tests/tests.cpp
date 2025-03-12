@@ -1,7 +1,8 @@
-#include "position.h"
 #include <unordered_set>
-
 #include <gtest/gtest.h>
+
+#include "position.h"
+#include "magic.h"
 
 #define MERGE_ROWS(a, b, c, d, e, f, g, h) a "\n" b "\n" c "\n" d "\n" e "\n" f "\n" g "\n" h "\n"
 
@@ -54,6 +55,9 @@ TEST(position, position_ctr)
 
 int main(int argc, char* argv[])
 {
+	Leslie::init_masks();
+	Leslie::init_magic();
+
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 }

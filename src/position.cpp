@@ -178,8 +178,8 @@ namespace Leslie
 	void Position::add_rook_moves(bitboard position, std::vector< Move > &vec) const
 	{
 		bitboard my_blockers = get_blockers(turn);
-		bitboard opp_blockers = get_blockers(get_opponent());
-		bitboard blockers = my_blockers | opp_blockers;
+		bitboard op_blockers = get_blockers(get_opponent());
+		bitboard blockers = my_blockers | op_blockers;
 		bitboard rook_mask = RookMasks[std::countr_zero(position)];
 
 		auto filtered_blockers = static_cast<blockers_mask>(_pext_u64(blockers, rook_mask));
