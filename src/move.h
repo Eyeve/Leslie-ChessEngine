@@ -11,9 +11,10 @@ namespace Leslie
 	struct Move
 	{
 		PieceType type;
-		bitboard from;
-		bitboard to;
+		Square from;
+		Square to;
 
+		Move(PieceType type, Square from, Square to);
 		Move(PieceType type, bitboard from, bitboard to);
 
 		bool operator==(const Move &other) const = default;

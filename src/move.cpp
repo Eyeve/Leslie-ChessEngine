@@ -3,7 +3,12 @@
 
 namespace Leslie
 {
-	Move::Move(PieceType type, bitboard from, bitboard to): type(type), from(from), to(to)
+	Move::Move(PieceType type, Square from, Square to): type(type), from(from), to(to)
+	{
+
+	}
+
+	Move::Move(PieceType type, bitboard from, bitboard to): type(type), from(static_cast<Square>(from)), to(static_cast<Square>(to))
 	{
 
 	}
