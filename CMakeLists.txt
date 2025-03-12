@@ -21,6 +21,7 @@ FetchContent_Declare(
 )
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mbmi2")
 
 FetchContent_MakeAvailable(googletest)
 

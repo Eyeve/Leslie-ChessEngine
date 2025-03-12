@@ -176,8 +176,12 @@ namespace Leslie
 	{
 		bitboard my_blockers = get_blockers(turn);
 		bitboard opp_blockers = get_blockers(get_opponent());
-		// bitboard res = rook_magic[std::countr_zero(position)][_pext_u64()];
-		// add_piece_moves(position, result, PieceType::ROOK, vec);
+		bitboard blockers = my_blockers | opp_blockers;
+		bitboard rook_mask = RookMasks[std::countr_zero(position)];
+
+		auto filtered_blockers = static_cast<blockers_mask>(_pext_u64(blockers, rook_mask));
+		bitboard moves = rook_magic[std::countr_zero(position)][filtered_blockers];
+		add_piece_moves(position, moves, PieceType::ROOK, vec);
 	}
 
 	void Position::add_bishop_moves(bitboard position, std::vector< Move > &vec) const

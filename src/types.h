@@ -73,6 +73,18 @@ namespace Leslie
 		ROW(A1, B1, C1, D1, E1, F1, G1, H1, Rank1),
 	};
 
+	enum Direction
+	{
+		NORTH,
+		EAST,
+		SOUTH,
+		WEST,
+		NORTH_EAST,
+		NORTH_WEST,
+		SOUTH_EAST,
+		SOUTH_WEST,
+	};
+
 	namespace Board
 	{
 		// 64 cells + 8 end lines + 1 \0 symbol

@@ -8,13 +8,14 @@
 
 namespace Leslie
 {
-	namespace Magic
-	{
-		static std::unordered_map<blockers_mask, bitboard> rook_magic[64];
-		static std::unordered_map<blockers_mask, bitboard> bishop_magic[64];
+	static std::unordered_map<blockers_mask, bitboard> rook_magic[64];
+	static std::unordered_map<blockers_mask, bitboard> bishop_magic[64];
 
-		void init_magic();
-	}
+	static bitboard RookMasks[64];
+	static bitboard BishopMasks[64];
+
+	void init_magic();
+	void init_masks();
 }
 
 #endif
