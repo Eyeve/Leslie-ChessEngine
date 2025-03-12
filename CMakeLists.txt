@@ -4,9 +4,11 @@ project(Leslie_ChessEngine)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(${PROJECT_NAME} tests/tests.cpp
-        src/board.cpp
-        src/uci.cpp
-        src/engine.cpp)
+        src/position.cpp
+        src/lichess_shell.cpp
+        src/engine.cpp
+        src/move.cpp
+        src/options.cpp)
 
 include_directories(src)
 

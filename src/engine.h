@@ -1,11 +1,8 @@
-//
-// Created by Eyeve on 10.03.2025.
-//
-
 #ifndef ENGINE_H
 #define ENGINE_H
 
-#include "board.h"
+#include "position.h"
+#include "options.h"
 
 
 namespace Leslie
@@ -15,13 +12,17 @@ namespace Leslie
 	  public:
 		Engine();
 
-		float evaluate();
+		// call to start searching moves
+		void go();
+		// call to stop searching moves
+		void stop();
+		// set a new game position
+		void set_position(std::string fen);
 
 	  private:
-		Board board;
-		float searchTime = 2.0f;
+		Position position;
+		Options options;
 	};
 }
 
-
-#endif //ENGINE_H
+#endif

@@ -1,13 +1,10 @@
-//
-// Created by Eyeve on 10.03.2025.
-//
+#include "lichess_shell.h"
 
-#include "uci.h"
 
 int main(int argc, char* argv[])
 {
-    Leslie::UCI_Engine uci(argc, argv);
+    Leslie::LichessShell shell(argc, argv);
 
-	int return_code = uci.start();
+	int return_code = shell.start();
 	return return_code;
 }
