@@ -15,10 +15,10 @@ namespace Leslie
 	class Position
 	{
 	  public:
-		Position(std::string fen);
+		explicit Position(std::string fen);
 		Position(const Position& pos) = default;
 
-		operator std::string() const;
+		explicit operator std::string() const;
 
 		Position make_moves(Move* moves, size_type size) const;
 		void get_moves(std::vector< Move >& vec) const;
@@ -44,7 +44,8 @@ namespace Leslie
         char get_piece_char(bitboard place) const;
 		bitboard* get_piece_bitboards(char c);
 
-		bitboard get_blockers() const;
+		Color get_opponent() const;
+		bitboard get_blockers(Color color) const;
 
 		void add_moves(void (Position::*adder)(bitboard, std::vector< Move >&) const, bitboard pieces, std::vector< Move >& vec) const;
 		void add_piece_moves(bitboard from, bitboard to, PieceType type, std::vector< Move >& vec) const;
