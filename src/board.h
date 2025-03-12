@@ -60,6 +60,9 @@ namespace Leslie
 		bool blackKingCastle;
 		bool blackQueenCastle;
 
+
+		bitboard get_blockers();
+
 		void add_moves(void (Board::*adder)(bitboard, std::vector< Move >&), bitboard pieces, std::vector< Move >& vec);
 		void add_piece_moves(bitboard from, bitboard to, PieceType type, std::vector< Move >& vec);
 

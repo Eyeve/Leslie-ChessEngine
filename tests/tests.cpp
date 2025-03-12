@@ -52,7 +52,22 @@ TEST(king_moves, test1)
 	std::unordered_set< Leslie::Move, Leslie::MoveHash > expected = {
 		Leslie::Move(Leslie::PieceType::KING, Leslie::Color::WHITE, Leslie::FileA & Leslie::Rank8, Leslie::FileB & Leslie::Rank8, Leslie::PieceType::NONE),
 		Leslie::Move(Leslie::PieceType::KING, Leslie::Color::WHITE, Leslie::FileA & Leslie::Rank8, Leslie::FileB & Leslie::Rank7, Leslie::PieceType::NONE),
-		Leslie::Move(Leslie::PieceType::KING, Leslie::Color::WHITE, Leslie::FileA & Leslie::Rank8, Leslie::FileA & Leslie::Rank7, Leslie::PieceType::NONE)
+		Leslie::Move(Leslie::PieceType::KING, Leslie::Color::WHITE, Leslie::FileA & Leslie::Rank8, Leslie::FileA & Leslie::Rank7, Leslie::PieceType::NONE),
+	};
+	for (Leslie::Move move : moves)
+		expected.erase(move);
+	EXPECT_TRUE(expected.empty());
+}
+
+TEST(pawn_moves, test1)
+{
+	Leslie::Board board("8/p7/1P5N/8/8/8/8/8 b - - 0 1");
+	std::vector< Leslie::Move > moves;
+	board.get_moves(moves);
+	std::unordered_set< Leslie::Move, Leslie::MoveHash > expected = {
+		Leslie::Move(Leslie::PieceType::PAWN, Leslie::Color::BLACK, Leslie::FileA & Leslie::Rank7, Leslie::FileA & Leslie::Rank6, Leslie::PieceType::NONE),
+		Leslie::Move(Leslie::PieceType::PAWN, Leslie::Color::BLACK, Leslie::FileA & Leslie::Rank7, Leslie::FileB & Leslie::Rank6, Leslie::PieceType::NONE),
+		Leslie::Move(Leslie::PieceType::PAWN, Leslie::Color::BLACK, Leslie::FileA & Leslie::Rank7, Leslie::FileA & Leslie::Rank5, Leslie::PieceType::NONE),
 	};
 	for (Leslie::Move move : moves)
 		expected.erase(move);

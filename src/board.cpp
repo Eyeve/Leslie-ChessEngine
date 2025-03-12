@@ -124,6 +124,12 @@ namespace Leslie
 		return std::string{ result };
 	}
 
+	bitboard Board::get_blockers()
+	{
+		const auto opponentColor = static_cast<Color>(~static_cast<int>(turn) & 0b11);
+		return queens[opponentColor] | rooks[opponentColor] | bishops[opponentColor] | knights[opponentColor] | pawns[opponentColor];
+	}
+
 
 	void Board::get_moves(std::vector< Move > &vec)
 	{
@@ -185,17 +191,25 @@ namespace Leslie
 		add_piece_moves(position, result, PieceType::KNIGHT, vec);
 	}
 
-	void Board::add_white_pawn_moves(bitboard position, std::vector< Move > &vec) {}
+	void Board::add_white_pawn_moves(bitboard position, std::vector< Move > &vec)
+	{
+		bitboard white_pawns = pawns[Color::WHITE];
+		bitboard short_moves = white_pawns << 8;
+		bitboard long_moves = (white_pawns & Rank2) << 16;
+		bitboard attacks = get_blockers() & (((short_moves << 1) & ~FileH) | ((short_moves >> 1) & ~FileA));
+		bitboard result = short_moves | long_moves | attacks;
 
-	void Board::add_black_pawn_moves(bitboard position, std::vector< Move > &vec) {}
+		add_piece_moves(position, result, PieceType::PAWN, vec);
+	}
 
-	// bitboard Board::get_white_pawn_advances()
-	//    {
-	//        return (whitePawns << 8) | (whitePawns & Rank2) << 16;
-	//    }
-	//
-	//    bitboard Board::get_black_pawn_advances()
-	//    {
-	//        return (blackPawns >> 8) | (blackPawns & Rank7) >> 16;
-	//    }
-}	 // namespace Leslie
+	void Board::add_black_pawn_moves(bitboard position, std::vector< Move > &vec)
+	{
+		bitboard black_pawns = pawns[Color::BLACK];
+		bitboard short_moves = black_pawns >> 8;
+		bitboard long_moves = (black_pawns & Rank7) >> 16;
+		bitboard attacks = get_blockers() & (((short_moves << 1) & ~FileH) | ((short_moves >> 1) & ~FileA));
+		bitboard result = short_moves | long_moves | attacks;
+
+		add_piece_moves(position, result, PieceType::PAWN, vec);
+	}
+}
