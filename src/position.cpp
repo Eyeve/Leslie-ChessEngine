@@ -183,7 +183,7 @@ namespace Leslie
 		bitboard rook_mask = RookMasks[std::countr_zero(position)];
 
 		auto filtered_blockers = static_cast<blockers_mask>(_pext_u64(blockers, rook_mask));
-		bitboard moves = rook_magic[std::countr_zero(position)][filtered_blockers];
+		bitboard moves = RookMagic[std::countr_zero(position)][filtered_blockers];
 		add_piece_moves(position, moves, PieceType::ROOK, vec);
 	}
 

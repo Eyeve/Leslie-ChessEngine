@@ -26,14 +26,33 @@ TEST(general, to_str)
 
 TEST(general, rank5)
 {
-	Leslie::bitboard expected = 0x000000FF00000000;
+	Leslie::bitboard expected = 0x000000FF00000000ull;
 	EXPECT_EQ(expected, Leslie::Rank5);
 }
 
 TEST(general, fileF)
 {
-	Leslie::bitboard expected = 0x0404040404040404;
+	Leslie::bitboard expected = 0x0404040404040404ull;
 	EXPECT_EQ(expected, Leslie::FileF);
+}
+
+TEST(general, rook_mask)
+{
+	/*
+	 * 00001000
+	 * 00001000
+	 * 00001000
+	 * 00001000
+	 * 11110111
+	 * 00001000
+	 * 00001000
+	 * 00001000
+	 */
+
+	int bit = 27;
+	Leslie::bitboard expceted = 0x8080808F7080808ull;
+	Leslie::bitboard actual = Leslie::RookMasks[bit];
+	EXPECT_EQ(expceted, actual);
 }
 
 TEST(position, position_ctr)
@@ -52,6 +71,7 @@ TEST(position, position_ctr)
 	std::string actual = static_cast<std::string>(position);
 	EXPECT_STREQ(expected.c_str(), actual.c_str());
 }
+
 
 int main(int argc, char* argv[])
 {

@@ -8,8 +8,8 @@
 
 namespace Leslie
 {
-	static std::unordered_map<blockers_mask, bitboard> rook_magic[64];
-	static std::unordered_map<blockers_mask, bitboard> bishop_magic[64];
+	static std::unordered_map<blockers_mask, bitboard> RookMagic[64];
+	static std::unordered_map<blockers_mask, bitboard> BishopMagic[64];
 
 	static bitboard RookMasks[64];
 	static bitboard BishopMasks[64];
@@ -23,18 +23,19 @@ namespace Leslie
 	{
 		// TODO: move to another file
 
-		bitboard north_ray = FileH ^ Square::H1;
-		bitboard south_ray = FileA ^ Square::A8;
-		bitboard east_ray = Rank1 ^ Square::H1;
-		bitboard west_ray = Rank8 ^ Square::A8;
+		bitboard up_ray = FileH ^ Square::H1;
+		bitboard down_ray = FileA ^ Square::A8;
+		bitboard right_ray = Rank8 ^ Square::A8;
+		bitboard left_ray = Rank1 ^ Square::H1;
+
 
 		for (int sq = 0; sq < 64; ++sq)
 		{
-			bitboard n = north_ray << sq;
-			bitboard s = south_ray >> (63 - sq);
-			bitboard e = (east_ray & (east_ray >> sq % 8)) << sq;
-			bitboard w = (west_ray & (west_ray << 7 - sq % 8)) >> sq;
-			RookMasks[sq] = n | s | e | w;
+			bitboard up = up_ray << sq;
+			bitboard down = down_ray >> (63 - sq);
+			bitboard left = (left_ray & (left_ray >> sq % 8)) << sq;
+			bitboard right = (right_ray & (right_ray << 7 - sq % 8)) >> (63 - sq);
+			RookMasks[sq] = up | down | left | right;
 			// TODO: add diag rays
 		}
 	}
