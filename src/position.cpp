@@ -163,10 +163,13 @@ namespace Leslie
 
 	void Position::add_king_moves(bitboard position, std::vector< Move > &vec) const
 	{
+		bitboard my_blockers = get_blockers(turn);
+
 		bitboard a = (((position << 7) | (position >> 9) | (position >> 1)) & (~Leslie::FileA));
 		bitboard b = (((position >> 7) | (position << 9) | (position << 1)) & (~Leslie::FileH));
 		bitboard c = ((position >> 8) | (position << 8));
 		bitboard result = a | b | c;
+		result &= ~my_blockers;
 		add_piece_moves(position, result, PieceType::KING, vec);
 	}
 
@@ -187,24 +190,26 @@ namespace Leslie
 
 	void Position::add_knight_moves(bitboard position, std::vector< Move > &vec) const
 	{
+		bitboard my_blockers = get_blockers(turn);
+
 		bitboard l1 = (position >> 1) & ~Leslie::FileA;
 		bitboard l2 = (position >> 2) & ~(Leslie::FileA | Leslie::FileB);
 		bitboard r1 = (position << 1) & ~Leslie::FileH;
 		bitboard r2 = (position << 2) & ~(Leslie::FileH | Leslie::FileG);
 		bitboard result = (l1 | r1) << 16 | (l1 | r1) >> 16 | (l2 | r2) << 8 | (l2 | r2) >> 8;
+		result &= ~my_blockers;
 		add_piece_moves(position, result, PieceType::KNIGHT, vec);
 	}
 
 	void Position::add_white_pawn_moves(bitboard position, std::vector< Move > &vec) const
 	{
-		bitboard white_blockers = get_blockers(turn);
-		bitboard black_blockers = get_blockers(get_opponent());
-		bitboard blockers = white_blockers | black_blockers;
+		bitboard my_blockers = get_blockers(turn);
+		bitboard op_blockers = get_blockers(get_opponent());
+		bitboard blockers = my_blockers | op_blockers;
 
-		bitboard white_pawns = position; //pawns[Color::WHITE];
-		bitboard short_moves = (white_pawns << 8) & ~blockers;
-		bitboard long_moves = ((white_pawns & Rank2) << 16) & ~blockers & (short_moves << 8);
-		bitboard attacks = black_blockers & (((white_pawns << 9) & ~FileH) | ((white_pawns << 7) & ~FileA));
+		bitboard short_moves = (position << 8) & ~blockers;
+		bitboard long_moves = ((position & Rank2) << 16) & ~blockers & (short_moves << 8);
+		bitboard attacks = op_blockers & (((position << 9) & ~FileH) | ((position << 7) & ~FileA));
 		bitboard result = short_moves | long_moves | attacks;
 
 		add_piece_moves(position, result, PieceType::PAWN, vec);
@@ -212,10 +217,14 @@ namespace Leslie
 
 	void Position::add_black_pawn_moves(bitboard position, std::vector< Move > &vec) const
 	{
-		bitboard black_pawns = pawns[Color::BLACK];
-		bitboard short_moves = black_pawns >> 8;
-		bitboard long_moves = (black_pawns & Rank7) >> 16;
-		bitboard attacks = get_blockers(get_opponent()) & (((short_moves << 1) & ~FileH) | ((short_moves >> 1) & ~FileA));
+
+		bitboard my_blockers = get_blockers(turn);
+		bitboard op_blockers = get_blockers(get_opponent());
+		bitboard blockers = my_blockers | op_blockers;
+
+		bitboard short_moves = (position >> 8) & ~blockers;
+		bitboard long_moves = ((position & Rank7) >> 16) & ~blockers & (short_moves >> 8);
+		bitboard attacks = op_blockers & (((position >> 9) & ~FileA) | ((position >> 7) & ~FileH));
 		bitboard result = short_moves | long_moves | attacks;
 
 		add_piece_moves(position, result, PieceType::PAWN, vec);
