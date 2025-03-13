@@ -73,10 +73,162 @@ TEST(position, position_ctr)
 	EXPECT_STREQ(expected.c_str(), actual.c_str());
 }
 
+TEST(rays, up)
+{
+	/*
+	 * 00001000
+	 * 00001000
+	 * 00001000
+	 * 00001000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 */
+
+	int bit = 27;
+	Leslie::bitboard expected = 0x808080800000000ull;
+	Leslie::bitboard actual = Leslie::Rays[Leslie::Direction::UP][bit];
+	EXPECT_EQ(expected, actual);
+}
+
+TEST(rays, right)
+{
+	/*
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00000111
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 */
+
+	int bit = 27;
+	Leslie::bitboard expected = 0x7000000ull;
+	Leslie::bitboard actual = Leslie::Rays[Leslie::Direction::RIGHT][bit];
+	EXPECT_EQ(expected, actual);
+}
+
+TEST(rays, down)
+{
+	/*
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00001000
+	 * 00001000
+	 * 00001000
+	 */
+
+	int bit = 27;
+	Leslie::bitboard expected = 0x80808ull;
+	Leslie::bitboard actual = Leslie::Rays[Leslie::Direction::DOWN][bit];
+	EXPECT_EQ(expected, actual);
+}
+
+TEST(rays, left)
+{
+	/*
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 11110000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 */
+
+	int bit = 27;
+	Leslie::bitboard expected = 0xF0000000ull;
+	Leslie::bitboard actual = Leslie::Rays[Leslie::Direction::LEFT][bit];
+	EXPECT_EQ(expected, actual);
+}
+
+TEST(rays, up_right)
+{
+	/*
+	 * 00000000
+	 * 00000001
+	 * 00000010
+	 * 00000100
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 */
+
+	int bit = 27;
+	Leslie::bitboard expected = 0x1020400000000ull;
+	Leslie::bitboard actual = Leslie::Rays[Leslie::Direction::UP_RIGHT][bit];
+	EXPECT_EQ(expected, actual);
+}
+
+TEST(rays, up_left)
+{
+	/*
+	 * 10000000
+	 * 01000000
+	 * 00100000
+	 * 00010000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 */
+
+	int bit = 27;
+	Leslie::bitboard expected = 0x8040201000000000ull;
+	Leslie::bitboard actual = Leslie::Rays[Leslie::Direction::UP_LEFT][bit];
+	EXPECT_EQ(expected, actual);
+}
+
+TEST(rays, down_right)
+{
+	/*
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00000100
+	 * 00000010
+	 * 00000001
+	 */
+
+	int bit = 27;
+	Leslie::bitboard expected = 0x40201ull;
+	Leslie::bitboard actual = Leslie::Rays[Leslie::Direction::DOWN_RIGHT][bit];
+	EXPECT_EQ(expected, actual);
+}
+
+TEST(rays, down_left)
+{
+	/*
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00000000
+	 * 00010000
+	 * 00100000
+	 * 01000000
+	 */
+
+	int bit = 27;
+	Leslie::bitboard expected = 0x102040ull;
+	Leslie::bitboard actual = Leslie::Rays[Leslie::Direction::DOWN_LEFT][bit];
+	EXPECT_EQ(expected, actual);
+}
+
 
 int main(int argc, char* argv[])
 {
-	Leslie::init_masks();
+	Leslie::init_rays();
 	Leslie::init_magic();
 
 	::testing::InitGoogleTest(&argc, argv);
