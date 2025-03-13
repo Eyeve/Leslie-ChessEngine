@@ -11,7 +11,7 @@
 
 namespace Leslie
 {
-	std::string to_str(const bitboard board);
+	std::string to_str(bitboard board);
 
 	class Position
 	{

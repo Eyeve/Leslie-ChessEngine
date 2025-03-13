@@ -14,6 +14,7 @@ namespace Leslie
 	static bitboard RookMasks[64];
 	static bitboard BishopMasks[64];
 
+
 	inline void init_magic()
 	{
 		// TODO: move to another file
@@ -27,7 +28,6 @@ namespace Leslie
 		bitboard down_ray = FileA ^ Square::A8;
 		bitboard right_ray = Rank8 ^ Square::A8;
 		bitboard left_ray = Rank1 ^ Square::H1;
-
 
 		for (int sq = 0; sq < 64; ++sq)
 		{
