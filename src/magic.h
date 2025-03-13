@@ -28,6 +28,12 @@ namespace Leslie
 		bitboard right_ray = Rank8 ^ Square::A8;
 		bitboard left_ray = Rank1 ^ Square::H1;
 
+		bitboard up_right_ray = Square::B2 | Square::C3 | Square::D4 | Square::E5 | Square::F6 | Square::G7 | Square::H8;
+		bitboard down_left_ray = Square::G7 | Square::F6 | Square::E5 | Square::D4 | Square::C3 | Square::B2 | Square::A1;
+		bitboard up_left_ray = Square::H2 | Square::G3 | Square::F4 | Square::E5 | Square::D6 | Square::C7 | Square::B8;
+		bitboard down_right_ray = Square::A7 | Square::B6 | Square::C5 | Square::D4 | Square::E3 | Square::F2 | Square::G1;
+
+
 
 		for (int sq = 0; sq < 64; ++sq)
 		{
@@ -36,7 +42,13 @@ namespace Leslie
 			bitboard left = (left_ray & (left_ray >> sq % 8)) << sq;
 			bitboard right = (right_ray & (right_ray << 7 - sq % 8)) >> (63 - sq);
 			RookMasks[sq] = up | down | left | right;
-			// TODO: add diag rays
+
+			bitboard up_right = (up_right_ray & (up_right_ray << (9 * (sq % 8)))) << sq;
+			bitboard down_left = (down_left_ray & (down_left_ray >> (9 * (7 - sq % 8)))) >> (63 - sq);
+			bitboard up_left = (up_left_ray & (up_left_ray << (7 * (sq % 8)))) << sq;
+			bitboard down_right = (down_right_ray & (down_right_ray >> (7 * (7 - sq % 8)))) >> (63 - sq);
+
+			BishopMasks[sq] = up_right | down_left | up_left | down_right;
 		}
 	}
 }

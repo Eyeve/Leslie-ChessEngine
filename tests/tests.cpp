@@ -55,6 +55,25 @@ TEST(general, rook_mask)
 	EXPECT_EQ(expceted, actual);
 }
 
+TEST(general, bishop_mask)
+{
+	/*
+	 * 10000000
+	 * 01000001
+	 * 00100010
+	 * 00010100
+	 * 0000B000
+	 * 00010100
+	 * 00100010
+	 * 01000001
+	 */
+
+	int bit = 27;
+	Leslie::bitboard expceted = 0x8041221400142241ull;
+	Leslie::bitboard actual = Leslie::BishopMasks[bit];
+	EXPECT_EQ(expceted, actual);
+}
+
 TEST(position, position_ctr)
 {
 	Leslie::Position position("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
