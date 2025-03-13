@@ -1,24 +1,15 @@
-#include <unordered_set>
-#include <gtest/gtest.h>
-
-#include "position.h"
 #include "magic.h"
+#include "position.h"
+#include <unordered_set>
+
+#include <gtest/gtest.h>
 
 #define MERGE_ROWS(a, b, c, d, e, f, g, h) a "\n" b "\n" c "\n" d "\n" e "\n" f "\n" g "\n" h "\n"
 
 
 TEST(general, to_str)
 {
-	std::string expected = MERGE_ROWS(
-		"00000000",
-		"10100101",
-		"11111111",
-		"00000000",
-		"11110000",
-		"00000000",
-		"00000000",
-		"11111111"
-	);
+	std::string expected = MERGE_ROWS("00000000", "10100101", "11111111", "00000000", "11110000", "00000000", "00000000", "11111111");
 	Leslie::bitboard row = 0b0000000010100101111111110000000011110000000000000000000011111111;
 	std::string actual = Leslie::to_str(row);
 	EXPECT_STREQ(expected.c_str(), actual.c_str());
@@ -50,9 +41,9 @@ TEST(general, rook_mask)
 	 */
 
 	int bit = 27;
-	Leslie::bitboard expceted = 0x8080808F7080808ull;
+	Leslie::bitboard expected = 0x8080808F7080808ull;
 	Leslie::bitboard actual = Leslie::RookMasks[bit];
-	EXPECT_EQ(expceted, actual);
+	EXPECT_EQ(expected, actual);
 }
 
 TEST(general, bishop_mask)
@@ -69,25 +60,16 @@ TEST(general, bishop_mask)
 	 */
 
 	int bit = 27;
-	Leslie::bitboard expceted = 0x8041221400142241ull;
+	Leslie::bitboard expected = 0x8041221400142241ull;
 	Leslie::bitboard actual = Leslie::BishopMasks[bit];
-	EXPECT_EQ(expceted, actual);
+	EXPECT_EQ(expected, actual);
 }
 
 TEST(position, position_ctr)
 {
 	Leslie::Position position("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
-	std::string expected = MERGE_ROWS(
-		"rnbqkbnr",
-		"pppppppp",
-		"........",
-		"........",
-		"....P...",
-		"........",
-		"PPPP.PPP",
-		"RNBQKBNR"
-	);
-	std::string actual = static_cast<std::string>(position);
+	std::string expected = MERGE_ROWS("rnbqkbnr", "pppppppp", "........", "........", "....P...", "........", "PPPP.PPP", "RNBQKBNR");
+	std::string actual = static_cast< std::string >(position);
 	EXPECT_STREQ(expected.c_str(), actual.c_str());
 }
 
