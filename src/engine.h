@@ -3,6 +3,7 @@
 
 #include "position.h"
 #include "options.h"
+#include "magic.h"
 
 
 namespace Leslie

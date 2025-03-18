@@ -11,9 +11,6 @@ namespace Leslie
 	static std::unordered_map<blockers_mask, bitboard> RookMagic[64];
 	static std::unordered_map<blockers_mask, bitboard> BishopMagic[64];
 
-	static bool IsMasksInitialized = false;
-	static bool IsMagicInitialized = false;
-
 	static bitboard RookMasks[64];
 	static bitboard BishopMasks[64];
 
@@ -24,18 +21,18 @@ namespace Leslie
 	{
 		// TODO: move to another file
 
-        for (bitboard mask : RookMasks)
-        {
-        	bitboard limit = 1ull << std::popcount(mask);
-        	for (bitboard src = 0ull; src < limit; ++src)
-        	{
-        		// bitboard blockers = _pdep_u64(src, mask);
+		for (bitboard mask : RookMasks)
+		{
+			bitboard limit = 1ull << std::popcount(mask);
+			for (bitboard src = 0ull; src < limit; ++src)
+			{
+				// bitboard blockers = _pdep_u64(src, mask);
 
-        	}
-        }
+			}
+		}
 	}
 
-	inline void init_masks()
+	inline void init_rays()
 	{
 		// TODO: move to another file
 
@@ -74,22 +71,22 @@ namespace Leslie
 						if (centerX == sqX)
 						{
 							if (lower) down |= sq;
-                            else if (bigger) up |= sq;
+							else if (bigger) up |= sq;
 						}
 						if (centerY == sqY)
 						{
 							if (lower) right |= sq;
 							else if (bigger) left |= sq;
 						}
-						if (sqY == sqX + (centerY - centerX)) // positive k
-						{
-							if (lower) down_left |= sq;
-							else if (bigger) up_right |= sq;
-						}
-						if (sqY == -sqX + (centerY + centerX)) // negative k
+						if (sqY == sqX + (centerY - centerX))
 						{
 							if (lower) down_right |= sq;
 							else if (bigger) up_left |= sq;
+						}
+						if (sqY == -sqX + (centerY + centerX))
+						{
+							if (lower) down_left |= sq;
+							else if (bigger) up_right |= sq;
 						}
 					}
 				}
@@ -102,12 +99,10 @@ namespace Leslie
 				Rays[Direction::UP_LEFT][i] = up_left;
 				Rays[Direction::DOWN_RIGHT][i] = down_right;
 				Rays[Direction::DOWN_LEFT][i] = down_left;
-                RookMasks[i] = up | right | down | left;
+				RookMasks[i] = up | right | down | left;
 				BishopMasks[i] = up_right | up_left | down_right | down_left;
 			}
 		}
-
-		IsMasksInitialized = true;
 	}
 }
 

@@ -15,6 +15,7 @@ add_executable(${PROJECT_NAME} tests/tests.cpp
         tests/KNP_move_test.cpp
         tests/rays_test.cpp)
 
+
 include_directories(src)
 
 include(FetchContent)
