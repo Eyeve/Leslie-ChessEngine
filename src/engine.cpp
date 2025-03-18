@@ -112,12 +112,16 @@ BitboardType Engine::RayTracing(BitboardType blockers, Direction direction,
                                 int sq_index) {
   BitboardType ray = rays_[std::to_underlying(direction)][sq_index];
   BitboardType ray_blockers = blockers & ray;
+
+    if (ray_blockers == 0ull)
+      return ray;
+
   bool is_least_bit =
       direction == Direction::kLeft | direction == Direction::kUpLeft |
       direction == Direction::kUp | direction == Direction::kUpRight;
   int index = is_least_bit ? std::countr_zero(ray_blockers)
-                           : std::countl_zero(ray_blockers);
-  BitboardType blocked = rays_[std::to_underlying(Direction::kUp)][index];
+                           : 63 - std::countl_zero(ray_blockers);
+  BitboardType blocked = rays_[std::to_underlying(direction)][index];
   return ray ^ blocked;
 }
 

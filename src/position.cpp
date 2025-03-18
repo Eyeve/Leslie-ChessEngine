@@ -118,7 +118,8 @@ Position::AdderFunction Position::PieceToAdder(Piece piece) {
   if (piece.type == PieceType::kBishop) return AddBishopMoves;
   if (piece.type == PieceType::kKnight) return AddKnightMoves;
   if (piece.type == PieceType::kPawn) {
-    return piece.color == Color::kWhite ? &AddWhitePawnMoves : &AddBlackPawnMoves;
+    return piece.color == Color::kWhite ? &AddWhitePawnMoves
+                                        : &AddBlackPawnMoves;
   }
 
   throw std::invalid_argument("NoneType piece found in 'TypeToAdder' func");
@@ -188,20 +189,29 @@ void Position::AddQueenMoves(BitboardType position,
 
 void Position::AddRookMoves(BitboardType position,
                             std::vector<Move> &vec) const {
-  Engine& engine = Engine::Instance();
-  int pos_index = std::countr_zero(position);
+  Engine &engine = Engine::Instance();
+  int index = std::countr_zero(position);
   BitboardType my_blockers = pieces_.GetBlockers(turn_);
   BitboardType op_blockers = pieces_.GetBlockers(GetOpponent());
   BitboardType blockers = my_blockers | op_blockers;
-  BitboardType rook_mask = engine.GetMasks().rook_masks[pos_index];
-  MagicKeyType key = static_cast<MagicKeyType>(_pext_u64(blockers, rook_mask));
-  BitboardType moves = engine.GetMagic().rook_magic[pos_index][key];
+  BitboardType mask = engine.GetMasks().rook_masks[index];
+  MagicKeyType key = static_cast<MagicKeyType>(_pext_u64(blockers, mask));
+  BitboardType moves = engine.GetMagic().rook_magic[index][key] & ~my_blockers;
   AddPieceMoves(position, moves, PieceType::kRook, vec);
 }
 
 void Position::AddBishopMoves(BitboardType position,
                               std::vector<Move> &vec) const {
-  // add_piece_moves(position, result, PieceType::BISHOP, vec);
+  Engine &engine = Engine::Instance();
+  int index = std::countr_zero(position);
+  BitboardType my_blockers = pieces_.GetBlockers(turn_);
+  BitboardType op_blockers = pieces_.GetBlockers(GetOpponent());
+  BitboardType blockers = my_blockers | op_blockers;
+  BitboardType mask = engine.GetMasks().bishop_masks[index];
+  MagicKeyType key = static_cast<MagicKeyType>(_pext_u64(blockers, mask));
+  BitboardType moves =
+      engine.GetMagic().bishop_magic[index][key] & ~my_blockers;
+  AddPieceMoves(position, moves, PieceType::kBishop, vec);
 }
 
 void Position::AddKnightMoves(BitboardType position,
