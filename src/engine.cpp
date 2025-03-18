@@ -103,7 +103,7 @@ void Engine::InitPieceMagic(const MasksType& masks, Direction d1, Direction d2,
       BitboardType r2 = RayTracing(blockers, d2, i);
       BitboardType r3 = RayTracing(blockers, d3, i);
       BitboardType r4 = RayTracing(blockers, d4, i);
-      magic_.rook_magic[i][blockers] = r1 | r2 | r3 | r4;
+      magic_.rook_magic[i][src] = r1 | r2 | r3 | r4;
     }
   }
 }

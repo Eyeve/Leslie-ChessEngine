@@ -1,3 +1,4 @@
+#include <engine.h>
 #include <gtest/gtest.h>
 
 #include <unordered_set>

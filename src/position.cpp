@@ -188,17 +188,15 @@ void Position::AddQueenMoves(BitboardType position,
 
 void Position::AddRookMoves(BitboardType position,
                             std::vector<Move> &vec) const {
-  // const Engine& engine = Engine::Instance();
-  // BitboardType my_blockers = pieces_.GetBlockers(turn_);
-  // BitboardType op_blockers = pieces_.GetBlockers(GetOpponent());
-  // BitboardType blockers = my_blockers | op_blockers;
-  // BitboardType rook_mask = engine.[std::countr_zero(position)];
-  //
-  // auto filtered_blockers =
-  //     static_cast<MagicKeyType>(_pext_u64(blockers, rook_mask));
-  // BitboardType moves =
-  // engine.GetMagic()[std::countr_zero(position)][filtered_blockers];
-  // add_piece_moves(position, moves, PieceType::kRook, vec);
+  Engine& engine = Engine::Instance();
+  int pos_index = std::countr_zero(position);
+  BitboardType my_blockers = pieces_.GetBlockers(turn_);
+  BitboardType op_blockers = pieces_.GetBlockers(GetOpponent());
+  BitboardType blockers = my_blockers | op_blockers;
+  BitboardType rook_mask = engine.GetMasks().rook_masks[pos_index];
+  MagicKeyType key = static_cast<MagicKeyType>(_pext_u64(blockers, rook_mask));
+  BitboardType moves = engine.GetMagic().rook_magic[pos_index][key];
+  AddPieceMoves(position, moves, PieceType::kRook, vec);
 }
 
 void Position::AddBishopMoves(BitboardType position,
