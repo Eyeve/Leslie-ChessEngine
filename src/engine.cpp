@@ -44,11 +44,11 @@ void Engine::InitMasks() {
 		 * x <-----o
    */
   
-  for (int centerX = 0; centerX < 8; ++centerX)
+  for (int center_x = 0; center_x < 8; ++center_x)
   {
-    for (int centerY = 0; centerY < 8; ++centerY)
+    for (int center_y = 0; center_y < 8; ++center_y)
     {
-      int i = centerX + centerY * 8;
+      int i = center_x + center_y * 8;
       const BitboardType center = 1ull << i;
       BitboardType up = 0ull;
       BitboardType right = 0ull;
@@ -59,30 +59,30 @@ void Engine::InitMasks() {
       BitboardType down_right = 0ull;
       BitboardType down_left = 0ull;
 
-      for (int sqX = 0; sqX < 8; ++sqX)
+      for (int sq_x = 0; sq_x < 8; ++sq_x)
       {
-        for (int sqY = 0; sqY < 8; ++sqY)
+        for (int sq_y = 0; sq_y < 8; ++sq_y)
         {
-          BitboardType sq = 1ull << (sqX + sqY * 8);
+          BitboardType sq = 1ull << (sq_x + sq_y * 8);
           const bool lower = sq < center;
           const bool bigger = sq > center;
 
-          if (centerX == sqX)
+          if (center_x == sq_x)
           {
             if (lower) down |= sq;
             else if (bigger) up |= sq;
           }
-          if (centerY == sqY)
+          if (center_y == sq_y)
           {
             if (lower) right |= sq;
             else if (bigger) left |= sq;
           }
-          if (sqY == sqX + (centerY - centerX))
+          if (sq_y == sq_x + (center_y - center_x))
           {
             if (lower) down_right |= sq;
             else if (bigger) up_left |= sq;
           }
-          if (sqY == -sqX + (centerY + centerX))
+          if (sq_y == -sq_x + (center_y + center_x))
           {
             if (lower) down_left |= sq;
             else if (bigger) up_right |= sq;
