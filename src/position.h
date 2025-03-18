@@ -24,6 +24,9 @@ class Position {
   void GetMoves(std::vector<Move>& vec) const;
 
  private:
+  using AdderFunction = void (Position::*)(BitboardType,
+                                           std::vector<Move>&) const;
+
   PiecesContainer pieces_;
 
   BitboardType en_passant_;
@@ -38,28 +41,20 @@ class Position {
 
   static Piece CharToPiece(char c);
   static char PieceToChar(Piece piece);
+  static AdderFunction PieceToAdder(Piece piece);
 
   Color GetOpponent() const;
 
-  void AddMoves(void (Position::*adder)(BitboardType, Color, std::vector<Move>&)
-                    const,
-                BitboardType pieces, Color color, std::vector<Move>& vec) const;
+  void AddMoves(AdderFunction adder, BitboardType pieces,
+                std::vector<Move>& vec) const;
   void AddPieceMoves(BitboardType from, BitboardType to, PieceType type,
                      std::vector<Move>& vec) const;
 
-  void AddKingMoves(BitboardType position, Color color,
-                    std::vector<Move>& vec) const;
-  void AddQueenMoves(BitboardType position, Color color,
-                     std::vector<Move>& vec) const;
-  void AddRookMoves(BitboardType position, Color color,
-                    std::vector<Move>& vec) const;
-  void AddBishopMoves(BitboardType position, Color color,
-                      std::vector<Move>& vec) const;
-  void AddKnightMoves(BitboardType position, Color color,
-                      std::vector<Move>& vec) const;
-  void AddPawnMoves(BitboardType position, Color color,
-                    std::vector<Move>& vec) const;
-
+  void AddKingMoves(BitboardType position, std::vector<Move>& vec) const;
+  void AddQueenMoves(BitboardType position, std::vector<Move>& vec) const;
+  void AddRookMoves(BitboardType position, std::vector<Move>& vec) const;
+  void AddBishopMoves(BitboardType position, std::vector<Move>& vec) const;
+  void AddKnightMoves(BitboardType position, std::vector<Move>& vec) const;
   void AddWhitePawnMoves(BitboardType position, std::vector<Move>& vec) const;
   void AddBlackPawnMoves(BitboardType position, std::vector<Move>& vec) const;
 };

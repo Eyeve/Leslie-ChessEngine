@@ -111,6 +111,19 @@ char Position::PieceToChar(const Piece piece) {
   return is_upper ? static_cast<char>(toupper(c)) : c;
 }
 
+Position::AdderFunction Position::PieceToAdder(Piece piece) {
+  if (piece.type == PieceType::kKing) return AddKingMoves;
+  if (piece.type == PieceType::kQueen) return AddQueenMoves;
+  if (piece.type == PieceType::kRook) return AddRookMoves;
+  if (piece.type == PieceType::kBishop) return AddBishopMoves;
+  if (piece.type == PieceType::kKnight) return AddKnightMoves;
+  if (piece.type == PieceType::kPawn) {
+    return piece.color == Color::kWhite ? &AddWhitePawnMoves : &AddBlackPawnMoves;
+  }
+
+  throw std::invalid_argument("NoneType piece found in 'TypeToAdder' func");
+}
+
 Position::operator std::string() const {
   char str[Board::GetStrBoardSize()];
   char *ptr = str;
@@ -132,18 +145,17 @@ void Position::GetMoves(std::vector<Move> &vec) const {
   vec.clear();
 
   for (PieceType piece_type : kPieceTypes) {
-    BitboardType bitboard = pieces_.GetBitboard({piece_type, turn_});
-    AddMoves(&Position::AddKingMoves, bitboard, turn_, vec);
+    Piece piece(piece_type, turn_);
+    BitboardType bitboard = pieces_.GetBitboard(piece);
+    AddMoves(PieceToAdder(piece), bitboard, vec);
   }
 }
 
-void Position::AddMoves(void (Position::*adder)(BitboardType, Color,
-                                                std::vector<Move> &) const,
-                        BitboardType pieces, Color color,
+void Position::AddMoves(AdderFunction adder, BitboardType pieces,
                         std::vector<Move> &vec) const {
   while (pieces) {
     BitboardType position = 1ull << std::countr_zero(pieces);
-    (this->*adder)(position, color, vec);
+    (this->*adder)(position, vec);
     pieces ^= position;
   }
 }
@@ -157,7 +169,7 @@ void Position::AddPieceMoves(BitboardType from, BitboardType to, PieceType type,
   }
 }
 
-void Position::AddKingMoves(BitboardType position, Color color,
+void Position::AddKingMoves(BitboardType position,
                             std::vector<Move> &vec) const {
   BitboardType my_blockers = pieces_.GetBlockers(turn_);
 
@@ -171,10 +183,10 @@ void Position::AddKingMoves(BitboardType position, Color color,
   AddPieceMoves(position, result, PieceType::kKing, vec);
 }
 
-void Position::AddQueenMoves(BitboardType position, Color color,
+void Position::AddQueenMoves(BitboardType position,
                              std::vector<Move> &vec) const {}
 
-void Position::AddRookMoves(BitboardType position, Color color,
+void Position::AddRookMoves(BitboardType position,
                             std::vector<Move> &vec) const {
   // const Engine& engine = Engine::Instance();
   // BitboardType my_blockers = pieces_.GetBlockers(turn_);
@@ -189,12 +201,12 @@ void Position::AddRookMoves(BitboardType position, Color color,
   // add_piece_moves(position, moves, PieceType::kRook, vec);
 }
 
-void Position::AddBishopMoves(BitboardType position, Color color,
+void Position::AddBishopMoves(BitboardType position,
                               std::vector<Move> &vec) const {
   // add_piece_moves(position, result, PieceType::BISHOP, vec);
 }
 
-void Position::AddKnightMoves(BitboardType position, Color color,
+void Position::AddKnightMoves(BitboardType position,
                               std::vector<Move> &vec) const {
   BitboardType my_blockers = pieces_.GetBlockers(turn_);
 
@@ -206,14 +218,6 @@ void Position::AddKnightMoves(BitboardType position, Color color,
       (l1 | r1) << 16 | (l1 | r1) >> 16 | (l2 | r2) << 8 | (l2 | r2) >> 8;
   result &= ~my_blockers;
   AddPieceMoves(position, result, PieceType::kKnight, vec);
-}
-
-void Position::AddPawnMoves(BitboardType position, Color color,
-                            std::vector<Move> &vec) const {
-  if (color == Color::kWhite)
-    AddWhitePawnMoves(position, vec);
-  else
-    AddBlackPawnMoves(position, vec);
 }
 
 void Position::AddWhitePawnMoves(BitboardType position,
