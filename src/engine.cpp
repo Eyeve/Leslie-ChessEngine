@@ -23,9 +23,9 @@ Magic& Engine::GetMagic() { return magic_; }
 const Magic& Engine::GetMagic() const { return magic_; }
 
 void Engine::InitMagic() {
-  InitPieceMagic(masks_.rook_masks, Direction::kUp, Direction::kRight,
+  InitPieceMagic(masks_.rook_masks, magic_.rook_magic, Direction::kUp, Direction::kRight,
                  Direction::kDown, Direction::kLeft);
-  InitPieceMagic(masks_.bishop_masks, Direction::kUpRight, Direction::kUpLeft,
+  InitPieceMagic(masks_.bishop_masks, magic_.bishop_magic, Direction::kUpRight, Direction::kUpLeft,
                  Direction::kDownRight, Direction::kDownLeft);
 }
 
@@ -91,7 +91,7 @@ void Engine::InitMasks() {
   }
 }
 
-void Engine::InitPieceMagic(const MasksType& masks, Direction d1, Direction d2,
+void Engine::InitPieceMagic(const MasksType& masks, MagicsType& magic, Direction d1, Direction d2,
                             Direction d3, Direction d4) {
   for (int i = 0; i < 64; ++i) {
     BitboardType mask = masks[i];
@@ -103,7 +103,7 @@ void Engine::InitPieceMagic(const MasksType& masks, Direction d1, Direction d2,
       BitboardType r2 = RayTracing(blockers, d2, i);
       BitboardType r3 = RayTracing(blockers, d3, i);
       BitboardType r4 = RayTracing(blockers, d4, i);
-      magic_.rook_magic[i][src] = r1 | r2 | r3 | r4;
+      magic[i][src] = r1 | r2 | r3 | r4;
     }
   }
 }

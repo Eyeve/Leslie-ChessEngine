@@ -49,7 +49,7 @@ class Engine {
   void InitMagic();
   void InitMasks();
 
-  void InitPieceMagic(const MasksType& masks, Direction d1, Direction d2,
+  void InitPieceMagic(const MasksType& masks, MagicsType& magic, Direction d1, Direction d2,
                       Direction d3, Direction d4);
   BitboardType RayTracing(BitboardType blockers, Direction direction,
                           int sq_index);
