@@ -1,68 +1,68 @@
-#ifndef BOARD_H
-#define BOARD_H
+#ifndef LESLIE_BOARD_H_
+#define LESLIE_BOARD_H_
 
 #include <string>
 #include <vector>
 
 #include "move.h"
-#include "types.h"
+#include "pieces_container.h"
 #include "position.h"
+#include "types.h"
 
+namespace leslie {
 
-namespace Leslie
-{
-	std::string to_str(bitboard board);
+std::string ToStr(BitboardType bitboard);
 
-	class Position
-	{
-	  public:
-		explicit Position(std::string fen);
-		Position(const Position& pos) = default;
+class Position {
+ public:
+  explicit Position(const std::string& fen);
+  Position(const Position& pos) = default;
 
-		explicit operator std::string() const;
+  explicit operator std::string() const;
 
-		Position make_moves(Move* moves, size_type size) const;
-		void get_moves(std::vector< Move >& vec) const;
+  Position MakeMoves(Move* moves, SizeType size) const;
+  void GetMoves(std::vector<Move>& vec) const;
 
-	  private:
-		bitboard kings[2];
-		bitboard queens[2];
-		bitboard rooks[2];
-		bitboard bishops[2];
-		bitboard knights[2];
-		bitboard pawns[2];
+ private:
+  PiecesContainer pieces_;
 
-		bitboard enPassantCapture;
-		counter rule50;
-		counter movesCount;
+  BitboardType en_passant_;
+  CounterType rule_50_;
+  CounterType moves_;
 
-		Color turn;
-		bool whiteKingCastle;
-		bool whiteQueenCastle;
-		bool blackKingCastle;
-		bool blackQueenCastle;
+  Color turn_;
+  bool w_king_castle;
+  bool w_queen_castle;
+  bool b_king_castle;
+  bool b_queen_castle;
 
-        char get_piece_char(bitboard place) const;
-		bitboard* get_piece_bitboards(char c);
+  static Piece CharToPiece(char c);
+  static char PieceToChar(Piece piece);
 
-		Color get_opponent() const;
-		bitboard get_blockers(Color color) const;
+  Color GetOpponent() const;
 
-		void add_moves(void (Position::*adder)(bitboard, std::vector< Move >&) const, bitboard pieces, std::vector< Move >& vec) const;
-		void add_piece_moves(bitboard from, bitboard to, PieceType type, std::vector< Move >& vec) const;
+  void AddMoves(void (Position::*adder)(BitboardType, Color, std::vector<Move>&)
+                    const,
+                BitboardType pieces, Color color, std::vector<Move>& vec) const;
+  void AddPieceMoves(BitboardType from, BitboardType to, PieceType type,
+                     std::vector<Move>& vec) const;
 
-		void add_king_moves(bitboard position, std::vector< Move >& vec) const;
-		void add_queen_moves(bitboard position, std::vector< Move >& vec) const;
-		void add_rook_moves(bitboard position, std::vector< Move >& vec) const;
-		void add_bishop_moves(bitboard position, std::vector< Move >& vec) const;
-		void add_knight_moves(bitboard position, std::vector< Move >& vec) const;
-		void add_white_pawn_moves(bitboard position, std::vector< Move >& vec) const;
-		void add_black_pawn_moves(bitboard position, std::vector< Move >& vec) const;
+  void AddKingMoves(BitboardType position, Color color,
+                    std::vector<Move>& vec) const;
+  void AddQueenMoves(BitboardType position, Color color,
+                     std::vector<Move>& vec) const;
+  void AddRookMoves(BitboardType position, Color color,
+                    std::vector<Move>& vec) const;
+  void AddBishopMoves(BitboardType position, Color color,
+                      std::vector<Move>& vec) const;
+  void AddKnightMoves(BitboardType position, Color color,
+                      std::vector<Move>& vec) const;
+  void AddPawnMoves(BitboardType position, Color color,
+                    std::vector<Move>& vec) const;
 
-		inline static bitboard up_one(bitboard board) { return board << 8; }
-		inline static bitboard down_one(bitboard board) { return board >> 8; }
-	};
-
-}
+  void AddWhitePawnMoves(BitboardType position, std::vector<Move>& vec) const;
+  void AddBlackPawnMoves(BitboardType position, std::vector<Move>& vec) const;
+};
+}  // namespace leslie
 
 #endif

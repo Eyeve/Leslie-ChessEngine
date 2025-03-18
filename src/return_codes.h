@@ -1,5 +1,5 @@
-#ifndef RETURN_CODES_H
-#define RETURN_CODES_H
+#ifndef LESLIE_RETURN_CODES_H_
+#define LESLIE_RETURN_CODES_H_
 
 #define SUCCESS 0
 #define FAILURE 1

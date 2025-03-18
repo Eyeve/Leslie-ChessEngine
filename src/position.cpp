@@ -1,236 +1,250 @@
 #include "position.h"
 
-#include <bit>
-#include <magic.h>
-#include <sstream>
+#include <engine.h>
 #include <immintrin.h>
 
+#include <bit>
+#include <sstream>
+#include <utility>
 
-namespace Leslie
-{
-	std::string to_str(const bitboard board)
-	{
-		char str[Board::StringFormatSize];
-		char *ptr = str;
+#include "board.h"
 
-		for (bitboard i = Board::start(); Board::is_end(i); i = Board::next(i))
-		{
-			*ptr++ = board & i ? '1' : '0';
-			if (Board::is_endl(i))
-				*ptr++ = '\n';
-		}
-		*ptr = '\0';
-		return std::string{ str };
-	}
+namespace leslie {
 
-	Position::Position(std::string fen) :
-		kings{ 0ull, 0ull }, queens{ 0ull, 0ull }, rooks{ 0ull, 0ull }, bishops{ 0ull, 0ull }, knights{ 0ull, 0ull },
-		pawns{ 0ull, 0ull }, enPassantCapture{ 0ull }, rule50{ 0 }, movesCount{ 0 }, turn{ Color::WHITE },
-		whiteKingCastle{ false }, whiteQueenCastle{ false }, blackKingCastle{ false }, blackQueenCastle{ false }
-	{
-		std::istringstream iss(fen);
-		std::string boardPart, turnPart, castlingPart, enPassantPart;
+std::string ToStr(const BitboardType bitboard) {
+  char str[Board::GetStrBoardSize()];
+  char *ptr = str;
 
-		iss >> boardPart >> turnPart >> castlingPart >> enPassantPart >> rule50 >> movesCount;
-
-		bitboard i = Board::start();
-		for (char c : boardPart)
-		{
-			if (c == '/')
-				continue;
-
-			if (isdigit(c))
-			{
-				i = Board::shift(i, c - '0');
-				continue;
-			}
-
-			bitboard *pieceBitboards = get_piece_bitboards(c);
-			Color color = isupper(c) ? WHITE : BLACK;
-
-			if (pieceBitboards != nullptr)
-				pieceBitboards[color] |= i;
-			i = Board::next(i);
-		}
-
-		turn = (turnPart == "w") ? WHITE : BLACK;
-
-		whiteKingCastle = castlingPart.find('K') != std::string::npos;
-		whiteQueenCastle = castlingPart.find('Q') != std::string::npos;
-		blackKingCastle = castlingPart.find('k') != std::string::npos;
-		blackQueenCastle = castlingPart.find('q') != std::string::npos;
-
-		if (enPassantPart != "-")
-		{
-			int epFile = enPassantPart[0] - 'a';
-			int epRank = enPassantPart[1] - '1';
-			enPassantCapture = (1ULL << (epRank * 8 + epFile));
-		}
-	}
-
-	bitboard* Position::get_piece_bitboards(char c)
-	{
-		switch (tolower(c))
-		{
-		case 'k': return kings;
-		case 'q': return queens;
-		case 'r': return rooks;
-		case 'b': return bishops;
-		case 'n': return knights;
-		case 'p': return pawns;
-		default:
-			// TODO: add debug output message
-			return nullptr;
-		}
-	}
-
-
-	char Position::get_piece_char(bitboard location) const
-	{
-		if (kings[WHITE] & location) return 'K';
-		if (kings[BLACK] & location) return 'k';
-		if (queens[WHITE] & location) return 'Q';
-		if (queens[BLACK] & location) return 'q';
-		if (rooks[WHITE] & location) return 'R';
-		if (rooks[BLACK] & location) return 'r';
-		if (bishops[WHITE] & location) return 'B';
-		if (bishops[BLACK] & location) return 'b';
-		if (knights[WHITE] & location) return 'N';
-		if (knights[BLACK] & location) return 'n';
-		if (pawns[WHITE] & location) return 'P';
-		if (pawns[BLACK] & location) return 'p';
-		return '.';
-	}
-
-	Position::operator std::string() const
-	{
-		char str[Board::StringFormatSize];
-		char *ptr = str;
-
-		for (bitboard i = Board::start(); Board::is_end(i); i = Board::next(i)) {
-			*ptr++ = get_piece_char(i);
-			if (Board::is_endl(i))
-				*ptr++ = '\n';
-		}
-		*ptr = '\0';
-		return std::string{ str };
-	}
-
-	Color Position::get_opponent() const
-	{
-		return static_cast<Color>(static_cast<int>(turn) ^ 0b1);
-	}
-
-	bitboard Position::get_blockers(Color color) const
-	{
-		return kings[color] | queens[color] | rooks[color] | bishops[color] | knights[color] | pawns[color];
-	}
-
-	void Position::get_moves(std::vector< Move > &vec) const
-	{
-		vec.clear();
-
-		add_moves(&Position::add_king_moves, kings[turn], vec);
-		add_moves(&Position::add_queen_moves, queens[turn], vec);
-		add_moves(&Position::add_rook_moves, rooks[turn], vec);
-		add_moves(&Position::add_bishop_moves, bishops[turn], vec);
-		add_moves(&Position::add_knight_moves, knights[turn], vec);
-		if (turn == Color::WHITE)
-			add_moves(&Position::add_white_pawn_moves, pawns[turn], vec);
-		else
-			add_moves(&Position::add_black_pawn_moves, pawns[turn], vec);
-	}
-
-	void Position::add_moves(void (Position::*adder)(bitboard, std::vector< Move > &) const, bitboard pieces, std::vector< Move > &vec) const
-	{
-		while (pieces)
-		{
-			bitboard position = 1ull << std::countr_zero(pieces);
-			(this->*adder)(position, vec);
-			pieces ^= position;
-		}
-	}
-
-	void Position::add_piece_moves(bitboard from, bitboard to, PieceType type, std::vector< Move > &vec) const
-	{
-		while (to)
-		{
-			bitboard position = 1ull << std::countr_zero(to);
-			vec.emplace_back(type, from, position);
-			to ^= position;
-		}
-	}
-
-	void Position::add_king_moves(bitboard position, std::vector< Move > &vec) const
-	{
-		bitboard my_blockers = get_blockers(turn);
-
-		bitboard a = (((position << 7) | (position >> 9) | (position >> 1)) & (~Leslie::FileA));
-		bitboard b = (((position >> 7) | (position << 9) | (position << 1)) & (~Leslie::FileH));
-		bitboard c = ((position >> 8) | (position << 8));
-		bitboard result = a | b | c;
-		result &= ~my_blockers;
-		add_piece_moves(position, result, PieceType::KING, vec);
-	}
-
-	void Position::add_queen_moves(bitboard position, std::vector< Move > &vec) const {}
-
-	void Position::add_rook_moves(bitboard position, std::vector< Move > &vec) const
-	{
-		bitboard my_blockers = get_blockers(turn);
-		bitboard op_blockers = get_blockers(get_opponent());
-		bitboard blockers = my_blockers | op_blockers;
-		bitboard rook_mask = RookMasks[std::countr_zero(position)];
-
-		auto filtered_blockers = static_cast<blockers_mask>(_pext_u64(blockers, rook_mask));
-		bitboard moves = RookMagic[std::countr_zero(position)][filtered_blockers];
-		add_piece_moves(position, moves, PieceType::ROOK, vec);
-	}
-
-	void Position::add_bishop_moves(bitboard position, std::vector< Move > &vec) const
-	{
-		// add_piece_moves(position, result, PieceType::BISHOP, vec);
-	}
-
-	void Position::add_knight_moves(bitboard position, std::vector< Move > &vec) const
-	{
-		bitboard my_blockers = get_blockers(turn);
-
-		bitboard l1 = (position >> 1) & ~Leslie::FileA;
-		bitboard l2 = (position >> 2) & ~(Leslie::FileA | Leslie::FileB);
-		bitboard r1 = (position << 1) & ~Leslie::FileH;
-		bitboard r2 = (position << 2) & ~(Leslie::FileH | Leslie::FileG);
-		bitboard result = (l1 | r1) << 16 | (l1 | r1) >> 16 | (l2 | r2) << 8 | (l2 | r2) >> 8;
-		result &= ~my_blockers;
-		add_piece_moves(position, result, PieceType::KNIGHT, vec);
-	}
-
-	void Position::add_white_pawn_moves(bitboard position, std::vector< Move > &vec) const
-	{
-		bitboard my_blockers = get_blockers(turn);
-		bitboard op_blockers = get_blockers(get_opponent());
-		bitboard blockers = my_blockers | op_blockers;
-
-		bitboard short_moves = (position << 8) & ~blockers;
-		bitboard long_moves = ((position & Rank2) << 16) & ~blockers & (short_moves << 8);
-		bitboard attacks = op_blockers & (((position << 9) & ~FileH) | ((position << 7) & ~FileA));
-		bitboard result = short_moves | long_moves | attacks;
-
-		add_piece_moves(position, result, PieceType::PAWN, vec);
-	}
-
-	void Position::add_black_pawn_moves(bitboard position, std::vector< Move > &vec) const
-	{
-
-		bitboard my_blockers = get_blockers(turn);
-		bitboard op_blockers = get_blockers(get_opponent());
-		bitboard blockers = my_blockers | op_blockers;
-
-		bitboard short_moves = (position >> 8) & ~blockers;
-		bitboard long_moves = ((position & Rank7) >> 16) & ~blockers & (short_moves >> 8);
-		bitboard attacks = op_blockers & (((position >> 9) & ~FileA) | ((position >> 7) & ~FileH));
-		bitboard result = short_moves | long_moves | attacks;
-
-		add_piece_moves(position, result, PieceType::PAWN, vec);
-	}
+  for (BitboardType sq = Board::Start(); Board::IsEnd(sq);
+       sq = Board::Next(sq)) {
+    *ptr++ = bitboard & sq ? '1' : '0';
+    if (Board::IsEndLine(sq)) *ptr++ = '\n';
+  }
+  *ptr = '\0';
+  return std::string{str};
 }
+
+Position::Position(const std::string &fen)
+    : pieces_(),
+      en_passant_(),
+      rule_50_(),
+      moves_(),
+      turn_(),
+      w_king_castle(),
+      w_queen_castle(),
+      b_king_castle(),
+      b_queen_castle() {
+  // TODO: add checks for invalid input
+  std::istringstream iss(fen);
+  std::string board_part, turn_part, castling_part, en_passant_part;
+
+  iss >> board_part >> turn_part >> castling_part >> en_passant_part >>
+      rule_50_ >> moves_;
+
+  BitboardType i = Board::Start();
+  for (const char c : board_part) {
+    if (c == '/') continue;
+
+    if (isdigit(c)) {
+      i = Board::Shift(i, c - '0');
+      continue;
+    }
+
+    Piece piece = CharToPiece(c);
+    BitboardType &bitboard = pieces_.GetBitboard(piece);
+
+    bitboard |= i;
+    i = Board::Next(i);
+  }
+
+  turn_ = (turn_part == "w") ? Color::kWhite : Color::kBlack;
+
+  w_king_castle = castling_part.find('K') != std::string::npos;
+  w_queen_castle = castling_part.find('Q') != std::string::npos;
+  b_king_castle = castling_part.find('k') != std::string::npos;
+  b_queen_castle = castling_part.find('q') != std::string::npos;
+
+  if (en_passant_part != "-") {
+    int file = 'h' - en_passant_part[0];
+    int rank = en_passant_part[1] - '1';
+    en_passant_ = (1ULL << (rank * 8 + file));
+  }
+}
+
+Piece Position::CharToPiece(const char c) {
+  Color color = isupper(c) ? Color::kWhite : Color::kBlack;
+  PieceType piece_type = PieceType::kNone;
+
+  if (c == 'k')
+    piece_type = PieceType::kKing;
+  else if (c == 'q')
+    piece_type = PieceType::kQueen;
+  else if (c == 'r')
+    piece_type = PieceType::kRook;
+  else if (c == 'b')
+    piece_type = PieceType::kBishop;
+  else if (c == 'n')
+    piece_type = PieceType::kKnight;
+  else if (c == 'p')
+    piece_type = PieceType::kPawn;
+  // TODO: add debug output message
+  return Piece(piece_type, color);
+}
+
+char Position::PieceToChar(const Piece piece) {
+  bool is_upper = piece.color == Color::kWhite;
+  char c = '.';
+
+  if (piece.type == PieceType::kKing)
+    c = 'k';
+  else if (piece.type == PieceType::kQueen)
+    c = 'q';
+  else if (piece.type == PieceType::kRook)
+    c = 'r';
+  else if (piece.type == PieceType::kBishop)
+    c = 'b';
+  else if (piece.type == PieceType::kKnight)
+    c = 'n';
+  else if (piece.type == PieceType::kPawn)
+    c = 'p';
+  return is_upper ? static_cast<char>(toupper(c)) : c;
+}
+
+Position::operator std::string() const {
+  char str[Board::GetStrBoardSize()];
+  char *ptr = str;
+
+  for (BitboardType sq = Board::Start(); Board::IsEnd(sq);
+       sq = Board::Next(sq)) {
+    *ptr++ = PieceToChar(pieces_.WhatPieceOnSquare(sq));
+    if (Board::IsEndLine(sq)) *ptr++ = '\n';
+  }
+  *ptr = '\0';
+  return std::string{str};
+}
+
+Color Position::GetOpponent() const {
+  return static_cast<Color>(std::to_underlying(turn_) ^ 0b1);
+}
+
+void Position::GetMoves(std::vector<Move> &vec) const {
+  vec.clear();
+
+  for (PieceType piece_type : kPieceTypes) {
+    BitboardType bitboard = pieces_.GetBitboard({piece_type, turn_});
+    AddMoves(&Position::AddKingMoves, bitboard, turn_, vec);
+  }
+}
+
+void Position::AddMoves(void (Position::*adder)(BitboardType, Color,
+                                                std::vector<Move> &) const,
+                        BitboardType pieces, Color color,
+                        std::vector<Move> &vec) const {
+  while (pieces) {
+    BitboardType position = 1ull << std::countr_zero(pieces);
+    (this->*adder)(position, color, vec);
+    pieces ^= position;
+  }
+}
+
+void Position::AddPieceMoves(BitboardType from, BitboardType to, PieceType type,
+                             std::vector<Move> &vec) const {
+  while (to) {
+    BitboardType position = 1ull << std::countr_zero(to);
+    vec.emplace_back(type, from, position);
+    to ^= position;
+  }
+}
+
+void Position::AddKingMoves(BitboardType position, Color color,
+                            std::vector<Move> &vec) const {
+  BitboardType my_blockers = pieces_.GetBlockers(turn_);
+
+  BitboardType a =
+      (((position << 7) | (position >> 9) | (position >> 1)) & (~kFileA));
+  BitboardType b =
+      (((position >> 7) | (position << 9) | (position << 1)) & (~kFileH));
+  BitboardType c = ((position >> 8) | (position << 8));
+  BitboardType result = a | b | c;
+  result &= ~my_blockers;
+  AddPieceMoves(position, result, PieceType::kKing, vec);
+}
+
+void Position::AddQueenMoves(BitboardType position, Color color,
+                             std::vector<Move> &vec) const {}
+
+void Position::AddRookMoves(BitboardType position, Color color,
+                            std::vector<Move> &vec) const {
+  // const Engine& engine = Engine::Instance();
+  // BitboardType my_blockers = pieces_.GetBlockers(turn_);
+  // BitboardType op_blockers = pieces_.GetBlockers(GetOpponent());
+  // BitboardType blockers = my_blockers | op_blockers;
+  // BitboardType rook_mask = engine.[std::countr_zero(position)];
+  //
+  // auto filtered_blockers =
+  //     static_cast<MagicKeyType>(_pext_u64(blockers, rook_mask));
+  // BitboardType moves =
+  // engine.GetMagic()[std::countr_zero(position)][filtered_blockers];
+  // add_piece_moves(position, moves, PieceType::kRook, vec);
+}
+
+void Position::AddBishopMoves(BitboardType position, Color color,
+                              std::vector<Move> &vec) const {
+  // add_piece_moves(position, result, PieceType::BISHOP, vec);
+}
+
+void Position::AddKnightMoves(BitboardType position, Color color,
+                              std::vector<Move> &vec) const {
+  BitboardType my_blockers = pieces_.GetBlockers(turn_);
+
+  BitboardType l1 = (position >> 1) & ~kFileA;
+  BitboardType l2 = (position >> 2) & ~(kFileA | kFileB);
+  BitboardType r1 = (position << 1) & ~kFileH;
+  BitboardType r2 = (position << 2) & ~(kFileH | kFileG);
+  BitboardType result =
+      (l1 | r1) << 16 | (l1 | r1) >> 16 | (l2 | r2) << 8 | (l2 | r2) >> 8;
+  result &= ~my_blockers;
+  AddPieceMoves(position, result, PieceType::kKnight, vec);
+}
+
+void Position::AddPawnMoves(BitboardType position, Color color,
+                            std::vector<Move> &vec) const {
+  if (color == Color::kWhite)
+    AddWhitePawnMoves(position, vec);
+  else
+    AddBlackPawnMoves(position, vec);
+}
+
+void Position::AddWhitePawnMoves(BitboardType position,
+                                 std::vector<Move> &vec) const {
+  BitboardType my_blockers = pieces_.GetBlockers(Color::kWhite);
+  BitboardType op_blockers = pieces_.GetBlockers(Color::kBlack);
+  BitboardType blockers = my_blockers | op_blockers;
+
+  BitboardType short_moves = (position << 8) & ~blockers;
+  BitboardType long_moves =
+      ((position & kRank2) << 16) & ~blockers & (short_moves << 8);
+  BitboardType attacks =
+      op_blockers & (((position << 9) & ~kFileH) | ((position << 7) & ~kFileA));
+  BitboardType result = short_moves | long_moves | attacks;
+
+  AddPieceMoves(position, result, PieceType::kPawn, vec);
+}
+
+void Position::AddBlackPawnMoves(BitboardType position,
+                                 std::vector<Move> &vec) const {
+  BitboardType my_blockers = pieces_.GetBlockers(Color::kBlack);
+  BitboardType op_blockers = pieces_.GetBlockers(Color::kWhite);
+  BitboardType blockers = my_blockers | op_blockers;
+
+  BitboardType short_moves = (position >> 8) & ~blockers;
+  BitboardType long_moves =
+      ((position & kRank7) >> 16) & ~blockers & (short_moves >> 8);
+  BitboardType attacks =
+      op_blockers & (((position >> 9) & ~kFileA) | ((position >> 7) & ~kFileH));
+  BitboardType result = short_moves | long_moves | attacks;
+
+  AddPieceMoves(position, result, PieceType::kPawn, vec);
+}
+
+}  // namespace leslie

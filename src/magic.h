@@ -1,109 +1,78 @@
-#ifndef MAGIC_H
-#define MAGIC_H
+#ifndef LESLIE_MAGIC_H_
+#define LESLIE_MAGIC_H_
 
+#include <immintrin.h>
+
+#include <bit>
 #include <unordered_map>
 
 #include "types.h"
 
+namespace leslie {
 
-namespace Leslie
-{
-	static std::unordered_map<blockers_mask, bitboard> RookMagic[64];
-	static std::unordered_map<blockers_mask, bitboard> BishopMagic[64];
-
-	static bitboard RookMasks[64];
-	static bitboard BishopMasks[64];
-
-	static bitboard Rays[8][64];
+static BitboardType Rays[8][64];
 
 
-	inline void init_magic()
-	{
-		// TODO: move to another file
-
-		for (bitboard mask : RookMasks)
-		{
-			bitboard limit = 1ull << std::popcount(mask);
-			for (bitboard src = 0ull; src < limit; ++src)
-			{
-				// bitboard blockers = _pdep_u64(src, mask);
-
-			}
-		}
-	}
-
-	inline void init_rays()
-	{
-		// TODO: move to another file
-
-		/*
-		 *         y
-		 *         ^
-		 *    0000 |
-		 *    0000 |
-		 *    0000 |
-		 * x <-----o
-		 */
-
-		for (int centerX = 0; centerX < 8; ++centerX)
-		{
-			for (int centerY = 0; centerY < 8; ++centerY)
-			{
-				int i = centerX + centerY * 8;
-				const bitboard center = 1ull << i;
-				bitboard up = 0ull;
-				bitboard right = 0ull;
-				bitboard down = 0ull;
-				bitboard left = 0ull;
-				bitboard up_right = 0ull;
-				bitboard up_left = 0ull;
-				bitboard down_right = 0ull;
-				bitboard down_left = 0ull;
-
-				for (int sqX = 0; sqX < 8; ++sqX)
-				{
-					for (int sqY = 0; sqY < 8; ++sqY)
-					{
-						bitboard sq = 1ull << (sqX + sqY * 8);
-						const bool lower = sq < center;
-						const bool bigger = sq > center;
-
-						if (centerX == sqX)
-						{
-							if (lower) down |= sq;
-							else if (bigger) up |= sq;
-						}
-						if (centerY == sqY)
-						{
-							if (lower) right |= sq;
-							else if (bigger) left |= sq;
-						}
-						if (sqY == sqX + (centerY - centerX))
-						{
-							if (lower) down_right |= sq;
-							else if (bigger) up_left |= sq;
-						}
-						if (sqY == -sqX + (centerY + centerX))
-						{
-							if (lower) down_left |= sq;
-							else if (bigger) up_right |= sq;
-						}
-					}
-				}
-
-				Rays[Direction::UP][i] = up;
-				Rays[Direction::RIGHT][i] = right;
-				Rays[Direction::DOWN][i] = down;
-				Rays[Direction::LEFT][i] = left;
-				Rays[Direction::UP_RIGHT][i] = up_right;
-				Rays[Direction::UP_LEFT][i] = up_left;
-				Rays[Direction::DOWN_RIGHT][i] = down_right;
-				Rays[Direction::DOWN_LEFT][i] = down_left;
-				RookMasks[i] = up | right | down | left;
-				BishopMasks[i] = up_right | up_left | down_right | down_left;
-			}
-		}
-	}
-}
+// inline static void init_rays() {
+//   for (int center_x = 0; center_x < 8; ++center_x) {
+//     for (int center_y = 0; center_y < 8; ++center_y) {
+//       int i = center_x + center_y * 8;
+//       const BitboardType center = 1ull << i;
+//       BitboardType up = 0ull;
+//       BitboardType right = 0ull;
+//       BitboardType down = 0ull;
+//       BitboardType left = 0ull;
+//       BitboardType up_right = 0ull;
+//       BitboardType up_left = 0ull;
+//       BitboardType down_right = 0ull;
+//       BitboardType down_left = 0ull;
+//
+//       for (int sq_x = 0; sq_x < 8; ++sq_x) {
+//         for (int sq_y = 0; sq_y < 8; ++sq_y) {
+//           BitboardType sq = 1ull << (sq_x + sq_y * 8);
+//           const bool lower = sq < center;
+//           const bool bigger = sq > center;
+//
+//           if (center_x == sq_x) {
+//             if (lower)
+//               down |= sq;
+//             else if (bigger)
+//               up |= sq;
+//           }
+//           if (center_y == sq_y) {
+//             if (lower)
+//               right |= sq;
+//             else if (bigger)
+//               left |= sq;
+//           }
+//           if (sq_y == sq_x + (center_y - center_x)) {
+//             if (lower)
+//               down_right |= sq;
+//             else if (bigger)
+//               up_left |= sq;
+//           }
+//           if (sq_y == -sq_x + (center_y + center_x)) {
+//             if (lower)
+//               down_left |= sq;
+//             else if (bigger)
+//               up_right |= sq;
+//           }
+//         }
+//       }
+//
+//       Rays[Direction::kUp][i] = up;
+//       Rays[Direction::kRight][i] = right;
+//       Rays[Direction::kDown][i] = down;
+//       Rays[Direction::kLeft][i] = left;
+//       Rays[Direction::kUpRight][i] = up_right;
+//       Rays[Direction::kUpLeft][i] = up_left;
+//       Rays[Direction::kDownRight][i] = down_right;
+//       Rays[Direction::kDownLeft][i] = down_left;
+//       RookMasks[i] = up | right | down | left;
+//       BishopMasks[i] = up_right | up_left | down_right | down_left;
+//     }
+//   }
+// }
+}  // namespace Leslie
 
 #endif

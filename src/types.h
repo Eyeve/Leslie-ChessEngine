@@ -1,101 +1,97 @@
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef LESLIE_TYPES_H_
+#define LESLIE_TYPES_H_
 
 #include <cinttypes>
+#include <array>
 
+#define LESLIE_ROW(sq1, sq2, sq3, sq4, sq5, sq6, sq7, sq8, rank)                     \
+  sq1 = kFileA & rank, sq2 = sq1 >> 1, sq3 = sq1 >> 2, sq4 = sq1 >> 3, \
+  sq5 = sq1 >> 4, sq6 = sq1 >> 5, sq7 = sq1 >> 6, sq8 = sq1 >> 7
 
-#define ROW(sq1, sq2, sq3, sq4, sq5, sq6, sq7, sq8, rank) \
-    sq1 = Leslie::FileA & rank, \
-    sq2 = sq1 >> 1, \
-    sq3 = sq1 >> 2, \
-    sq4 = sq1 >> 3, \
-    sq5 = sq1 >> 4, \
-    sq6 = sq1 >> 5, \
-    sq7 = sq1 >> 6, \
-    sq8 = sq1 >> 7
+namespace leslie {
 
-namespace Leslie
-{
-	using bitboard = uint64_t;
-	using counter = uint8_t;
-	using size_type = size_t;
-	using blockers_mask = uint16_t;
+using BitboardType = uint64_t;
+using CounterType = uint8_t;
+using SizeType = size_t;
+using MagicKeyType = uint16_t;
 
-	static constexpr auto StartFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+constexpr const char* kStartFen =
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-	constexpr bitboard Rank1 = 0xFFull;
-	constexpr bitboard Rank2 = Rank1 << (8 * 1);
-	constexpr bitboard Rank3 = Rank1 << (8 * 2);
-	constexpr bitboard Rank4 = Rank1 << (8 * 3);
-	constexpr bitboard Rank5 = Rank1 << (8 * 4);
-	constexpr bitboard Rank6 = Rank1 << (8 * 5);
-	constexpr bitboard Rank7 = Rank1 << (8 * 6);
-	constexpr bitboard Rank8 = Rank1 << (8 * 7);
+constexpr BitboardType kRank1 = 0xFFull;
+constexpr BitboardType kRank2 = kRank1 << (8 * 1);
+constexpr BitboardType kRank3 = kRank1 << (8 * 2);
+constexpr BitboardType kRank4 = kRank1 << (8 * 3);
+constexpr BitboardType kRank5 = kRank1 << (8 * 4);
+constexpr BitboardType kRank6 = kRank1 << (8 * 5);
+constexpr BitboardType kRank7 = kRank1 << (8 * 6);
+constexpr BitboardType kRank8 = kRank1 << (8 * 7);
 
-	constexpr bitboard FileA = 0x8080808080808080ull;
-	constexpr bitboard FileB = FileA >> 1;
-	constexpr bitboard FileC = FileA >> 2;
-	constexpr bitboard FileD = FileA >> 3;
-	constexpr bitboard FileE = FileA >> 4;
-	constexpr bitboard FileF = FileA >> 5;
-	constexpr bitboard FileG = FileA >> 6;
-	constexpr bitboard FileH = FileA >> 7;
+constexpr BitboardType kFileA = 0x8080808080808080ull;
+constexpr BitboardType kFileB = kFileA >> 1;
+constexpr BitboardType kFileC = kFileA >> 2;
+constexpr BitboardType kFileD = kFileA >> 3;
+constexpr BitboardType kFileE = kFileA >> 4;
+constexpr BitboardType kFileF = kFileA >> 5;
+constexpr BitboardType kFileG = kFileA >> 6;
+constexpr BitboardType kFileH = kFileA >> 7;
 
-	enum Color
-	{
-		WHITE = 0,
-		BLACK = 1,
-	};
+enum class Color {
+  kWhite,
+  kBlack,
+};
 
-	enum PieceType
-	{
-		KING,
-		QUEEN,
-		ROOK,
-		BISHOP,
-		KNIGHT,
-		PAWN,
-	};
+constexpr std::array kColors {
+  Color::kWhite,
+  Color::kBlack,
+};
 
-	enum Square: bitboard
-	{
-		ROW(A8, B8, C8, D8, E8, F8, G8, H8, Rank8),
-		ROW(A7, B7, C7, D7, E7, F7, G7, H7, Rank7),
-		ROW(A6, B6, C6, D6, E6, F6, G6, H6, Rank6),
-		ROW(A5, B5, C5, D5, E5, F5, G5, H5, Rank5),
-		ROW(A4, B4, C4, D4, E4, F4, G4, H4, Rank4),
-		ROW(A3, B3, C3, D3, E3, F3, G3, H3, Rank3),
-		ROW(A2, B2, C2, D2, E2, F2, G2, H2, Rank2),
-		ROW(A1, B1, C1, D1, E1, F1, G1, H1, Rank1),
-	};
+enum class PieceType {
+  kNone = -1,
+  kKing,
+  kQueen,
+  kRook,
+  kBishop,
+  kKnight,
+  kPawn,
+};
 
-	enum Direction
-	{
-		UP,
-		RIGHT,
-		DOWN,
-		LEFT,
-		UP_RIGHT,
-		UP_LEFT,
-		DOWN_RIGHT,
-		DOWN_LEFT,
-	};
+constexpr std::array kPieceTypes = {
+  PieceType::kKing,
+  PieceType::kQueen,
+  PieceType::kRook,
+  PieceType::kBishop,
+  PieceType::kKnight,
+  PieceType::kPawn,
+};
 
-	namespace Board
-	{
-		// 64 cells + 8 end lines + 1 \0 symbol
-		constexpr size_type StringFormatSize = 64 + 8 + 1;
+struct Piece {
+  PieceType type;
+  Color color;
+};
 
-		inline bitboard start() { return static_cast<bitboard>(A8); }
-		inline bitboard next(bitboard i) { return i >> 1; }
-		inline bitboard shift(bitboard i) { return i >> std::countr_zero(i) % 8 + 1; }
-		inline bitboard shift(bitboard i, int off) { return i >> off; }
-		inline bool is_end(bitboard i) { return i > 0ull; }
-		inline bool is_endl(bitboard i) { return std::countr_zero(i) % 8 == 0; }
-	}
-}
+enum class Square : BitboardType {
+  LESLIE_ROW(kA8, kB8, kC8, kD8, kE8, kF8, kG8, kH8, kRank8),
+  LESLIE_ROW(kA7, kB7, kC7, kD7, kE7, kF7, kG7, kH7, kRank7),
+  LESLIE_ROW(kA6, kB6, kC6, kD6, kE6, kF6, kG6, kH6, kRank6),
+  LESLIE_ROW(kA5, kB5, kC5, kD5, kE5, kF5, kG5, kH5, kRank5),
+  LESLIE_ROW(kA4, kB4, kC4, kD4, kE4, kF4, kG4, kH4, kRank4),
+  LESLIE_ROW(kA3, kB3, kC3, kD3, kE3, kF3, kG3, kH3, kRank3),
+  LESLIE_ROW(kA2, kB2, kC2, kD2, kE2, kF2, kG2, kH2, kRank2),
+  LESLIE_ROW(kA1, kB1, kC1, kD1, kE1, kF1, kG1, kH1, kRank1),
+};
 
+enum class Direction {
+  kUp,
+  kUpRight,
+  kRight,
+  kDownRight,
+  kDown,
+  kDownLeft,
+  kLeft,
+  kUpLeft,
+};
 
+}  // namespace leslie
 
-
-#endif //COLOR_H
+#endif

@@ -1,10 +1,6 @@
-#ifndef OPTIONS_MAP_H
-#define OPTIONS_MAP_H
+#ifndef LESLIE_OPTIONS_H_
+#define LESLIE_OPTIONS_H_
 
-
-class Options
-{
-
-};
+class Options {};
 
 #endif
