@@ -16,6 +16,8 @@ add_executable(${PROJECT_NAME} tests/tests.cpp
         src/board.cpp
         src/pieces_container.cpp
         src/pieces_container.h
+        tests/rook_move_tests.cpp
+        tests/bishop_move_tests.cpp
 )
 
 include_directories(src)
