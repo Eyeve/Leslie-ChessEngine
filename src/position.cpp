@@ -41,20 +41,20 @@ Position::Position(const std::string &fen)
   iss >> board_part >> turn_part >> castling_part >> en_passant_part >>
       rule_50_ >> moves_;
 
-  BitboardType i = Board::Start();
+  BitboardType sq = Board::Start();
   for (const char c : board_part) {
     if (c == '/') continue;
 
     if (isdigit(c)) {
-      i = Board::Shift(i, c - '0');
+      sq = Board::Shift(sq, c - '0');
       continue;
     }
 
     Piece piece = CharToPiece(c);
     BitboardType &bitboard = pieces_.GetBitboard(piece);
 
-    bitboard |= i;
-    i = Board::Next(i);
+    bitboard |= sq;
+    sq = Board::Next(sq);
   }
 
   turn_ = (turn_part == "w") ? Color::kWhite : Color::kBlack;
@@ -75,17 +75,18 @@ Piece Position::CharToPiece(const char c) {
   Color color = isupper(c) ? Color::kWhite : Color::kBlack;
   PieceType piece_type = PieceType::kNone;
 
-  if (c == 'k')
+  char symbol = tolower(c);
+  if (symbol == 'k')
     piece_type = PieceType::kKing;
-  else if (c == 'q')
+  else if (symbol == 'q')
     piece_type = PieceType::kQueen;
-  else if (c == 'r')
+  else if (symbol == 'r')
     piece_type = PieceType::kRook;
-  else if (c == 'b')
+  else if (symbol == 'b')
     piece_type = PieceType::kBishop;
-  else if (c == 'n')
+  else if (symbol == 'n')
     piece_type = PieceType::kKnight;
-  else if (c == 'p')
+  else if (symbol == 'p')
     piece_type = PieceType::kPawn;
   // TODO: add debug output message
   return Piece(piece_type, color);
