@@ -7,13 +7,13 @@
 namespace leslie {
 
 struct Magic {
-  std::unordered_map<MagicKeyType, BitboardType> RookMagic[64];
-  std::unordered_map<MagicKeyType, BitboardType> BishopMagic[64];
+  MagicsType rook_magic;
+  MagicsType bishop_magic;
 };
 
 struct Masks {
-  BitboardType RookMasks[64];
-  BitboardType BishopMasks[64];
+  MasksType rook_masks;
+  MasksType bishop_masks;
 };
 
 class Engine {
@@ -41,12 +41,18 @@ class Engine {
   Options options_;
   Magic magic_;
   Masks masks_;
+  RaysType rays_;
 
   Engine();
   ~Engine();
 
   void InitMagic();
   void InitMasks();
+
+  void InitPieceMagic(const MasksType& masks, Direction d1, Direction d2,
+                      Direction d3, Direction d4);
+  BitboardType RayTracing(BitboardType blockers, Direction direction,
+                          int sq_index);
 };
 
 }  // namespace leslie

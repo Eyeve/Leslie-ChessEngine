@@ -43,7 +43,7 @@ TEST(general, rook_mask) {
   int bit = 27;
   leslie::Engine& engine = leslie::Engine::Instance();
   leslie::BitboardType expected = 0x8080808F7080808ull;
-  leslie::BitboardType actual = engine.GetMasks().RookMasks[bit];
+  leslie::BitboardType actual = engine.GetMasks().rook_masks[bit];
   EXPECT_EQ(expected, actual);
 }
 
@@ -62,7 +62,7 @@ TEST(general, bishop_mask) {
   int bit = 27;
   leslie::Engine& engine = leslie::Engine::Instance();
   leslie::BitboardType expected = 0x8041221400142241ull;
-  leslie::BitboardType actual = engine.GetMasks().BishopMasks[bit];
+  leslie::BitboardType actual = engine.GetMasks().bishop_masks[bit];
   EXPECT_EQ(expected, actual);
 }
 
