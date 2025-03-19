@@ -1,8 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <unordered_set>
-
-#include "position.h"
 #include "tests.h"
 
 namespace leslie::test {

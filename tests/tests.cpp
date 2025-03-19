@@ -1,11 +1,10 @@
 #include "tests.h"
 
-#include <engine.h>
 #include <gtest/gtest.h>
 
 #include <unordered_set>
 
-#include "position.h"
+#include "engine.h"
 
 // TODO: ref
 
