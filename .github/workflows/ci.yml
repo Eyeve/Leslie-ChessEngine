@@ -1,0 +1,74 @@
+name: C++ CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  clang-format:
+    name: Code formatting check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+      - name: Check formatting
+        run: |
+          find . -name "*.cpp" -o -name "*.h" | xargs clang-format --dry-run --Werror --style="{BasedOnStyle: Google, PointerAlignment: Left}"
+
+  ubuntu:
+    needs: clang-format
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+        version: [11, 17]
+        profile: [Release, Debug]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ clang libgtest-dev
+          cd /usr/src/gtest && sudo cmake . && sudo make && sudo cp lib/*.a /usr/lib
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.profile }}
+      - name: Build
+        run: cmake --build build
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
+
+  windows:
+    needs: ubuntu
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [msvc]
+        profile: [Release, Debug]
+
+    runs-on: windows-2019
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: vcpkg install gtest:x64-windows
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.profile }} -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+      - name: Build
+        run: cmake --build build --config ${{ matrix.profile }}
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
