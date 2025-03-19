@@ -46,7 +46,7 @@ jobs:
           sudo apt-get install -y cmake g++ clang libgtest-dev
           cd /usr/src/gtest && sudo cmake . && sudo make && sudo cp lib/*.a /usr/lib
       - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.profile }}
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.profile }} -DCMAKE_CXX_STANDARD=23
       - name: Build
         run: cmake --build build
       - name: Run tests
@@ -67,7 +67,7 @@ jobs:
       - name: Install dependencies
         run: vcpkg install gtest:x64-windows
       - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.profile }} -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.profile }} -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_CXX_STANDARD=23
       - name: Build
         run: cmake --build build --config ${{ matrix.profile }}
       - name: Run tests
