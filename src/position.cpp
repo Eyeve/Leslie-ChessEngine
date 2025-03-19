@@ -198,8 +198,7 @@ void Position::AddQueenMoves(BitboardType position,
       engine.GetMagic().rook_magic[index][rook_key] & ~my_blockers;
   const BitboardType bishop_moves =
       engine.GetMagic().bishop_magic[index][bishop_key] & ~my_blockers;
-  AddPieceMoves(position, rook_moves, PieceType::kQueen, vec);
-  AddPieceMoves(position, bishop_moves, PieceType::kQueen, vec);
+  AddPieceMoves(position, rook_moves | bishop_moves, PieceType::kQueen, vec);
 }
 
 void Position::AddRookMoves(const BitboardType position,
@@ -253,7 +252,7 @@ void Position::AddWhitePawnMoves(const BitboardType position,
   const BitboardType long_moves =
       ((position & kRank2) << 16) & ~blockers & (short_moves << 8);
   BitboardType attacks =
-      op_blockers & (((position << 9) & ~kFileH) | ((position << 7) & ~kFileA));
+      (op_blockers | en_passant_) & (((position << 9) & ~kFileH) | ((position << 7) & ~kFileA));
   BitboardType result = short_moves | long_moves | attacks;
 
   AddPieceMoves(position, result, PieceType::kPawn, vec);
@@ -269,7 +268,7 @@ void Position::AddBlackPawnMoves(const BitboardType position,
   const BitboardType long_moves =
       ((position & kRank7) >> 16) & ~blockers & (short_moves >> 8);
   const BitboardType attacks =
-      op_blockers & (((position >> 9) & ~kFileA) | ((position >> 7) & ~kFileH));
+      (op_blockers | en_passant_) & (((position >> 9) & ~kFileA) | ((position >> 7) & ~kFileH));
   const BitboardType result = short_moves | long_moves | attacks;
 
   AddPieceMoves(position, result, PieceType::kPawn, vec);
