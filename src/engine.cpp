@@ -124,7 +124,7 @@ BitboardType Engine::RayTracing(const BitboardType blockers,
       direction == Direction::kUp | direction == Direction::kUpRight;
   const int index = is_least_bit ? std::countr_zero(ray_blockers)
                                  : 63 - std::countl_zero(ray_blockers);
-  BitboardType blocked = rays_[std::to_underlying(direction)][index];
+  const BitboardType blocked = rays_[std::to_underlying(direction)][index];
   return ray ^ blocked;
 }
 
