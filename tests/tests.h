@@ -18,6 +18,6 @@ using MoveContainerType = std::vector<PieceMoves>;
 
 void PositionTest(const std::string& fen, const MoveContainerType& res);
 
-}
+}  // namespace leslie::test
 
 #endif

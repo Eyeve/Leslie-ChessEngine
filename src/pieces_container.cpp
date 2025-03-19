@@ -30,8 +30,7 @@ Piece PiecesContainer::WhatPieceOnSquare(const BitboardType square) const {
   for (const auto color : kColors) {
     for (const auto type : kPieceTypes) {
       const Piece piece(type, color);
-      if (GetBitboard(piece) & square)
-        return piece;
+      if (GetBitboard(piece) & square) return piece;
     }
   }
   return Piece(PieceType::kNone, Color::kWhite);
