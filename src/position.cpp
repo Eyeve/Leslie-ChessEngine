@@ -112,14 +112,14 @@ char Position::PieceToChar(const Piece piece) {
 }
 
 Position::AdderFunction Position::PieceToAdder(const Piece piece) {
-  if (piece.type == PieceType::kKing) return AddKingMoves;
-  if (piece.type == PieceType::kQueen) return AddQueenMoves;
-  if (piece.type == PieceType::kRook) return AddRookMoves;
-  if (piece.type == PieceType::kBishop) return AddBishopMoves;
-  if (piece.type == PieceType::kKnight) return AddKnightMoves;
+  if (piece.type == PieceType::kKing) return &Position::AddKingMoves;
+  if (piece.type == PieceType::kQueen) return &Position::AddQueenMoves;
+  if (piece.type == PieceType::kRook) return &Position::AddRookMoves;
+  if (piece.type == PieceType::kBishop) return &Position::AddBishopMoves;
+  if (piece.type == PieceType::kKnight) return &Position::AddKnightMoves;
   if (piece.type == PieceType::kPawn) {
-    return piece.color == Color::kWhite ? &AddWhitePawnMoves
-                                        : &AddBlackPawnMoves;
+    return piece.color == Color::kWhite ? &Position::AddWhitePawnMoves
+                                        : &Position::AddBlackPawnMoves;
   }
   throw std::invalid_argument("NoneType piece found in 'TypeToAdder' func");
 }
