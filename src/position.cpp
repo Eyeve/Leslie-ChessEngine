@@ -268,7 +268,8 @@ void Position::AddBlackPawnMoves(const BitboardType position,
   const BitboardType long_moves =
       ((position & kRank7) >> 16) & ~blockers & (short_moves >> 8);
   const BitboardType attacks =
-      (op_blockers | en_passant_) & (((position >> 9) & ~kFileA) | ((position >> 7) & ~kFileH));
+      (op_blockers | en_passant_) &
+      (((position >> 9) & ~kFileA) | ((position >> 7) & ~kFileH));
   const BitboardType result = short_moves | long_moves | attacks;
   AddPieceMoves(position, result, PieceType::kPawn, vec);
 }
