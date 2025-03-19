@@ -1,11 +1,11 @@
 #ifndef LESLIE_TYPES_H_
 #define LESLIE_TYPES_H_
 
-#include <cinttypes>
 #include <array>
+#include <cinttypes>
 #include <unordered_map>
 
-#define LESLIE_ROW(sq1, sq2, sq3, sq4, sq5, sq6, sq7, sq8, rank)                     \
+#define LESLIE_ROW(sq1, sq2, sq3, sq4, sq5, sq6, sq7, sq8, rank)       \
   sq1 = kFileA & rank, sq2 = sq1 >> 1, sq3 = sq1 >> 2, sq4 = sq1 >> 3, \
   sq5 = sq1 >> 4, sq6 = sq1 >> 5, sq7 = sq1 >> 6, sq8 = sq1 >> 7
 
@@ -15,7 +15,8 @@ using BitboardType = uint64_t;
 using CounterType = uint8_t;
 using SizeType = size_t;
 using MagicKeyType = uint16_t;
-using MagicsType = std::array<std::unordered_map<MagicKeyType, BitboardType>, 64>;
+using MagicsType =
+    std::array<std::unordered_map<MagicKeyType, BitboardType>, 64>;
 using MasksType = std::array<BitboardType, 64>;
 using RaysType = std::array<std::array<BitboardType, 64>, 8>;
 
@@ -45,9 +46,9 @@ enum class Color {
   kBlack,
 };
 
-constexpr std::array kColors {
-  Color::kWhite,
-  Color::kBlack,
+constexpr std::array kColors{
+    Color::kWhite,
+    Color::kBlack,
 };
 
 enum class PieceType {
@@ -61,12 +62,8 @@ enum class PieceType {
 };
 
 constexpr std::array kPieceTypes = {
-  PieceType::kKing,
-  PieceType::kQueen,
-  PieceType::kRook,
-  PieceType::kBishop,
-  PieceType::kKnight,
-  PieceType::kPawn,
+    PieceType::kKing,   PieceType::kQueen,  PieceType::kRook,
+    PieceType::kBishop, PieceType::kKnight, PieceType::kPawn,
 };
 
 struct Piece {

@@ -1,5 +1,5 @@
-#ifndef LESLIE_BOARD_H_
-#define LESLIE_BOARD_H_
+#ifndef LESLIE_POSITION_H_
+#define LESLIE_POSITION_H_
 
 #include <string>
 #include <vector>
@@ -47,8 +47,8 @@ class Position {
 
   void AddMoves(AdderFunction adder, BitboardType pieces,
                 std::vector<Move>& vec) const;
-  void AddPieceMoves(BitboardType from, BitboardType to, PieceType type,
-                     std::vector<Move>& vec) const;
+  static void AddPieceMoves(BitboardType from, BitboardType to, PieceType type,
+                            std::vector<Move>& vec);
 
   void AddKingMoves(BitboardType position, std::vector<Move>& vec) const;
   void AddQueenMoves(BitboardType position, std::vector<Move>& vec) const;

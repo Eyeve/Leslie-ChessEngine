@@ -1,5 +1,5 @@
-#ifndef LESLIE_UCI_H_
-#define LESLIE_UCI_H_
+#ifndef LESLIE_LICHESS_SHELL_H_
+#define LESLIE_LICHESS_SHELL_H_
 
 #include "engine.h"
 

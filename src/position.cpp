@@ -21,7 +21,7 @@ std::string ToStr(const BitboardType bitboard) {
     if (Board::IsEndLine(sq)) *ptr++ = '\n';
   }
   *ptr = '\0';
-  return std::string{str};
+  return str;
 }
 
 Position::Position(const std::string &fen)
@@ -65,17 +65,17 @@ Position::Position(const std::string &fen)
   b_queen_castle = castling_part.find('q') != std::string::npos;
 
   if (en_passant_part != "-") {
-    int file = 'h' - en_passant_part[0];
-    int rank = en_passant_part[1] - '1';
+    const int file = 'h' - en_passant_part[0];
+    const int rank = en_passant_part[1] - '1';
     en_passant_ = (1ULL << (rank * 8 + file));
   }
 }
 
 Piece Position::CharToPiece(const char c) {
-  Color color = isupper(c) ? Color::kWhite : Color::kBlack;
+  const Color color = isupper(c) ? Color::kWhite : Color::kBlack;
   PieceType piece_type = PieceType::kNone;
 
-  char symbol = tolower(c);
+  const char symbol = static_cast<char>(tolower(c));
   if (symbol == 'k')
     piece_type = PieceType::kKing;
   else if (symbol == 'q')
@@ -93,7 +93,7 @@ Piece Position::CharToPiece(const char c) {
 }
 
 char Position::PieceToChar(const Piece piece) {
-  bool is_upper = piece.color == Color::kWhite;
+  const bool is_upper = piece.color == Color::kWhite;
   char c = '.';
 
   if (piece.type == PieceType::kKing)
@@ -111,7 +111,7 @@ char Position::PieceToChar(const Piece piece) {
   return is_upper ? static_cast<char>(toupper(c)) : c;
 }
 
-Position::AdderFunction Position::PieceToAdder(Piece piece) {
+Position::AdderFunction Position::PieceToAdder(const Piece piece) {
   if (piece.type == PieceType::kKing) return AddKingMoves;
   if (piece.type == PieceType::kQueen) return AddQueenMoves;
   if (piece.type == PieceType::kRook) return AddRookMoves;
@@ -121,7 +121,6 @@ Position::AdderFunction Position::PieceToAdder(Piece piece) {
     return piece.color == Color::kWhite ? &AddWhitePawnMoves
                                         : &AddBlackPawnMoves;
   }
-
   throw std::invalid_argument("NoneType piece found in 'TypeToAdder' func");
 }
 
@@ -135,7 +134,7 @@ Position::operator std::string() const {
     if (Board::IsEndLine(sq)) *ptr++ = '\n';
   }
   *ptr = '\0';
-  return std::string{str};
+  return str;
 }
 
 Color Position::GetOpponent() const {
@@ -145,24 +144,24 @@ Color Position::GetOpponent() const {
 void Position::GetMoves(std::vector<Move> &vec) const {
   vec.clear();
 
-  for (PieceType piece_type : kPieceTypes) {
-    Piece piece(piece_type, turn_);
-    BitboardType bitboard = pieces_.GetBitboard(piece);
+  for (const PieceType piece_type : kPieceTypes) {
+    const Piece piece(piece_type, turn_);
+    const BitboardType bitboard = pieces_.GetBitboard(piece);
     AddMoves(PieceToAdder(piece), bitboard, vec);
   }
 }
 
-void Position::AddMoves(AdderFunction adder, BitboardType pieces,
+void Position::AddMoves(const AdderFunction adder, BitboardType pieces,
                         std::vector<Move> &vec) const {
   while (pieces) {
-    BitboardType position = 1ull << std::countr_zero(pieces);
+    const BitboardType position = 1ull << std::countr_zero(pieces);
     (this->*adder)(position, vec);
     pieces ^= position;
   }
 }
 
-void Position::AddPieceMoves(BitboardType from, BitboardType to, PieceType type,
-                             std::vector<Move> &vec) const {
+void Position::AddPieceMoves(const BitboardType from, BitboardType to,
+                             const PieceType type, std::vector<Move> &vec) {
   while (to) {
     BitboardType position = 1ull << std::countr_zero(to);
     vec.emplace_back(type, from, position);
@@ -170,72 +169,70 @@ void Position::AddPieceMoves(BitboardType from, BitboardType to, PieceType type,
   }
 }
 
-void Position::AddKingMoves(BitboardType position,
+void Position::AddKingMoves(const BitboardType position,
                             std::vector<Move> &vec) const {
-  BitboardType my_blockers = pieces_.GetBlockers(turn_);
-
-  BitboardType a =
+  const BitboardType my_blockers = pieces_.GetBlockers(turn_);
+  const BitboardType r1 =
       (((position << 7) | (position >> 9) | (position >> 1)) & (~kFileA));
-  BitboardType b =
+  const BitboardType r2 =
       (((position >> 7) | (position << 9) | (position << 1)) & (~kFileH));
-  BitboardType c = ((position >> 8) | (position << 8));
-  BitboardType result = a | b | c;
-  result &= ~my_blockers;
+  const BitboardType r3 = ((position >> 8) | (position << 8));
+  BitboardType result = (r1 | r2 | r3) & ~my_blockers;
   AddPieceMoves(position, result, PieceType::kKing, vec);
 }
 
 void Position::AddQueenMoves(BitboardType position,
                              std::vector<Move> &vec) const {}
 
-void Position::AddRookMoves(BitboardType position,
+void Position::AddRookMoves(const BitboardType position,
                             std::vector<Move> &vec) const {
   Engine &engine = Engine::Instance();
-  int index = std::countr_zero(position);
-  BitboardType my_blockers = pieces_.GetBlockers(turn_);
-  BitboardType op_blockers = pieces_.GetBlockers(GetOpponent());
-  BitboardType blockers = my_blockers | op_blockers;
-  BitboardType mask = engine.GetMasks().rook_masks[index];
-  MagicKeyType key = static_cast<MagicKeyType>(_pext_u64(blockers, mask));
-  BitboardType moves = engine.GetMagic().rook_magic[index][key] & ~my_blockers;
+  const int index = std::countr_zero(position);
+  const BitboardType my_blockers = pieces_.GetBlockers(turn_);
+  const BitboardType op_blockers = pieces_.GetBlockers(GetOpponent());
+  const BitboardType blockers = my_blockers | op_blockers;
+  const BitboardType mask = engine.GetMasks().rook_masks[index];
+  const auto key = static_cast<MagicKeyType>(_pext_u64(blockers, mask));
+  const BitboardType moves =
+      engine.GetMagic().rook_magic[index][key] & ~my_blockers;
   AddPieceMoves(position, moves, PieceType::kRook, vec);
 }
 
-void Position::AddBishopMoves(BitboardType position,
+void Position::AddBishopMoves(const BitboardType position,
                               std::vector<Move> &vec) const {
   Engine &engine = Engine::Instance();
-  int index = std::countr_zero(position);
-  BitboardType my_blockers = pieces_.GetBlockers(turn_);
-  BitboardType op_blockers = pieces_.GetBlockers(GetOpponent());
-  BitboardType blockers = my_blockers | op_blockers;
-  BitboardType mask = engine.GetMasks().bishop_masks[index];
-  MagicKeyType key = static_cast<MagicKeyType>(_pext_u64(blockers, mask));
-  BitboardType moves =
+  const int index = std::countr_zero(position);
+  const BitboardType my_blockers = pieces_.GetBlockers(turn_);
+  const BitboardType op_blockers = pieces_.GetBlockers(GetOpponent());
+  const BitboardType blockers = my_blockers | op_blockers;
+  const BitboardType mask = engine.GetMasks().bishop_masks[index];
+  const auto key = static_cast<MagicKeyType>(_pext_u64(blockers, mask));
+  const BitboardType moves =
       engine.GetMagic().bishop_magic[index][key] & ~my_blockers;
   AddPieceMoves(position, moves, PieceType::kBishop, vec);
 }
 
-void Position::AddKnightMoves(BitboardType position,
+void Position::AddKnightMoves(const BitboardType position,
                               std::vector<Move> &vec) const {
-  BitboardType my_blockers = pieces_.GetBlockers(turn_);
-
-  BitboardType l1 = (position >> 1) & ~kFileA;
-  BitboardType l2 = (position >> 2) & ~(kFileA | kFileB);
-  BitboardType r1 = (position << 1) & ~kFileH;
-  BitboardType r2 = (position << 2) & ~(kFileH | kFileG);
+  const BitboardType my_blockers = pieces_.GetBlockers(turn_);
+  const BitboardType l1 = (position >> 1) & ~kFileA;
+  const BitboardType l2 = (position >> 2) & ~(kFileA | kFileB);
+  const BitboardType r1 = (position << 1) & ~kFileH;
+  const BitboardType r2 = (position << 2) & ~(kFileH | kFileG);
   BitboardType result =
       (l1 | r1) << 16 | (l1 | r1) >> 16 | (l2 | r2) << 8 | (l2 | r2) >> 8;
   result &= ~my_blockers;
   AddPieceMoves(position, result, PieceType::kKnight, vec);
 }
 
-void Position::AddWhitePawnMoves(BitboardType position,
+void Position::AddWhitePawnMoves(const BitboardType position,
                                  std::vector<Move> &vec) const {
-  BitboardType my_blockers = pieces_.GetBlockers(Color::kWhite);
-  BitboardType op_blockers = pieces_.GetBlockers(Color::kBlack);
-  BitboardType blockers = my_blockers | op_blockers;
+  const BitboardType my_blockers = pieces_.GetBlockers(Color::kWhite);
+  const BitboardType op_blockers = pieces_.GetBlockers(Color::kBlack);
+  const BitboardType blockers = my_blockers | op_blockers;
 
-  BitboardType short_moves = (position << 8) & ~blockers;
-  BitboardType long_moves =
+  const BitboardType short_moves = (position << 8) & ~blockers;
+  const BitboardType long_moves =
       ((position & kRank2) << 16) & ~blockers & (short_moves << 8);
   BitboardType attacks =
       op_blockers & (((position << 9) & ~kFileH) | ((position << 7) & ~kFileA));
@@ -244,18 +241,18 @@ void Position::AddWhitePawnMoves(BitboardType position,
   AddPieceMoves(position, result, PieceType::kPawn, vec);
 }
 
-void Position::AddBlackPawnMoves(BitboardType position,
+void Position::AddBlackPawnMoves(const BitboardType position,
                                  std::vector<Move> &vec) const {
-  BitboardType my_blockers = pieces_.GetBlockers(Color::kBlack);
-  BitboardType op_blockers = pieces_.GetBlockers(Color::kWhite);
-  BitboardType blockers = my_blockers | op_blockers;
+  const BitboardType my_blockers = pieces_.GetBlockers(Color::kBlack);
+  const BitboardType op_blockers = pieces_.GetBlockers(Color::kWhite);
+  const BitboardType blockers = my_blockers | op_blockers;
 
-  BitboardType short_moves = (position >> 8) & ~blockers;
-  BitboardType long_moves =
+  const BitboardType short_moves = (position >> 8) & ~blockers;
+  const BitboardType long_moves =
       ((position & kRank7) >> 16) & ~blockers & (short_moves >> 8);
-  BitboardType attacks =
+  const BitboardType attacks =
       op_blockers & (((position >> 9) & ~kFileA) | ((position >> 7) & ~kFileH));
-  BitboardType result = short_moves | long_moves | attacks;
+  const BitboardType result = short_moves | long_moves | attacks;
 
   AddPieceMoves(position, result, PieceType::kPawn, vec);
 }

@@ -20,7 +20,7 @@ struct Move {
 
 struct MoveHash {
   std::size_t operator()(const Move& obj) const;
-  template<typename T>
+  template <typename T>
   std::size_t HashCombine(std::size_t seed, T value) const;
 };
 

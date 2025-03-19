@@ -11,12 +11,12 @@ BitboardType& PiecesContainer::GetBitboard(Piece piece) {
                      [std::to_underlying(piece.type)];
 }
 
-const BitboardType& PiecesContainer::GetBitboard(Piece piece) const {
+const BitboardType& PiecesContainer::GetBitboard(const Piece piece) const {
   return pieces_data_[std::to_underlying(piece.color)]
                      [std::to_underlying(piece.type)];
 }
 
-BitboardType PiecesContainer::GetBlockers(Color color) const {
+BitboardType PiecesContainer::GetBlockers(const Color color) const {
   std::array colored_pieces = pieces_data_[std::to_underlying(color)];
   return colored_pieces[std::to_underlying(PieceType::kKing)] |
          colored_pieces[std::to_underlying(PieceType::kQueen)] |
@@ -26,11 +26,12 @@ BitboardType PiecesContainer::GetBlockers(Color color) const {
          colored_pieces[std::to_underlying(PieceType::kPawn)];
 }
 
-Piece PiecesContainer::WhatPieceOnSquare(BitboardType square) const {
-  for (auto color : kColors) {
-    for (auto type : kPieceTypes) {
-      if (GetBitboard({.type = type, .color = color}) & square)
-        return Piece(type, color);
+Piece PiecesContainer::WhatPieceOnSquare(const BitboardType square) const {
+  for (const auto color : kColors) {
+    for (const auto type : kPieceTypes) {
+      const Piece piece(type, color);
+      if (GetBitboard(piece) & square)
+        return piece;
     }
   }
   return Piece(PieceType::kNone, Color::kWhite);

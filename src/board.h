@@ -1,5 +1,5 @@
-#ifndef LESLIE_MYBOARD_H_
-#define LESLIE_MYBOARD_H_
+#ifndef LESLIE_BOARD_H_
+#define LESLIE_BOARD_H_
 
 #include "types.h"
 

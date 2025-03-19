@@ -44,15 +44,15 @@ class Engine {
   RaysType rays_;
 
   Engine();
-  ~Engine();
+  ~Engine() = default;
 
   void InitMagic();
   void InitMasks();
 
-  void InitPieceMagic(const MasksType& masks, MagicsType& magic, Direction d1, Direction d2,
-                      Direction d3, Direction d4);
+  void InitPieceMagic(const MasksType& masks, MagicsType& magic, Direction d1,
+                      Direction d2, Direction d3, Direction d4) const;
   BitboardType RayTracing(BitboardType blockers, Direction direction,
-                          int sq_index);
+                          int sq_index) const;
 };
 
 }  // namespace leslie
