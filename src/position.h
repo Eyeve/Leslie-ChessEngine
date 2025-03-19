@@ -58,6 +58,7 @@ class Position {
   void AddWhitePawnMoves(BitboardType position, std::vector<Move>& vec) const;
   void AddBlackPawnMoves(BitboardType position, std::vector<Move>& vec) const;
 };
+
 }  // namespace leslie
 
 #endif

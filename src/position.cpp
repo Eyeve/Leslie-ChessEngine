@@ -177,7 +177,7 @@ void Position::AddKingMoves(const BitboardType position,
   const BitboardType r2 =
       (((position >> 7) | (position << 9) | (position << 1)) & (~kFileH));
   const BitboardType r3 = ((position >> 8) | (position << 8));
-  BitboardType result = (r1 | r2 | r3) & ~my_blockers;
+  const BitboardType result = (r1 | r2 | r3) & ~my_blockers;
   AddPieceMoves(position, result, PieceType::kKing, vec);
 }
 
@@ -251,10 +251,10 @@ void Position::AddWhitePawnMoves(const BitboardType position,
   const BitboardType short_moves = (position << 8) & ~blockers;
   const BitboardType long_moves =
       ((position & kRank2) << 16) & ~blockers & (short_moves << 8);
-  BitboardType attacks =
-      (op_blockers | en_passant_) & (((position << 9) & ~kFileH) | ((position << 7) & ~kFileA));
-  BitboardType result = short_moves | long_moves | attacks;
-
+  const BitboardType attacks =
+      (op_blockers | en_passant_) &
+      (((position << 9) & ~kFileH) | ((position << 7) & ~kFileA));
+  const BitboardType result = short_moves | long_moves | attacks;
   AddPieceMoves(position, result, PieceType::kPawn, vec);
 }
 
@@ -270,7 +270,6 @@ void Position::AddBlackPawnMoves(const BitboardType position,
   const BitboardType attacks =
       (op_blockers | en_passant_) & (((position >> 9) & ~kFileA) | ((position >> 7) & ~kFileH));
   const BitboardType result = short_moves | long_moves | attacks;
-
   AddPieceMoves(position, result, PieceType::kPawn, vec);
 }
 
