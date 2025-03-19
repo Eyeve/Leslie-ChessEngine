@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.27.8)
 project(Leslie_ChessEngine)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 add_executable(${PROJECT_NAME} tests/tests.cpp
         src/position.cpp
@@ -13,8 +13,12 @@ add_executable(${PROJECT_NAME} tests/tests.cpp
         tests/king_move_test.cpp
         tests/pawn_move_tests.cpp
         tests/KNP_move_test.cpp
-        tests/rays_test.cpp)
-
+        src/board.cpp
+        src/pieces_container.cpp
+        src/pieces_container.h
+        tests/rook_move_tests.cpp
+        tests/bishop_move_tests.cpp
+)
 
 include_directories(src)
 

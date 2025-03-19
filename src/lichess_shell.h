@@ -1,27 +1,24 @@
-#ifndef UCI_H
-#define UCI_H
+#ifndef LESLIE_LICHESS_SHELL_H_
+#define LESLIE_LICHESS_SHELL_H_
 
-#include <iostream>
-
-#include "move.h"
 #include "engine.h"
 
+namespace leslie {
 
-namespace Leslie
-{
-	class LichessShell {
-      public:
-        LichessShell(int argc, char** argv);
-        ~LichessShell();
+class LichessShell {
+ public:
+  LichessShell(int argc, char** argv);
+  ~LichessShell();
 
-        int start();
+  int Start();
 
-		const Options& get_options() const;
-		Options& get_options();
+  const Options& GetOptions() const;
+  Options& GetOptions();
 
-      private:
-	    Engine engine;
-    };
-}
+ private:
+  Engine engine_;
+};
+
+}  // namespace leslie
 
 #endif

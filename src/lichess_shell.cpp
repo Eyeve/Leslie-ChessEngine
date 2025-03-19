@@ -1,12 +1,9 @@
 #include "lichess_shell.h"
+
 #include "return_codes.h"
 
+namespace leslie {
 
-namespace Leslie
-{
-	int LichessShell::start()
-	{
-		return SUCCESS;
-	}
+int LichessShell::Start() { return SUCCESS; }
 
-}
+}  // namespace leslie

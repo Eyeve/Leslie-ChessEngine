@@ -1,29 +1,29 @@
-#ifndef MOVE_H
-#define MOVE_H
+#ifndef LESLIE_MOVE_H_
+#define LESLIE_MOVE_H_
 
 #include <functional>
 
 #include "types.h"
 
+namespace leslie {
 
-namespace Leslie
-{
-	struct Move
-	{
-		PieceType type;
-		Square from;
-		Square to;
+struct Move {
+  PieceType type;
+  Square from;
+  Square to;
 
-		Move(PieceType type, Square from, Square to);
-		Move(PieceType type, bitboard from, bitboard to);
+  Move(PieceType type, Square from, Square to);
+  Move(PieceType type, BitboardType from, BitboardType to);
 
-		bool operator==(const Move &other) const = default;
-	};
+  bool operator==(const Move& other) const = default;
+};
 
-	struct MoveHash
-	{
-		std::size_t operator()(const Move &obj) const;
-	};
-}
+struct MoveHash {
+  std::size_t operator()(const Move& obj) const;
+  template <typename T>
+  std::size_t HashCombine(std::size_t seed, T value) const;
+};
+
+}  // namespace leslie
 
 #endif
