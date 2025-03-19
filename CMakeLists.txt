@@ -36,3 +36,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mbmi2")
 FetchContent_MakeAvailable(googletest)
 
 target_link_libraries(${PROJECT_NAME} gtest gtest_main)
+
+
+enable_testing()
+add_test(NAME LeslieTests COMMAND ${PROJECT_NAME})
