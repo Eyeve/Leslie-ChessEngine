@@ -1,9 +1,13 @@
+#include "tests.h"
+
 #include <engine.h>
 #include <gtest/gtest.h>
 
 #include <unordered_set>
 
 #include "position.h"
+
+// TODO: ref
 
 #define MERGE_ROWS(a, b, c, d, e, f, g, h) \
   a "\n" b "\n" c "\n" d "\n" e "\n" f "\n" g "\n" h "\n"
@@ -76,8 +80,28 @@ TEST(position, position_ctr) {
   EXPECT_STREQ(expected.c_str(), actual.c_str());
 }
 
+namespace leslie::test {
 
-int main(int argc, char *argv[]) {
-  ::testing::InitGoogleTest(&argc, argv);
+void PositionTest(const std::string& fen, const MoveContainerType& res) {
+  std::unordered_set<Move, MoveHash> expected;
+  for (const auto& [type, from, moves] : res) {
+    for (const auto to : moves) {
+      expected.insert(Move(type, from, to));
+    }
+  }
+
+  Position position(fen);
+  std::vector<Move> actual;
+  position.GetMoves(actual);
+
+  EXPECT_EQ(expected.size(), actual.size());
+  for (Move move : actual) expected.erase(move);
+  EXPECT_TRUE(expected.empty());
+}
+
+}  // namespace leslie::test
+
+int main(int argc, char* argv[]) {
+  testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

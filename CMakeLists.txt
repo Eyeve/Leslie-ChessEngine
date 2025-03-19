@@ -9,15 +9,16 @@ add_executable(${PROJECT_NAME} tests/tests.cpp
         src/engine.cpp
         src/move.cpp
         src/options.cpp
-        tests/knight_move_tests.cpp
-        tests/king_move_test.cpp
-        tests/pawn_move_tests.cpp
-        tests/KNP_move_test.cpp
+        tests/knight_test.cpp
+        tests/king_test.cpp
+        tests/pawn_test.cpp
+        tests/advanced_test.cpp
         src/board.cpp
         src/pieces_container.cpp
         src/pieces_container.h
-        tests/rook_move_tests.cpp
-        tests/bishop_move_tests.cpp
+        tests/rook_test.cpp
+        tests/bishop_test.cpp
+        tests/tests.h
 )
 
 include_directories(src)
