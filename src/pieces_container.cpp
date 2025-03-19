@@ -6,7 +6,7 @@ namespace leslie {
 
 PiecesContainer::PiecesContainer() : pieces_data_() {}
 
-BitboardType& PiecesContainer::GetBitboard(Piece piece) {
+BitboardType& PiecesContainer::GetBitboard(const Piece piece) {
   return pieces_data_[std::to_underlying(piece.color)]
                      [std::to_underlying(piece.type)];
 }
