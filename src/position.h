@@ -16,12 +16,15 @@ std::string ToStr(BitboardType bitboard);
 class Position {
  public:
   explicit Position(const std::string& fen);
-  Position(const Position& pos) = default;
+  Position(const Position& other) = default;
 
   explicit operator std::string() const;
 
-  Position MakeMoves(Move* moves, SizeType size) const;
+  Position MakeMoves(const std::vector<Move>& moves) const;
+  Position MakeMove(const Move& move) const;
   void GetMoves(std::vector<Move>& vec) const;
+
+  bool IsCheck() const;
 
  private:
   using AdderFunction = void (Position::*)(BitboardType,
@@ -43,12 +46,14 @@ class Position {
   static char PieceToChar(Piece piece);
   static AdderFunction PieceToAdder(Piece piece);
 
+  Position(const Position& other, const Move& move);
+
   Color GetOpponent() const;
 
   void AddMoves(AdderFunction adder, BitboardType pieces,
                 std::vector<Move>& vec) const;
-  static void AddPieceMoves(BitboardType from, BitboardType to, PieceType type,
-                            std::vector<Move>& vec);
+  void AddPieceMoves(BitboardType from, BitboardType moves, PieceType type,
+                            std::vector<Move>& vec) const;
 
   void AddKingMoves(BitboardType position, std::vector<Move>& vec) const;
   void AddQueenMoves(BitboardType position, std::vector<Move>& vec) const;

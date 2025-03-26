@@ -71,6 +71,17 @@ Position::Position(const std::string &fen)
   }
 }
 
+Position::Position(const Position &other, const Move &move)
+: pieces_(other.pieces_),
+  en_passant_(),
+  rule_50_(),
+  moves_(),
+  turn_(),
+  w_king_castle(),
+  w_queen_castle(),
+  b_king_castle(),
+  b_queen_castle() {}
+
 Piece Position::CharToPiece(const char c) {
   const Color color = isupper(c) ? Color::kWhite : Color::kBlack;
   PieceType piece_type = PieceType::kNone;
@@ -141,6 +152,10 @@ Color Position::GetOpponent() const {
   return static_cast<Color>(std::to_underlying(turn_) ^ 0b1);
 }
 
+Position Position::MakeMove(const Move &move) const {
+  return Position{*this, move};
+}
+
 void Position::GetMoves(std::vector<Move> &vec) const {
   vec.clear();
 
@@ -160,14 +175,24 @@ void Position::AddMoves(const AdderFunction adder, BitboardType pieces,
   }
 }
 
-void Position::AddPieceMoves(const BitboardType from, BitboardType to,
-                             const PieceType type, std::vector<Move> &vec) {
-  while (to) {
-    BitboardType position = 1ull << std::countr_zero(to);
-    vec.emplace_back(type, from, position);
-    to ^= position;
+void Position::AddPieceMoves(const BitboardType from, BitboardType moves,
+                             const PieceType type,
+                             std::vector<Move> &vec) const {
+  while (moves) {
+    const BitboardType to = 1ull << std::countr_zero(moves);
+    const Move move(type, from, to);
+    const Position position = MakeMove(move);
+
+    vec.push_back(move);
+    // if (!position.IsCheck())
+    moves ^= to;
   }
 }
+
+bool Position::IsCheck() const {
+  return true;
+}
+
 
 void Position::AddKingMoves(const BitboardType position,
                             std::vector<Move> &vec) const {

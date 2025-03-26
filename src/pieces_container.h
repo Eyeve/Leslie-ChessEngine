@@ -4,12 +4,14 @@
 #include <array>
 
 #include "types.h"
+#include "move.h"
 
 namespace leslie {
 
 class PiecesContainer {
  public:
   PiecesContainer();
+  PiecesContainer(const PiecesContainer& other, const Move& move, Color color);
 
   BitboardType& GetBitboard(Piece piece);
   const BitboardType& GetBitboard(Piece piece) const;
