@@ -2,6 +2,8 @@
 #define LESLIE_NETWORK_H_
 
 #include <cstdint>
+
+#include "position.h"
 #define INPUT_SIZE 768
 #define HL_SIZE 2048
 
@@ -16,6 +18,15 @@ class network {
   int16_t accumulator_biases_[HL_SIZE];
   int16_t output_weights_[2 * HL_SIZE];
   int16_t output_bias_;
+  Position& position_;
+  int16_t estimation_;
+  int16_t y_[HL_SIZE];
+
+ public:
+  network(Position& position_);
+  int16_t Eval(Position& position);
+  int16_t Update(Move& move);
+
 };
 
 }  // namespace leslie::nnue
