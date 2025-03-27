@@ -41,6 +41,7 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 FetchContent_MakeAvailable(googletest)
+include_directories(${CMAKE_SOURCE_DIR}/libs/Eigen)
 
 target_link_libraries(${PROJECT_NAME} gtest gtest_main)
 

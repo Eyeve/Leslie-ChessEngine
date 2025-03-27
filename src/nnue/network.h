@@ -1,32 +1,28 @@
 #ifndef LESLIE_NETWORK_H_
 #define LESLIE_NETWORK_H_
 
+#include <Eigen>
 #include <cstdint>
 
 #include "position.h"
 #define INPUT_SIZE 768
 #define HL_SIZE 2048
 
-#define SCALE 400
-#define QA 255
-#define QB 64
-
 namespace leslie::nnue {
 
 class network {
-  int16_t accumulator_weights_[INPUT_SIZE][HL_SIZE];
-  int16_t accumulator_biases_[HL_SIZE];
-  int16_t output_weights_[2 * HL_SIZE];
+  Eigen::Matrix<int16_t, INPUT_SIZE, HL_SIZE> accumulator_weights_;
+  Eigen::Vector<int16_t, HL_SIZE> accumulator_biases_;
+  Eigen::Vector<int16_t, 2 * HL_SIZE> output_weights_;
+  Eigen::Vector<int16_t, HL_SIZE> y_;
   int16_t output_bias_;
   Position& position_;
   int16_t estimation_;
-  int16_t y_[HL_SIZE];
 
  public:
   network(Position& position_);
   int16_t Eval(Position& position);
   int16_t Update(Move& move);
-
 };
 
 }  // namespace leslie::nnue
