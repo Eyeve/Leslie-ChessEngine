@@ -13,7 +13,8 @@ namespace leslie::nnue {
 class network {
   Eigen::Matrix<int16_t, Eigen::Dynamic, Eigen::Dynamic> accumulator_weights_;
   Eigen::Vector<int16_t, HL_SIZE> accumulator_biases_;
-  Eigen::Vector<int16_t, HL_SIZE> output_weights_;  // TODO 2 * HL_SIZE
+  Eigen::Vector<int16_t, HL_SIZE> white_output_weights_;
+  Eigen::Vector<int16_t, HL_SIZE> black_output_weights_;
   Eigen::Vector<int16_t, HL_SIZE> y_;
   int16_t output_bias_;
   Position& position_;

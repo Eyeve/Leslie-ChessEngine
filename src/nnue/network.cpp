@@ -11,9 +11,10 @@ int16_t leslie::nnue::network::Eval(leslie::Position& position) {
   position_ = position;
 
   // TODO ReLU
-  y_ = InputVector().transpose() * accumulator_weights_ +
-       accumulator_biases_.transpose();
-  estimation_ = output_weights_.transpose() * y_ + output_bias_;
+  y_ = accumulator_weights_ * InputVector() +
+       accumulator_biases_;
+  // TODO check turn for ow
+  estimation_ = white_output_weights_.transpose() * y_ + output_bias_;
   return estimation_;
 }
 
