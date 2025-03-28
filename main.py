@@ -70,13 +70,13 @@ if __name__ == "__main__":
     # weights of the inner layer, matrix NxM || old and new
     A = np.zeros((3, N, M), dtype=weight_type)
 
-    # shifting the inner layer, matrix Nx1 || old and new
+    # bias of the inner layer, matrix Nx1 || old and new
     B = np.zeros((3, N, 1), dtype=weight_type)
 
     # weights of the output layer for each active color, matrix Nx2 || old and new
     C = np.zeros((3, N, 2), dtype=weight_type)
 
-    # shifting the output layer, integet || old and new
+    # bias of the output layer, integet || old and new
     d = np.zeros((3, 1), dtype=weight_type)
 
     # expected output values, matrix LX1
@@ -88,6 +88,7 @@ if __name__ == "__main__":
     # input active colors, matrix 2xL, each column is [color, not color]
     X_2 = np.zeros((2, L), dtype=output_type)
 
+    # TODO A and B should be transposed
 
     # f(x) = (C` * ReLu(Ax+B)) + D - for one input vector
     # C` is 
