@@ -134,3 +134,68 @@ CReLu(C^T[N+1:] \cdot CReLu(Ax+B, -32767, 32767) + d, -32000, 32000),     & \tex
 
 # Learning
 
+## Training data
+```math
+X_1 \in \mathcal{M}(L, M)\ of\ bool\ - a\ matrix\ consisting\ of\ L\ position\ entries\\ represented\ as\ M\ binary\ values
+```
+
+<br>
+
+```math
+X_2 \in \mathcal{M}(2, L)\ of\ bool\ - a\ matrix\ of\ two\ rows
+\\ the\ first\ contains\ L\ active\ color\ codes
+\\ the\ second\ is\ its\ logical\ negation
+```
+
+<br>
+
+```math
+Y \in \mathcal{M}(L, 1)\ of\ init16\ - a\ column\ vector\ of\ L\ expected\ values.
+```
+
+## New function
+In order to optimize calculations, the entire function has been rewritten in an exclusively matrix form or matrix *numpy* operation.
+
+1.  CRelu(x, a, b) -> NDArray.clip(a, b) 
+    -  hereinafter referred to as "clip"
+2.  NDArray.diag() - diagonal elements of matrix
+    - hereinafter referred to as "diag"
+3. NDArray.dot(NDArray) - the matrix product
+    - hereinafter referred to as (⋅)
+4. C -> (C[:N], C[N+1:]) two colums
+5. L<sub>1</sub> A column vector of L units
+6. The dependence on the active color is implemented as follows:
+   
+```math
+Z = clip(X_1*A^T + L_1*B^T, -32767, 32767)
+```
+```math
+Z - is\ L \times N\ matrix\ in\ each\ row\ of\ which\ is\ the\\ result\ of\ the\ inner\ layer\ for\ the\ corresponding\ argument
+```
+```math
+C \times X_2 = [C_1, C_2] \times X_2 = [C_1 \times X_2(i) + C_2 \times \overline{X_2(i)}] = [C_1\ or\ C_2]
+```
+the whole piece will look like this
+```math
+\begin{bmatrix}
+C_{11} & C_{12} \\
+\cdot & \cdot \\
+\cdot & \cdot \\
+\cdot & \cdot \\
+C_{N1} & C_{N2} 
+\end{bmatrix} 
+\cdot
+\begin{bmatrix}
+X_{21} & \cdot & \cdot & \cdot X{2M} \\
+\\
+\overline{X_{21}} & \cdot & \cdot & \cdot \overline{X_{2M}}
+\end{bmatrix} 
+=
+\begin{bmatrix}
+C_{11} \cdot X_{21} + C_{21} \cdot \overline{X_{21}} &  \cdot & \cdot & \cdot & C_{11} \cdot X_{2M} + C_{21} \cdot \overline{X_{2M}}\\
+\cdot & \cdot &  &  & \cdot \\
+\cdot &  & \cdot &  & \cdot \\
+\cdot &  &  & \cdot & \cdot \\
+C_{1N} \cdot X_{21} + C_{2N} \cdot \overline{X_{21}} &  \cdot & \cdot & \cdot & C_{1N} \cdot X_{2M} + C_{2N} \cdot \overline{X_{2M}}
+\end{bmatrix}
+```
