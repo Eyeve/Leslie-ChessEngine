@@ -1,28 +1,35 @@
 import numpy as np
 import json
 from numpy.typing import NDArray
+from params import *
+
+# TODO try except
+
 
 # TODO network archeticture
 def func(X: NDArray):
     return 0
 
-# TODO the norm of the gradient matrix
+# the norm of the gradient matrix
 def norm(*matrices: NDArray) -> int:
-    return 0
+    result = 0
+    for matrix in matrices:
+        result += np.linalg.norm(matrix)
+    return result
 
 # TODO calculating the optimal step of the next iteration of descent
 def next_step() -> int:
     return 0
 
 # TODO gradient matrices
-def grad(x) -> tuple[NDArray]:
+def grad(x):
     return ()
 
 # parsing training json data into 
 # input layer matrices and the expected result
 # X_1, X_2, Y
 def read_db(file: str): 
-    with open("./formed.json") as f:
+    with open(file, 'r') as f:
         for i, line in enumerate(f):
 
             if i >= L:
@@ -30,65 +37,56 @@ def read_db(file: str):
 
             note = json.loads(line)
 
-            Y[0][i] = note['count']
-            X_2[0][0][i] = 1 if note['color'] == "w" else 0
-            X_2[0][1][i] = ~ X_2[0][i]
+            Y[i] = note['count']
+            X_2[0][i] = 1 if note['color'] == "w" else 0
+            X_2[1][i] = ~ X_2[0][i]
 
             num = note['fen']
             b = ''
             for j in range(M):
-                X_1[0][i][M-1-j] = num & 1
+                X_1[i][M-1-j] = num & 1
                 num >>= 1
+    del note, line, num
     return 0
 
-# TODO parsing a json file with coefficients
+# parsing a json file with coefficients
 # into matrices of the inner and output layers
 # A, B, C, d
-def read_coefs(file: str) -> tuple[NDArray]: #3 matrix Nx(M+2)X3 from int_16
+def read_coefs(file: str):
+    with open(coefs, 'r') as f:
+        data = json.load(f)
+        A[0] = np.array(data['A'])
+        B[0] = np.array(data['B'])
+        C[0] = np.array(data['C'])
+        d[0] = np.array(data['d'])
+    del data
     return 0
-
-# TODO updating the coefficients of 
-# the inner and output layers
-# writing to a json file
-def update_coefs(file_path: str) -> None:
-    with open(file_path, 'w') as f:
-        pass
-    A[0] = A[1]
-    B[0] = B[1]
-    C[0] = C[1]
-    d[0] = d[1]
-    return 0
-
 
 if __name__ == "__main__":
-    in_f = './input.json'    # input file path            
-    coefs = './network.json' # coefs file path              
-    L = 10                   # data count
-    M = 768                  # input layer size 
-    N = 2048                 # inner layer size  
-    er = 10**(-3)            # error rate        
-    step = 1                 # iteration step of gradient descent
+    #L - count of values
+    #M - input layer size
+    #N - inner later size
 
     # weights of the inner layer, matrix NxM || old and new
-    A = np.zeros((2, N, M), dtype='int16')
+    A = np.zeros((3, N, M), dtype=weight_type)
 
     # shifting the inner layer, matrix Nx1 || old and new
-    B = np.zeros((2, N, 1), dtype='int16')
+    B = np.zeros((3, N, 1), dtype=weight_type)
 
     # weights of the output layer for each active color, matrix Nx2 || old and new
-    C = np.zeros((2, N, 2), dtype='int16')
+    C = np.zeros((3, N, 2), dtype=weight_type)
 
     # shifting the output layer, integet || old and new
-    d = np.zeros((2, 1), dtype='int16')
+    d = np.zeros((3, 1), dtype=weight_type)
 
-    # expected output values, matrix LX1 || old and new
-    Y = np.zeros((2, L, 1), dtype='int16')
+    # expected output values, matrix LX1
+    Y = np.zeros((L, 1), dtype=output_type)
 
-    # input positions, matrix MxL || old and new
-    X_1 = np.zeros((2, M, L), dtype='bool')
+    # input positions, matrix MxL
+    X_1 = np.zeros((M, L), dtype=output_type)
 
-    # input active colors, matrix 2xL, each column is [color, not color] || old and new
-    X_2 = np.zeros((2, 2, L), dtype='bool')
+    # input active colors, matrix 2xL, each column is [color, not color]
+    X_2 = np.zeros((2, L), dtype=output_type)
 
 
     # f(x) = (C` * ReLu(Ax+B)) + D - for one input vector
@@ -96,7 +94,7 @@ if __name__ == "__main__":
     # C[:][1] if active color - 1 (white) 
     # or 
     # C[:][0] if active color - 0 (black) 
-    # F(X) = diag[max(0, [X_1 * A]+[L_1 * B]) * C * X_2] fulli matrix form of network
+    # F(X) = diag[clip([X_1 * A]+[L_1 * B], -in_board, in_board) * C * X_2] fulli matrix form of network
     # Error(A, B, C, d) = ||Y - F(X)||
     # grad(er, A) =
     # grad(er, B) =
@@ -105,10 +103,19 @@ if __name__ == "__main__":
     
     read_db(in_f)
     read_coefs(coefs)
-    while norm(A[1] - A[0], B[1] - B[0], C[1] - C[0], d[1] - d[0]):
-        step = next_step()
-        A[1] = A[0] - step*A[1]
-        B[1] = B[0] - step*B[1]
-        C[1] = C[0] - step*C[1]
-        d[1] = d[0] - step*d[1]
+
+    while norm(A[1] - A[0], B[1] - B[0], C[1] - C[0], d[1] - d[0]) > er:
+        step = next_step() #step update
+        grad() #grads update
+
+        #new matrices counting
+        A[1] = A[0] - step*A[2]
+        B[1] = B[0] - step*B[2]
+        C[1] = C[0] - step*C[2]
+        d[1] = d[0] - step*d[2]
         
+        #matrices update
+        A[0] = np.clip(A[1], -weight_board, weight_board)
+        B[0] = np.clip(B[1], -weight_board, weight_board)
+        C[0] = np.clip(C[1], -weight_board, weight_board)
+        d[0] = np.clip(d[1], -weight_board, weight_board)
