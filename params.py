@@ -1,12 +1,12 @@
-in_f = './resourses/input.json'    # input file path            
+in_f = './resourses/test.json'    # input file path            
 coefs = './resourses/network.json' # coefs file path              
-L = 10                   # data count d.4*10^6
+L = 1000                # data count d.4*10^6
 M = 768                  # input layer size d.768
-N = 256                 # inner layer size d.2048
+N = 2048                 # inner layer size d.2048
 er = 10**(-3)            # error rate        
 step = 1                 # iteration step of gradient descent
 
-inner_bord = 32767
+in_bord = 32767
 out_bord = 32000
 weight_board = 65504
 

@@ -6,9 +6,18 @@ from params import *
 # TODO try except
 
 
-# TODO network archeticture
-def func(X: NDArray):
-    return 0
+# network archeticture
+def func() -> NDArray:
+    result = (
+        np.diag(
+            (X_1.dot(A[0]) + L_1.dot(B[0]))  # Inner layer
+            .clip(-in_bord, in_bord)             # Inner CReLu
+            .dot(C[0])                       # Output weights
+            .dot(X_2)                         # Active color dependence
+        )
+        + L_1.dot(d[0])                      # Outpu layer
+    )
+    return result.clip(-out_bord, out_bord)        # Output CReLu
 
 # the norm of the gradient matrix
 def norm(*matrices: NDArray) -> int:
@@ -28,8 +37,8 @@ def grad(x):
 # parsing training json data into 
 # input layer matrices and the expected result
 # X_1, X_2, Y
-def read_db(file: str): 
-    with open(file, 'r') as f:
+def read_db(): 
+    with open(in_f, 'r') as f:
         for i, line in enumerate(f):
 
             if i >= L:
@@ -52,7 +61,7 @@ def read_db(file: str):
 # parsing a json file with coefficients
 # into matrices of the inner and output layers
 # A, B, C, d
-def read_coefs(file: str):
+def read_coefs():
     with open(coefs, 'r') as f:
         data = json.load(f)
         A[0] = np.array(data['A'])
@@ -62,16 +71,18 @@ def read_coefs(file: str):
     del data
     return 0
 
-if __name__ == "__main__":
+
+def init():
+    global A, B, C, d, X_1, X_2, Y, L_1
     #L - count of values
     #M - input layer size
     #N - inner later size
 
-    # weights of the inner layer, matrix NxM || old and new
-    A = np.zeros((3, N, M), dtype=weight_type)
+    # weights of the inner layer, matrix MxN || old and new
+    A = np.zeros((3, M, N), dtype=weight_type)
 
-    # bias of the inner layer, matrix Nx1 || old and new
-    B = np.zeros((3, N, 1), dtype=weight_type)
+    # bias of the inner layer, matrix 1xN || old and new
+    B = np.zeros((3, 1, N), dtype=weight_type)
 
     # weights of the output layer for each active color, matrix Nx2 || old and new
     C = np.zeros((3, N, 2), dtype=weight_type)
@@ -83,11 +94,15 @@ if __name__ == "__main__":
     Y = np.zeros((L, 1), dtype=output_type)
 
     # input positions, matrix MxL
-    X_1 = np.zeros((M, L), dtype=output_type)
+    X_1 = np.zeros((L, M), dtype=output_type)
 
     # input active colors, matrix 2xL, each column is [color, not color]
     X_2 = np.zeros((2, L), dtype=output_type)
 
+    # An L-dimensional vector is a column of units
+    L_1 = 1 + np.zeros((L, 1), dtype=output_type)
+
+if __name__ == "__main__":
     # TODO A and B should be transposed
 
     # f(x) = (C` * ReLu(Ax+B)) + D - for one input vector
@@ -95,7 +110,7 @@ if __name__ == "__main__":
     # C[:][1] if active color - 1 (white) 
     # or 
     # C[:][0] if active color - 0 (black) 
-    # F(X) = diag[clip([X_1 * A]+[L_1 * B], -in_board, in_board) * C * X_2] fulli matrix form of network
+    # F(X) = clip(diag[clip([X_1 * A]+[L_1 * B], -in_board, in_board) * C * X_2] + d, -out_board, out_board) fulli matrix form of network
     # Error(A, B, C, d) = ||Y - F(X)||
     # grad(er, A) =
     # grad(er, B) =
