@@ -32,5 +32,8 @@ Eigen::Vector<int16_t, INPUT_SIZE> Nnue::InputVector() {
   result.setZero();
   return result;
 }
+int16_t Nnue::CReLu(int16_t i, int16_t min, int16_t max) {
+  return std::max(min, std::min(i, max));
+}
 
 }  // namespace leslie::nnue
