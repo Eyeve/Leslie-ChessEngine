@@ -3,8 +3,8 @@
 
 #include <array>
 
-#include "types.h"
 #include "move.h"
+#include "types.h"
 
 namespace leslie {
 

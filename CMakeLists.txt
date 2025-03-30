@@ -20,6 +20,7 @@ add_executable(${PROJECT_NAME} tests/tests.cpp
         tests/rook_test.cpp
         tests/bishop_test.cpp
         tests/tests.h
+        src/types.cpp
 )
 
 include_directories(src)

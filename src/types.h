@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cinttypes>
+#include <string>
 #include <unordered_map>
 
 #define LESLIE_ROW(sq1, sq2, sq3, sq4, sq5, sq6, sq7, sq8, rank)       \
@@ -82,6 +83,12 @@ enum class Square : BitboardType {
   LESLIE_ROW(kA1, kB1, kC1, kD1, kE1, kF1, kG1, kH1, kRank1),
 };
 
+struct PieceMoves {
+  Piece piece;
+  Square from;
+  BitboardType to;
+};
+
 enum class Direction {
   kUp,
   kUpRight,
@@ -92,6 +99,14 @@ enum class Direction {
   kLeft,
   kUpLeft,
 };
+
+class Position;
+
+std::string ToStr(BitboardType bitboard);
+std::string ToStr(const Position& position);
+
+Piece ConvertCharToPiece(char c);
+char ConvertPieceToChar(Piece piece);
 
 }  // namespace leslie
 

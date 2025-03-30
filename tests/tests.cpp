@@ -75,7 +75,7 @@ TEST(position, position_ctr) {
   std::string expected =
       MERGE_ROWS("rnbqkbnr", "pppppppp", "........", "........", "....P...",
                  "........", "PPPP.PPP", "RNBQKBNR");
-  std::string actual = static_cast<std::string>(position);
+  std::string actual = leslie::ToStr(position);
   EXPECT_STREQ(expected.c_str(), actual.c_str());
 }
 
@@ -91,7 +91,7 @@ void PositionTest(const std::string& fen, const MoveContainerType& res) {
 
   Position position(fen);
   std::vector<Move> actual;
-  position.GetMoves(actual);
+  position.AddPossibleMoves(actual);
 
   EXPECT_EQ(expected.size(), actual.size());
   for (Move move : actual) expected.erase(move);
