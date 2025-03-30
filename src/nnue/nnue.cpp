@@ -1,13 +1,13 @@
-#include "network.h"
+#include "nnue.h"
 
 namespace leslie::nnue {
 
-leslie::nnue::network::network(Position& position_) : position_(position_) {
+leslie::nnue::Nnue::Nnue(Position& position_) : position_(position_) {
   accumulator_weights_.resize(INPUT_SIZE, HL_SIZE);
   // TODO read coeff
 }
 
-int16_t leslie::nnue::network::Eval(leslie::Position& position) {
+int16_t leslie::nnue::Nnue::Eval(leslie::Position& position) {
   position_ = position;
 
   // TODO ReLU
@@ -18,15 +18,15 @@ int16_t leslie::nnue::network::Eval(leslie::Position& position) {
   return estimation_;
 }
 
-int16_t leslie::nnue::network::Update(leslie::Move& move) {
+int16_t leslie::nnue::Nnue::Update(leslie::Move& move) {
   // y_ -четотам + четотам
   // estimation_ = четотам
   return estimation_;
 }
 
-int16_t network::Eval() { return estimation_; }
+int16_t Nnue::Eval() { return estimation_; }
 
-Eigen::Vector<int16_t, INPUT_SIZE> network::InputVector() {
+Eigen::Vector<int16_t, INPUT_SIZE> Nnue::InputVector() {
   // TODO
   Eigen::Vector<int16_t, INPUT_SIZE> result;
   result.setZero();

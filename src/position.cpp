@@ -108,7 +108,21 @@ bool Position::IsMoveMadeValid() const {
 }
 
 void Position::MakeMoveInPlace(const Move& move) {
-  // TODO: implementation
+  // TODO: pawn promoting implementation
+  // TODO: en passant capture implementation
+  const BitboardType from = std::to_underlying(move.from);
+  const BitboardType to = std::to_underlying(move.to);
+  const BitboardType valid = ~to;
+  BitboardType& ref = GetMyBitboard(move.type);
+
+  ref &= ~from;
+  ref |= to;
+  GetOpBitboard(PieceType::kKing) &= valid;
+  GetOpBitboard(PieceType::kQueen) &= valid;
+  GetOpBitboard(PieceType::kRook) &= valid;
+  GetOpBitboard(PieceType::kBishop) &= valid;
+  GetOpBitboard(PieceType::kKnight) &= valid;
+  GetOpBitboard(PieceType::kPawn) &= valid;
 }
 
 void Position::AddPieceMoves(const MovesGetter getter, const PieceType type,
@@ -135,11 +149,19 @@ void Position::AddPieceMoves(const MovesGetter getter, const PieceType type,
   }
 }
 
-BitboardType Position::GetMyBitboard(const PieceType type) const {
+const BitboardType& Position::GetMyBitboard(const PieceType type) const {
   return pieces_.GetBitboard(Piece(type, GetMyColor()));
 }
 
-BitboardType Position::GetOpBitboard(const PieceType type) const {
+const BitboardType& Position::GetOpBitboard(const PieceType type) const {
+  return pieces_.GetBitboard(Piece(type, GetOpColor()));
+}
+
+BitboardType& Position::GetMyBitboard(const PieceType type) {
+  return pieces_.GetBitboard(Piece(type, GetMyColor()));
+}
+
+BitboardType& Position::GetOpBitboard(const PieceType type) {
   return pieces_.GetBitboard(Piece(type, GetOpColor()));
 }
 
