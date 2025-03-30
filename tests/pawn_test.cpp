@@ -5,15 +5,20 @@
 namespace leslie::test {
 
 TEST(pawn, test1) {
-  PositionTest("8/p7/1P5N/8/8/8/8/8 b - - 0 1",
-               {{PieceType::kPawn,
+  PositionTest("8/p5K1/1P5N/8/8/8/1k6/8 b - - 0 1",
+               {{PieceType::kKing,
+                 Square::kB2,
+                 {Square::kA1, Square::kA2, Square::kA3, Square::kB1,
+                  Square::kB3, Square::kC1, Square::kC2, Square::kC3}},
+                {PieceType::kPawn,
                  Square::kA7,
                  {Square::kA6, Square::kB6, Square::kA5}}});
 }
 
 TEST(pawn, test2) {
-  PositionTest("8/8/3pbn2/4P3/2p5/3P4/1PP5/8 w - - 0 1",
-               {{
+  PositionTest("8/1k6/3pbn2/4P3/2p5/3P4/1PP5/K7 w - - 0 1",
+               {{PieceType::kKing, Square::kA1, {Square::kA2, Square::kB1}},
+                {
                     PieceType::kPawn,
                     Square::kB2,
                     {Square::kB3, Square::kB4},
@@ -36,8 +41,9 @@ TEST(pawn, test2) {
 }
 
 TEST(pawn, test3) {
-  PositionTest("8/3p1pp1/2Q2N2/2p5/N6p/B5P1/p7/7R b - - 0 1",
-               {{
+  PositionTest("1k6/3p1pp1/2Q2N2/2p5/N6p/B2K2P1/p7/7R b - - 0 1",
+               {{PieceType::kKing, Square::kB8, {Square::kA7}},
+                {
                     PieceType::kPawn,
                     Square::kA2,
                     {Square::kA1},

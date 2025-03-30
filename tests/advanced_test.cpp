@@ -4,12 +4,12 @@
 
 namespace leslie::test {
 TEST(advanced, test1) {
-  PositionTest("8/nK6/2Nrpq1P/4P3/3P4/2r5/1P4N1/8 w - - 0 1",
+  PositionTest("8/nK6/2Nrpq1P/4P3/3P4/2r3k1/1P4N1/8 w - - 0 1",
                {
                    {PieceType::kKing,
                     Square::kB7,
                     {Square::kB6, Square::kA6, Square::kA7, Square::kA8,
-                     Square::kB8, Square::kC8, Square::kC7}},
+                     Square::kB8, Square::kC7}},
 
                    {PieceType::kKnight,
                     Square::kC6,
@@ -32,11 +32,11 @@ TEST(advanced, test1) {
 
 TEST(advanced, test2) {
   PositionTest(
-      "8/8/3n4/2Q3b1/8/2p2N2/PP6/4KB2 w - - 0 1",
+      "5k2/8/3n4/2Q3b1/8/2p2N2/PP6/4KB2 w - - 0 1",
       {
           {PieceType::kKing,
            Square::kE1,
-           {Square::kD1, Square::kD2, Square::kE2, Square::kF2}},
+           {Square::kD1, Square::kE2, Square::kF2}},
           {PieceType::kKnight,
            Square::kF3,
            {Square::kG1, Square::kH2, Square::kH4, Square::kG5, Square::kE5,

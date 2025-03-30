@@ -6,8 +6,11 @@ namespace leslie::test {
 
 TEST(rook, test1) {
   PositionTest(
-      "8/8/8/1p1R1P2/8/1P6/8/3b4 w - - 0 1",
+      "8/5k2/8/1p1R1P2/8/1P6/8/K2b4 w - - 0 1",
       {
+          {PieceType::kKing,
+           Square::kA1,
+           {Square::kA2, Square::kB2, Square::kB1}},
           {PieceType::kRook,
            Square::kD5,
            {Square::kD1, Square::kD2, Square::kD3, Square::kD4, Square::kD6,
@@ -19,8 +22,11 @@ TEST(rook, test1) {
 }
 
 TEST(rook, test2) {
-  PositionTest("8/8/8/8/8/6N1/1P4rN/6r1 b - - 0 1",
+  PositionTest("k6K/8/8/8/8/6N1/1P4rN/6r1 b - - 0 1",
                {
+                   {PieceType::kKing,
+                    Square::kA8,
+                    {Square::kA7, Square::kB7, Square::kB8}},
                    {PieceType::kRook,
                     Square::kG2,
                     {Square::kG3, Square::kH2, Square::kB2, Square::kC2,
