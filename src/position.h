@@ -48,8 +48,10 @@ class Position {
   void AddPieceMoves(MovesGetter getter, PieceType type,
                      std::vector<Move>& moves) const;
 
-  BitboardType GetMyBitboard(PieceType type) const;
-  BitboardType GetOpBitboard(PieceType type) const;
+  const BitboardType& GetMyBitboard(PieceType type) const;
+  const BitboardType& GetOpBitboard(PieceType type) const;
+  BitboardType& GetMyBitboard(PieceType type);
+  BitboardType& GetOpBitboard(PieceType type);
 
   BitboardType GetKingsMoves(BitboardType sqs, BitboardType blockers) const;
   BitboardType GetQueensMoves(BitboardType sq, BitboardType blockers) const;

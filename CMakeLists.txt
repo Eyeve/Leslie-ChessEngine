@@ -20,8 +20,8 @@ add_executable(${PROJECT_NAME} tests/tests.cpp
         tests/rook_test.cpp
         tests/bishop_test.cpp
         tests/tests.h
-        src/nnue/network.cpp
-        src/nnue/network.h
+        src/nnue/nnue.cpp
+        src/nnue/nnue.h
         src/types.cpp
 )
 
