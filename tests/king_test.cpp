@@ -18,8 +18,8 @@ TEST(king, test2) {
                {
                    {PieceType::kKing,
                     Square::kD5,
-                    {Square::kC6, Square::kD6, Square::kE6, Square::kC5,
-                     Square::kE5, Square::kC4, Square::kD4, Square::kE4}},
+                    {Square::kC6, Square::kD6, Square::kE6, Square::kC4,
+                     Square::kD4, Square::kE4}},
                });
 }
 

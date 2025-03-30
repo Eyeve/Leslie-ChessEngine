@@ -123,6 +123,8 @@ void Position::MakeMoveInPlace(const Move& move) {
   GetOpBitboard(PieceType::kBishop) &= valid;
   GetOpBitboard(PieceType::kKnight) &= valid;
   GetOpBitboard(PieceType::kPawn) &= valid;
+  ++moves_;
+  current_ = GetOpColor();
 }
 
 void Position::AddPieceMoves(const MovesGetter getter, const PieceType type,
