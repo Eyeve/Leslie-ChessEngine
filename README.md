@@ -68,6 +68,10 @@ index = (color \times 64 \times 6) + (type \times 64) + cell
 ## Inner Layer
 
 ```math
+\alpha = 6\ ;\ \beta = 32000
+```
+
+```math
 A \in \mathcal{M}(M, N)\ of\ int16\ - matrix\ of\ inner\ layer\ weights
 ```
 ```math
@@ -88,7 +92,7 @@ b,  & \text{if } x > b
 z \in \mathcal{M}(N, 1)\ of\ int16\ - vector-result\ of\ inner\ layer
 ```
 ```math
-\Large z = CReLu(Ax+B, -32767, 32767)
+\Large z = CReLu(Ax+B, -\alpha, \alpha)
 ```
 
 ## Output layer
@@ -116,8 +120,8 @@ b,  & \text{if } x > b
 ```math
 \Large Y(z, x`) = 
 \begin{cases}
-CReLu(C^T[:N] \cdot z + d, -32000, 32000) & \text{if } x` = 0 \\
-CReLu(C^T[N+1:] \cdot z + d, -32000, 32000),     & \text{if } x` = 1
+CReLu(C^T[:N] \cdot z + d, -\beta, \beta) & \text{if } x` = 0 \\
+CReLu(C^T[N+1:] \cdot z + d, -\beta, \beta),     & \text{if } x` = 1
 \end{cases}
 ```
 
@@ -125,8 +129,8 @@ CReLu(C^T[N+1:] \cdot z + d, -32000, 32000),     & \text{if } x` = 1
 ```math
 f(x, x`) = 
 \begin{cases}
-CReLu(C^T[:N] \cdot CReLu(Ax+B, -32767, 32767) + d, -32000, 32000) & \text{if } x` = 0 \\
-CReLu(C^T[N+1:] \cdot CReLu(Ax+B, -32767, 32767) + d, -32000, 32000),     & \text{if } x` = 1
+CReLu(C^T[:N] \cdot CReLu(Ax+B, -\alpha, \alpha) + d, -\beta, \beta) & \text{if } x` = 0 \\
+CReLu(C^T[N+1:] \cdot CReLu(Ax+B, -\alpha, \alpha) + d, -\beta, \beta),     & \text{if } x` = 1
 \end{cases}
 ```
 
@@ -142,9 +146,7 @@ X_1 \in \mathcal{M}(L, M)\ of\ bool\ - a\ matrix\ consisting\ of\ L\ position\ e
 <br>
 
 ```math
-X_2 \in \mathcal{M}(2, L)\ of\ bool\ - a\ matrix\ of\ two\ rows
-\\ the\ first\ contains\ L\ active\ color\ codes
-\\ the\ second\ is\ its\ logical\ negation
+X_2 \in \mathcal{M}(L, 1)\ of\ bool\
 ```
 
 <br>
@@ -158,44 +160,60 @@ In order to optimize calculations, the entire function has been rewritten in an 
 
 1.  CRelu(x, a, b) -> NDArray.clip(a, b) 
     -  hereinafter referred to as "clip"
-2.  NDArray.diag() - diagonal elements of matrix
-    - hereinafter referred to as "diag"
-3. NDArray.dot(NDArray) - the matrix product
+2. NDArray.dot(NDArray) - the matrix product
     - hereinafter referred to as (⋅)
-4. C -> (C[:N], C[N+1:]) two colums
-5. L<sub>1</sub> A column vector of L units
+3. C -> (C_1, C_2) two colums
+4. 1<sub>L</sub> A column vector of L units
+5. 1<sub>N</sub> A column vector of N units
 6. The dependence on the active color is implemented as follows:
    
 ```math
-Z = clip(X_1*A^T + L_1*B^T, -32767, 32767)
+X_2 \times {C_1}^T + (1-X_2) \times {C_2}^T \ ;\ [L \times N]
+```
+
+## Loss function
+
+```math
+\times\ -\ the usual \ matrix\ multiplication
 ```
 ```math
-Z - is\ L \times N\ matrix\ in\ each\ row\ of\ which\ is\ the\\ result\ of\ the\ inner\ layer\ for\ the\ corresponding\ argument
+\odot\ -\ element\ wise\ multiplication
+```
+
+```math
+\theta = \{A^T, b^T, {C_1}^T, {C_2}^T, d\}
+```
+
+```math
+E(\theta) = \frac{1}{2}||Y - ([([(X_1 \times A^T + 1_L \times b^T) \odot M_Z] \odot [X_2 \times {C_1}^T + (1-X_2) \times {C_2}^T]) \times 1_N + (d \cdot 1_N)] \odot M_F)||^2
+```
+
+```math
+\nabla E_{A^T} =\ \ {X^T} \times ((\Delta \odot M_F \times {1_N}^T) \odot T \odot M_Z) \ ;\ [M \times L]
 ```
 ```math
-C \times X_2 = [C_1, C_2] \times X_2 = [C_1 \times X_2(i) + C_2 \times \overline{X_2(i)}] = [C_1\ or\ C_2]
+\nabla E_{b^T} =\ \ {1_L}^T \times ((\Delta \odot M_F \times {1_N}^T) \odot T \odot M_Z) \ ;\ [1 \times N]
 ```
-the whole piece will look like this
 ```math
-\begin{bmatrix}
-C_{11} & C_{12} \\
-\cdot & \cdot \\
-\cdot & \cdot \\
-\cdot & \cdot \\
-C_{N1} & C_{N2} 
-\end{bmatrix} 
-\cdot
-\begin{bmatrix}
-X_{21} & \cdot & \cdot & \cdot X{2M} \\
-\\
-\overline{X_{21}} & \cdot & \cdot & \cdot \overline{X_{2M}}
-\end{bmatrix} 
-=
-\begin{bmatrix}
-C_{11} \cdot X_{21} + C_{21} \cdot \overline{X_{21}} &  \cdot & \cdot & \cdot & C_{11} \cdot X_{2M} + C_{21} \cdot \overline{X_{2M}}\\
-\cdot & \cdot &  &  & \cdot \\
-\cdot &  & \cdot &  & \cdot \\
-\cdot &  &  & \cdot & \cdot \\
-C_{1N} \cdot X_{21} + C_{2N} \cdot \overline{X_{21}} &  \cdot & \cdot & \cdot & C_{1N} \cdot X_{2M} + C_{2N} \cdot \overline{X_{2M}}
-\end{bmatrix}
+\nabla E_{C_1}^T =\ \ {X_2}^T \times ((\Delta \odot M_F \times {1_N}^T) \odot Z \odot M_Z) \ ;\ [1 \times N]
+```
+```math
+\nabla E_{C_2}^T =\ \ (1 - X_2)^T \times ((\Delta \odot M_F \times {1_N}^T) \odot Z \odot M_Z) \ ;\ [1 \times N]
+```
+```math
+\nabla E_d =\ \ {1_L}^T \times (\Delta \odot M_F ) \ ;\ [1 \times 1]
+```
+
+**For more detailed calculations, read grad.md**
+
+## Gradient descent
+
+```math
+||\nabla E(\theta)||^2_2 = \sum_{\theta}||\nabla E_{\theta}||^2_F
+```
+```math
+\eta = \frac{c}{||\nabla E(\theta)||^2_2}
+```
+```math
+\theta_{i+1} = \theta_{i} - \eta \nabla E(\theta_i) \ ,\ ||\nabla E(\theta_{i+1})||^2_2 > \varepsilon 
 ```

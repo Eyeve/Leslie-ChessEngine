@@ -5,7 +5,7 @@ from params import *
 
 # TODO try except
 
-
+#huy
 # network archeticture
 def func() -> NDArray:
     result = (
