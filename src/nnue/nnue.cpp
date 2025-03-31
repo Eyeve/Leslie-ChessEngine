@@ -11,8 +11,7 @@ int16_t leslie::nnue::Nnue::Eval(leslie::Position& position) {
   position_ = position;
 
   // TODO ReLU
-  y_ = accumulator_weights_ * InputVector() +
-       accumulator_biases_;
+  y_ = accumulator_weights_ * InputVector() + accumulator_biases_;
   // TODO check turn for ow
   estimation_ = white_output_weights_.transpose() * y_ + output_bias_;
   return estimation_;
@@ -31,6 +30,9 @@ Eigen::Vector<int16_t, INPUT_SIZE> Nnue::InputVector() {
   Eigen::Vector<int16_t, INPUT_SIZE> result;
   result.setZero();
   return result;
+}
+int16_t Nnue::CReLu(int16_t i, int16_t min, int16_t max) {
+  return std::max(min, std::min(i, max));
 }
 
 }  // namespace leslie::nnue

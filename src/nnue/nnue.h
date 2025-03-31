@@ -30,6 +30,7 @@ class Nnue {
   int16_t estimation_;
 
   Eigen::Vector<int16_t, INPUT_SIZE> InputVector();
+  int16_t CReLu(int16_t i, int16_t min, int16_t max);
 };
 
 }  // namespace leslie::nnue
