@@ -4,7 +4,7 @@ L = 1000                # data count d.4*10^6
 M = 768                  # input layer size d.768
 N = 1024                 # inner layer size d.2048
 er = 10**(-3)            # error rate        
-step = 1                 # iteration step of gradient descent
+con = 1                 # iteration step of gradient descent
 
 in_bord = 6
 out_bord = 32000

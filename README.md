@@ -4,216 +4,167 @@
 
 ![Не Лесли](https://github.com/Eyeve/Leslie-ChessEngine/blob/learning/resourses/Jarvis.jpg)
 
-# Network architecture
+## Mathematical Description
 
-## Initial conditions
-1. `L` - The amount of training data
-2. `M` - The size of the input layer
-3. `N` - The size of the inner layer
+This project implements a neural network for chess position evaluation using gradient descent optimization.
 
-## Input
+### Network Architecture
 
-### Position - a set of combinations (cell, type, color)
+The network consists of:
 
 ```math
-\Large Cell \in \{0,...,63\}
+\Large Input\ layer: X_1 \in \{0,1\}^{L×M}, M=768
+```
+```math
+\Large Hidden\ layer: Z \in \mathbb{R}^{L×N}, N=1024
+```
+```math
+\Large Output\ layer: F \in \mathbb{R}^{L×1}
 ```
 
-<br>
+### Input Layer Encoding
 
-```math
-\Large Type \in \{0,...,5\} \\
-```
+The input layer represents chess positions as 768-bit vectors:
 
-```math
-Pawn = 0, Knight = 1, Bishop = 2, Rook = 3, Queen = 4, King = 5
-```
+1. Each piece is encoded by (position, type, color):
+   - Position ∈ {0,...,63} (chess board squares)
+   - Type ∈ {0,...,5} (Pawn=0, Knight=1, Bishop=2, Rook=3, Queen=4, King=5)
+   - Color ∈ {0,1} (White=0, Black=1)
 
-<br>
-
+2. Using Chinese Remainder Theorem, each piece maps to a unique index:
 ```math
-\Large Color \in \{0, 1\}
-```
-```math
-White = 0,\ Black = 1
+\Large index = (color × 64 × 6) + (type × 64) + position
 ```
 
-### The Chinese Remainder Theorem
-
+3. The final input vector X is created by setting bits:
 ```math
-(\mathbb{N}/_{64\mathbb{N}};\ \mathbb{N}/_{6\mathbb{N}};\ \mathbb{N}/_{2\mathbb{N}}) \simeq \mathbb{N}/_{768\mathbb{N}}
+X[index] = 1 \text{ for each piece on board}
 ```
 
-<br>
+### Hidden Layer Computation
 
+The hidden layer transforms the input using:
+
+1. Linear transformation with weights A and bias b:
 ```math
-(color,\ type,\ cell) \hookrightarrow index
-```
-
-```math
-index = (color \times 64 \times 6) + (type \times 64) + cell
-```
-
-### The position is a 768-bit number.
-
-```math
-\Large Position = \sum (1 << index_i)
+\Large S = X_1 \times A^T + 1_L \times b^T
 ```
 
-## Output
+2. Activation with clipping function:
 ```math
-\Large value \in [-32000; 32000]
+Z = clip(S, -\alpha, \alpha), \alpha = 6
+```
+```math
+clip(x,a,b) = max(min(x,b),a)
 ```
 
-## Inner Layer
+### Output Layer Computation
 
-```math
-\alpha = 6\ ;\ \beta = 32000
-```
+The output layer produces evaluations based on active color:
 
+1. Color-dependent weight selection:
 ```math
-A \in \mathcal{M}(M, N)\ of\ int16\ - matrix\ of\ inner\ layer\ weights
+T = X_2 \times C_1^T + (1-X_2) \times C_2^T
+```
+Where C₁ is used for white's move, C₂ for black's move
+
+2. Final computation with clipping:
+```math
+\Large U = (Z \odot T) \times 1_N + (d \cdot 1_L)
 ```
 ```math
-B \in \mathcal{M}(N, 1)\ of\ int16\ - vector\ of\ inner\ layer\ bias
-```
-```math
-CReLu(x, a, b) = 
-\begin{cases}
-a, & \text{if } x < a \\
-x,     & \text{if } a \leq x \leq b \\
-b,  & \text{if } x > b
-\end{cases}
-```
-```math
-\Large x \in \mathcal{M}(M, 1)\ of\ bool\ - input\ position\ vector
-```
-```math
-z \in \mathcal{M}(N, 1)\ of\ int16\ - vector-result\ of\ inner\ layer
-```
-```math
-\Large z = CReLu(Ax+B, -\alpha, \alpha)
+\Large F = clip(U, -\beta, \beta), \beta = 32000
 ```
 
-## Output layer
+The output F represents position evaluation in centipawns (-32000 to +32000)
+
+### Parameters
+
+Network parameters θ include:
 ```math
-C \in \mathcal{M}(2N, 1)\ of\ int16\ - vector\ of\ output\ layer\ weights\\ two\ part\ for\ two\ active\ color\
+A^T \in \mathbb{R}^{M×N} - \text{Hidden layer weights}
 ```
 ```math
-d\ (int16) - output\ layer\ bies
+b^T \in \mathbb{R}^{1×N} - \text{Hidden layer bias}
 ```
 ```math
-\Large x`\ (bool)\ -\ active\ color\ of\ input
+C_1^T, C_2^T \in \mathbb{R}^{1×N} - \text{Output weights for white/black}
 ```
 ```math
-z \in \mathcal{M}(N, 1)\ of\ int16\ - vector-result\ of\ inner\ layer
-```
-```math
-CReLu(x, a, b) = 
-\begin{cases}
-a, & \text{if } x < a \\
-x,     & \text{if } a \leq x \leq b \\
-b,  & \text{if } x > b
-\end{cases}
+d \in \mathbb{R} - \text{Output bias}
 ```
 
+### Loss Function
+
+Mean squared error between predictions and targets:
 ```math
-\Large Y(z, x`) = 
-\begin{cases}
-CReLu(C^T[:N] \cdot z + d, -\beta, \beta) & \text{if } x` = 0 \\
-CReLu(C^T[N+1:] \cdot z + d, -\beta, \beta),     & \text{if } x` = 1
-\end{cases}
+\Large E = \frac{1}{2}||Y - F||^2
 ```
 
-## Full function
+### Gradient Descent
+
+Parameters are updated using:
 ```math
-f(x, x`) = 
-\begin{cases}
-CReLu(C^T[:N] \cdot CReLu(Ax+B, -\alpha, \alpha) + d, -\beta, \beta) & \text{if } x` = 0 \\
-CReLu(C^T[N+1:] \cdot CReLu(Ax+B, -\alpha, \alpha) + d, -\beta, \beta),     & \text{if } x` = 1
-\end{cases}
+\Large \theta_{i+1} = \theta_i - \eta \nabla E(\theta_i)
 ```
 
-<br><br>
-
-# Learning
-
-## Training data
+Where learning rate η is adaptive:
 ```math
-X_1 \in \mathcal{M}(L, M)\ of\ bool\ - a\ matrix\ consisting\ of\ L\ position\ entries\\ represented\ as\ M\ binary\ values
+\Large \eta = \frac{c}{||\nabla E(\theta)||^2_2}
 ```
 
-<br>
+### Gradient Computation
 
+Gradients are computed via chain rule:
 ```math
-X_2 \in \mathcal{M}(L, 1)\ of\ bool\
+\frac{\partial E}{\partial A^T} = \frac{\partial E}{\partial F} \frac{\partial F}{\partial U} \frac{\partial U}{\partial Z} \frac{\partial Z}{\partial S} \frac{\partial S}{\partial A^T}
 ```
-
-<br>
-
 ```math
-Y \in \mathcal{M}(L, 1)\ of\ init16\ - a\ column\ vector\ of\ L\ expected\ values.
+\frac{\partial E}{\partial b^T} = \frac{\partial E}{\partial F} \frac{\partial F}{\partial U} \frac{\partial U}{\partial Z} \frac{\partial Z}{\partial S} \frac{\partial S}{\partial b^T}
 ```
-
-## New function
-In order to optimize calculations, the entire function has been rewritten in an exclusively matrix form or matrix *numpy* operation.
-
-1.  CRelu(x, a, b) -> NDArray.clip(a, b) 
-    -  hereinafter referred to as "clip"
-2. NDArray.dot(NDArray) - the matrix product
-    - hereinafter referred to as (⋅)
-3. C -> (C_1, C_2) two colums
-4. 1<sub>L</sub> A column vector of L units
-5. 1<sub>N</sub> A column vector of N units
-6. The dependence on the active color is implemented as follows:
-   
 ```math
-X_2 \times {C_1}^T + (1-X_2) \times {C_2}^T \ ;\ [L \times N]
+\frac{\partial E}{\partial C_1^T} = \frac{\partial E}{\partial F} \frac{\partial F}{\partial U} \frac{\partial U}{\partial T} \frac{\partial T}{\partial C_1^T}
+```
+```math
+\frac{\partial E}{\partial C_2^T} = \frac{\partial E}{\partial F} \frac{\partial F}{\partial U} \frac{\partial U}{\partial T} \frac{\partial T}{\partial C_2^T}
+```
+```math
+\frac{\partial E}{\partial d} = \frac{\partial E}{\partial F} \frac{\partial F}{\partial U} \frac{\partial U}{\partial d}
 ```
 
-## Loss function
-
+Final gradient expressions:
 ```math
-\times\ -\ the usual \ matrix\ multiplication
+\nabla E_{A^T} = X_1^T \times ((\Delta \odot M_F \times {1_N}^T) \odot T \odot M_Z)
 ```
 ```math
-\odot\ -\ element\ wise\ multiplication
-```
-
-```math
-\theta = \{A^T, b^T, {C_1}^T, {C_2}^T, d\}
-```
-
-```math
-E(\theta) = \frac{1}{2}||Y - ([([(X_1 \times A^T + 1_L \times b^T) \odot M_Z] \odot [X_2 \times {C_1}^T + (1-X_2) \times {C_2}^T]) \times 1_N + (d \cdot 1_N)] \odot M_F)||^2
-```
-
-```math
-\nabla E_{A^T} =\ \ {X^T} \times ((\Delta \odot M_F \times {1_N}^T) \odot T \odot M_Z) \ ;\ [M \times L]
+\nabla E_{b^T} = {1_L}^T \times ((\Delta \odot M_F \times {1_N}^T) \odot T \odot M_Z)
 ```
 ```math
-\nabla E_{b^T} =\ \ {1_L}^T \times ((\Delta \odot M_F \times {1_N}^T) \odot T \odot M_Z) \ ;\ [1 \times N]
+\nabla E_{C_1}^T = {X_2}^T \times ((\Delta \odot M_F \times {1_N}^T) \odot Z \odot M_Z)
 ```
 ```math
-\nabla E_{C_1}^T =\ \ {X_2}^T \times ((\Delta \odot M_F \times {1_N}^T) \odot Z \odot M_Z) \ ;\ [1 \times N]
+\nabla E_{C_2}^T = (1 - X_2)^T \times ((\Delta \odot M_F \times {1_N}^T) \odot Z \odot M_Z)
 ```
 ```math
-\nabla E_{C_2}^T =\ \ (1 - X_2)^T \times ((\Delta \odot M_F \times {1_N}^T) \odot Z \odot M_Z) \ ;\ [1 \times N]
-```
-```math
-\nabla E_d =\ \ {1_L}^T \times (\Delta \odot M_F ) \ ;\ [1 \times 1]
+\nabla E_d = {1_L}^T \times (\Delta \odot M_F)
 ```
 
-**For more detailed calculations, read grad.md**
+Where:
+- Δ = F - Y is the output error
+- M_F is the output clipping mask (-β ≤ F ≤ β)
+- M_Z is the hidden layer clipping mask (-α ≤ Z ≤ α)
 
-## Gradient descent
+### Implementation Details
 
-```math
-||\nabla E(\theta)||^2_2 = \sum_{\theta}||\nabla E_{\theta}||^2_F
-```
-```math
-\eta = \frac{c}{||\nabla E(\theta)||^2_2}
-```
-```math
-\theta_{i+1} = \theta_{i} - \eta \nabla E(\theta_i) \ ,\ ||\nabla E(\theta_{i+1})||^2_2 > \varepsilon 
-```
+- All weights use float16 precision
+- Input positions are 768-bit binary vectors
+- Training continues until gradient norm < ε
+- Weights are clipped to prevent overflow
+- Training data is read from JSON files containing FEN positions and evaluations
+
+### Usage
+
+1. Configure parameters in params.py
+2. Prepare training data in JSON format
+3. Run main.py to train the network
+4. Results are saved to result.json

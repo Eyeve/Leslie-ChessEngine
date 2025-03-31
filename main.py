@@ -1,137 +1,74 @@
-import numpy as np
-import json
-from numpy.typing import NDArray
+from network import Network
 from params import *
 
-# TODO try except
+"""
+Mathematical Overview:
+The network implements gradient descent optimization for a neural network with the following structure:
+- Input layer (M=768 binary neurons) represents chess position
+- Hidden layer (N=1024 neurons) with clipped ReLU activation in range [-6,6]
+- Output layer (1 neuron) with clipped activation in range [-32000,32000]
 
-#huy
-# network archeticture
-def func() -> NDArray:
-    result = (
-        np.diag(
-            (X_1.dot(A[0]) + L_1.dot(B[0]))  # Inner layer
-            .clip(-in_bord, in_bord)             # Inner CReLu
-            .dot(C[0])                       # Output weights
-            .dot(X_2)                         # Active color dependence
-        )
-        + L_1.dot(d[0])                      # Outpu layer
-    )
-    return result.clip(-out_bord, out_bord)        # Output CReLu
+The loss function E(θ) is MSE between predicted and target values:
+E(θ) = 1/2||Y - f(X,θ)||^2 
 
-# the norm of the gradient matrix
-def norm(*matrices: NDArray) -> int:
-    result = 0
-    for matrix in matrices:
-        result += np.linalg.norm(matrix)
-    return result
+Where f(X,θ) is the full network function:
+f(X,θ) = clip((clip(XA + B, -α, α) ⊙ C) + d, -β, β)
 
-# TODO calculating the optimal step of the next iteration of descent
-def next_step() -> int:
-    return 0
+Gradients are computed via chain rule and updated using:
+θ_new = θ - η∇E(θ) where η = c/||∇E(θ)||₂
+"""
 
-# TODO gradient matrices
-def grad(x):
-    return ()
+try:
+    # Initialize network with specified parameters
+    net = Network(N, M, L, weight_type, input_type, output_type, in_bord, out_bord, weight_board)
+except Exception as e:
+    print(f"Error initializing network: {e}")
+    exit(1)
 
-# parsing training json data into 
-# input layer matrices and the expected result
-# X_1, X_2, Y
-def read_db(): 
-    with open(in_f, 'r') as f:
-        for i, line in enumerate(f):
+try:
+    # Load training data and initial weights
+    net.read_db(in_f)
+    net.read_coefs(coefs)
+except FileNotFoundError:
+    print("Error: Training data or coefficient files not found")
+    exit(1)
+except Exception as e:
+    print(f"Error loading data: {e}")
+    exit(1)
 
-            if i >= L:
+try:
+    # Main training loop
+    while True:
+        try:
+            # Calculate gradients of loss wrt all parameters
+            net.grad()
+            
+            # Calculate L2 norm of gradients for step size
+            norm = net.norm()
+            
+            # Compute adaptive learning rate
+            step = con/norm
+            
+            # Update parameters using gradient descent
+            net.update(step)
+            
+            # Clip weights to prevent overflow
+            net.upgrade()
+
+            # Check convergence criterion
+            if norm < er:
                 break
+                
+        except ZeroDivisionError:
+            print("Error: Division by zero in gradient calculation")
+            break
+        except Exception as e:
+            print(f"Error in training iteration: {e}")
+            break
 
-            note = json.loads(line)
-
-            Y[i] = note['count']
-            X_2[0][i] = 1 if note['color'] == "w" else 0
-            X_2[1][i] = ~ X_2[0][i]
-
-            num = note['fen']
-            b = ''
-            for j in range(M):
-                X_1[i][M-1-j] = num & 1
-                num >>= 1
-    del note, line, num
-    return 0
-
-# parsing a json file with coefficients
-# into matrices of the inner and output layers
-# A, B, C, d
-def read_coefs():
-    with open(coefs, 'r') as f:
-        data = json.load(f)
-        A[0] = np.array(data['A'])
-        B[0] = np.array(data['B'])
-        C[0] = np.array(data['C'])
-        d[0] = np.array(data['d'])
-    del data
-    return 0
-
-
-def init():
-    global A, B, C, d, X_1, X_2, Y, L_1
-    #L - count of values
-    #M - input layer size
-    #N - inner later size
-
-    # weights of the inner layer, matrix MxN || old and new
-    A = np.zeros((3, M, N), dtype=weight_type)
-
-    # bias of the inner layer, matrix 1xN || old and new
-    B = np.zeros((3, 1, N), dtype=weight_type)
-
-    # weights of the output layer for each active color, matrix Nx2 || old and new
-    C = np.zeros((3, N, 2), dtype=weight_type)
-
-    # bias of the output layer, integet || old and new
-    d = np.zeros((3, 1), dtype=weight_type)
-
-    # expected output values, matrix LX1
-    Y = np.zeros((L, 1), dtype=output_type)
-
-    # input positions, matrix MxL
-    X_1 = np.zeros((L, M), dtype=output_type)
-
-    # input active colors, matrix 2xL, each column is [color, not color]
-    X_2 = np.zeros((2, L), dtype=output_type)
-
-    # An L-dimensional vector is a column of units
-    L_1 = 1 + np.zeros((L, 1), dtype=output_type)
-
-if __name__ == "__main__":
-    # TODO A and B should be transposed
-
-    # f(x) = (C` * ReLu(Ax+B)) + D - for one input vector
-    # C` is 
-    # C[:][1] if active color - 1 (white) 
-    # or 
-    # C[:][0] if active color - 0 (black) 
-    # F(X) = clip(diag[clip([X_1 * A]+[L_1 * B], -in_board, in_board) * C * X_2] + d, -out_board, out_board) fulli matrix form of network
-    # Error(A, B, C, d) = ||Y - F(X)||
-    # grad(er, A) =
-    # grad(er, B) =
-    # grad(er, C) =
-    # grad(er, d) =
+    # Save trained network parameters
+    net.result()
     
-    read_db(in_f)
-    read_coefs(coefs)
-
-    while norm(A[1] - A[0], B[1] - B[0], C[1] - C[0], d[1] - d[0]) > er:
-        step = next_step() #step update
-        grad() #grads update
-
-        #new matrices counting
-        A[1] = A[0] - step*A[2]
-        B[1] = B[0] - step*B[2]
-        C[1] = C[0] - step*C[2]
-        d[1] = d[0] - step*d[2]
-        
-        #matrices update
-        A[0] = np.clip(A[1], -weight_board, weight_board)
-        B[0] = np.clip(B[1], -weight_board, weight_board)
-        C[0] = np.clip(C[1], -weight_board, weight_board)
-        d[0] = np.clip(d[1], -weight_board, weight_board)
+except Exception as e:
+    print(f"Error saving results: {e}")
+    exit(1)
