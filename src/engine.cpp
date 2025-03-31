@@ -11,6 +11,14 @@ Engine& Engine::Instance() {
   return singleton;
 }
 
+void Engine::Go() {
+  // TODO: (1) search tree implementation with move sorting
+  // TODO: (2) split task into subtasks for multiprocessing
+  // TODO: (3)
+}
+
+void Engine::Stop() {}
+
 Position& Engine::GetPosition() { return position_; }
 
 const Position& Engine::GetPosition() const { return position_; }

@@ -83,12 +83,6 @@ enum class Square : BitboardType {
   LESLIE_ROW(kA1, kB1, kC1, kD1, kE1, kF1, kG1, kH1, kRank1),
 };
 
-struct PieceMoves {
-  Piece piece;
-  Square from;
-  BitboardType to;
-};
-
 enum class Direction {
   kUp,
   kUpRight,
