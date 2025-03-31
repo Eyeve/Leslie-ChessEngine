@@ -7,6 +7,13 @@
 
 namespace leslie {
 
+enum MoveType {
+  kCheck,
+  kCapture,
+  kPromotion,
+  kQuiet,
+};
+
 struct Move {
   PieceType type;
   Square from;
