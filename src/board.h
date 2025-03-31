@@ -8,9 +8,13 @@ namespace leslie {
 class Board {
  public:
   Board() = delete;
-  Board(const Board&) = delete;
-  Board& operator=(const Board&) = delete;
   ~Board() = delete;
+
+  Board(const Board&) = delete;
+  Board(Board&&) = delete;
+
+  Board& operator=(const Board&) = delete;
+  Board& operator=(Board&&) = delete;
 
   static constexpr SizeType GetStrBoardSize();
   static constexpr BitboardType Start();

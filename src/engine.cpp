@@ -12,12 +12,12 @@ Engine& Engine::Instance() {
 }
 
 void Engine::Go() {
-  // TODO: (1) search tree implementation with move sorting
-  // TODO: (2) split task into subtasks for multiprocessing
-  // TODO: (3)
+  // TODO: implementation
 }
 
-void Engine::Stop() {}
+void Engine::Stop() {
+  // TODO: implementation
+}
 
 Position& Engine::GetPosition() { return position_; }
 

@@ -20,6 +20,9 @@ class Engine {
  public:
   static Engine& Instance();
 
+  Engine& operator=(const Engine& other) = delete;
+  Engine& operator=(Engine&& other) = delete;
+
   // call to start searching moves
   void Go();
   // call to stop searching moves

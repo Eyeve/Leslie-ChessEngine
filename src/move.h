@@ -7,7 +7,7 @@
 
 namespace leslie {
 
-enum MoveType {
+enum class MoveType {
   kCheck,
   kCapture,
   kPromotion,
@@ -27,6 +27,7 @@ struct Move {
 
 struct MoveHash {
   std::size_t operator()(const Move& obj) const;
+
   template <typename T>
   std::size_t HashCombine(std::size_t seed, T value) const;
 };

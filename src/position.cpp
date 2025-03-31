@@ -1,6 +1,5 @@
 #include "position.h"
 
-#include <engine.h>
 #include <immintrin.h>
 
 #include <bit>
@@ -8,6 +7,7 @@
 #include <utility>
 
 #include "board.h"
+#include "engine.h"
 
 namespace leslie {
 
@@ -84,7 +84,7 @@ Position Position::MakeMoves(const std::vector<Move>& moves) const {
   return my_copy;
 }
 
-Position Position::MakeMove(const Move& move) const {
+Position Position::MakeMove(const Move move) const {
   Position my_copy(*this);
   my_copy.MakeMoveInPlace(move);
   return my_copy;
@@ -107,7 +107,7 @@ bool Position::IsMoveMadeValid() const {
   return static_cast<bool>(~moves & king_sq);
 }
 
-void Position::MakeMoveInPlace(const Move& move) {
+void Position::MakeMoveInPlace(const Move move) {
   // TODO: pawn promoting implementation
   // TODO: en passant capture implementation
   const BitboardType from = std::to_underlying(move.from);

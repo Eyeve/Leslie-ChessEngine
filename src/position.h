@@ -14,7 +14,6 @@ namespace leslie {
 class Position {
  public:
   explicit Position(const std::string& fen);
-  Position(const Position& other) = default;
 
   Color GetMyColor() const;
   Color GetOpColor() const;
@@ -22,8 +21,9 @@ class Position {
   Piece WhatPieceOnSquare(BitboardType sq) const;
 
   void AddPossibleMoves(std::vector<Move>& vec) const;
+
   Position MakeMoves(const std::vector<Move>& moves) const;
-  Position MakeMove(const Move& move) const;
+  Position MakeMove(Move move) const;
 
  private:
   using MovesGetter = BitboardType (Position::*)(BitboardType,
@@ -43,7 +43,7 @@ class Position {
 
   bool IsMoveMadeValid() const;
 
-  void MakeMoveInPlace(const Move& move);
+  void MakeMoveInPlace(Move move);
 
   void AddPieceMoves(MovesGetter getter, PieceType type,
                      std::vector<Move>& moves) const;
@@ -54,18 +54,18 @@ class Position {
   BitboardType& GetOpBitboard(PieceType type);
 
   BitboardType GetKingsMoves(BitboardType sqs, BitboardType blockers) const;
-  BitboardType GetQueensMoves(BitboardType sq, BitboardType blockers) const;
-  BitboardType GetRooksMoves(BitboardType sq, BitboardType blockers) const;
-  BitboardType GetBishopsMoves(BitboardType sq, BitboardType blockers) const;
+  BitboardType GetQueensMoves(BitboardType sqs, BitboardType blockers) const;
+  BitboardType GetRooksMoves(BitboardType sqs, BitboardType blockers) const;
+  BitboardType GetBishopsMoves(BitboardType sqs, BitboardType blockers) const;
   BitboardType GetKnightsMoves(BitboardType sqs, BitboardType blockers) const;
   BitboardType GetWhitePawnsMoves(BitboardType sqs,
                                   BitboardType blockers) const;
   BitboardType GetBlackPawnsMoves(BitboardType sqs,
                                   BitboardType blockers) const;
 
-  BitboardType GetQueenMoves(BitboardType sqs, BitboardType blockers) const;
-  BitboardType GetRookMoves(BitboardType sqs, BitboardType blockers) const;
-  BitboardType GetBishopMoves(BitboardType sqs, BitboardType blockers) const;
+  BitboardType GetQueenMoves(BitboardType sq, BitboardType blockers) const;
+  BitboardType GetRookMoves(BitboardType sq, BitboardType blockers) const;
+  BitboardType GetBishopMoves(BitboardType sq, BitboardType blockers) const;
 
   BitboardType GetPieceMoves(MovesGetter getter, BitboardType sqs,
                              BitboardType blockers) const;
