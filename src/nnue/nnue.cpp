@@ -12,8 +12,10 @@ int16_t leslie::nnue::Nnue::Eval(leslie::Position& position) {
 
   // TODO ReLU
   y_ = accumulator_weights_ * InputVector() + accumulator_biases_;
-  // TODO check turn for ow
-  estimation_ = white_output_weights_.transpose() * y_ + output_bias_;
+  if (position_.GetMyColor() == Color::kWhite)
+    estimation_ = white_output_weights_.transpose() * y_ + output_bias_;
+  else
+    estimation_ = black_output_weights_.transpose() * y_ + output_bias_;
   return estimation_;
 }
 
