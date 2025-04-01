@@ -15,7 +15,8 @@ Gradients are computed via chain rule and updated using:
 θ_new = θ - η∇E(θ) where η = c/||∇E(θ)||₂
 """
 
-from network import Network
+from math import exp, log10
+from network import Adam, Network
 from params import *
 
 try:
@@ -49,28 +50,36 @@ try:
     norm_old = 0
     er_old = 0
     er_del_old = 0
+    optimizer = Adam(5, alpha)
     while True:
         try:
             # Calculate gradients of loss wrt all parameters
             net.grad()
             
             # Calculate L2 norm of gradients for step size
-            norm = net.norm(net.A_t[2], net.B_t[2], net.C_1_t[2], net.C_2_t[2], net.d[2])
+            norm = net.norm(*(coef[2] for coef in net.coefs))
+
             error = net.norm(net.E())/net.L
+            er_del = abs(error - er_old)
+            """ sigma = lambda x: 1/(1+exp(-x))
+            er_w = lambda x: sigma(20*(x-3.5)/13)
+            del_w = lambda x: 0.91 - 0.7*sigma(10*(x-1)) + 0.7*sigma(5*(x-3)) + 0.0001*sigma(0.5*(x-10)) """
+
+            # conn = -7 + 8 * (er_w(log10(error)) + del_w(log10(error/(er_del + 10**(-10)))))**0.5
             
             # Compute adaptive learning rate
-            step = -con/(norm) 
-            print(f"delta: {norm-norm_old:.3e}\tstep: {step:.3e}\terror_delta: {error - er_old:.3e}\terror: {error:.3e}")
+            # step = -((10**(conn)/(norm)))
             
             # Update parameters using gradient descent
-            net.update(step)
+            net.update(optimizer)
+            
+            print(f"del: {norm-norm_old:.3e}\t st: {net.norm(*(coef[1]-coef[0] for coef in net.coefs)):.3e}\t erdel: {er_del:.3e}\t er: {error:.3e}\t {log10(error/(er_del + 10**(-10))):.2e}")
             
             # Clip weights to prevent overflow
             net.upgrade()
 
             norm_old = norm
             er_old = error
-            er_del_old = error - er_old
 
             # Check convergence criterion
             if norm < er:
@@ -82,8 +91,8 @@ try:
         except KeyboardInterrupt:
             print("\nОбучение прервано пользователем (Ctrl+C). Сохраняем модель...")
             net.result()
-            print("\nЗаписано, нажмите С, чтобы прервать")
-            if input() == 'C':
+            print("\nЗаписано, нажмите Enter, чтобы прервать")
+            if input() == '':
                 break
             else:
                 continue

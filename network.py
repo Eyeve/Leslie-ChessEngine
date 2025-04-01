@@ -8,6 +8,19 @@ class NetworkError(Exception):
     pass
 
 
+
+class Adam():
+    def __init__(self, count, alpha=0.001, beta1=0.9, beta2=0.999, eps=1e-8):
+        self.alpha = alpha
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.steps = ()
+        self.eps = eps
+        self.m = [None] * count  # Первый момент
+        self.v = [None] * count  # Второй момент
+        self.t = 0     # Счетчик итераций
+
+
 class Network:
     def __init__(self, N: int, M: int, L: int, weight_type, input_type, output_type, in_bord: float, out_bord: float, weight_board: float):
         try:
@@ -34,6 +47,7 @@ class Network:
             self.C_1_t = np.zeros((3, 1, N), dtype=weight_type)  # Output layer weights for white
             self.C_2_t = np.zeros((3, 1, N), dtype=weight_type)  # Output layer weights for black
             self.d = np.zeros((3, 1), dtype=weight_type)       # Output layer bias
+            self.coefs = (self.A_t, self.B_t, self.C_1_t, self.C_2_t, self.d)
             
             # Training data matrices
             self.X_1 = np.zeros((L, M), dtype=input_type)      # Position vectors
@@ -186,17 +200,26 @@ class Network:
             logging.error(f"Failed to calculate gradients: {str(e)}")
             raise NetworkError("Gradient calculation failed") from e
     
-    def update(self, step: float) -> None:
+    def update(self, optim: Adam) -> None:
         try:
-            # if not isinstance(step, (int, float)) or step <= 0:
-            #     raise ValueError("Step size must be a positive number")
+            optim.t += 1
+            for i, coef in enumerate(self.coefs):
                 
-            # Update weights using gradient descent: θₜ₊₁ = θₜ - η∇E(θₜ)
-            self.A_t[1] = self.A_t[0] - step * self.A_t[2]
-            self.B_t[1] = self.B_t[0] - step * self.B_t[2]
-            self.C_1_t[1] = self.C_1_t[0] - step * self.C_1_t[2]
-            self.C_2_t[1] = self.C_2_t[0] - step * self.C_2_t[2]
-            self.d[1] = self.d[0] - step * self.d[2]
+
+                if optim.m[i] is None:
+                    optim.m[i] = np.zeros_like(coef[1])
+                    optim.v[i] = np.zeros_like(coef[1])
+                
+                optim.m[i] = (optim.beta1 * optim.m[i]) + (1 - optim.beta1) * coef[2]
+                optim.v[i] = optim.beta2 * optim.v[i] + (1 - optim.beta2) * np.multiply(coef[2], coef[2])
+                
+                # Коррекция смещения
+                m_hat = optim.m[i] / (1 - optim.beta1 ** optim.t)
+                v_hat = optim.v[i] / (1 - optim.beta2 ** optim.t)
+
+                
+                # Обновление параметров
+                coef[1] += optim.alpha * m_hat / (np.sqrt(v_hat) + optim.eps)
         except Exception as e:
             logging.error(f"Failed to update weights: {str(e)}")
             raise NetworkError("Weight update failed") from e
@@ -204,11 +227,8 @@ class Network:
     def upgrade(self) -> None:
         try:
             # Clip updated weights to prevent overflow
-            self.A_t[0] = np.clip(self.A_t[1], -self.weight_board, self.weight_board)
-            self.B_t[0] = np.clip(self.B_t[1], -self.weight_board, self.weight_board)
-            self.C_1_t[0] = np.clip(self.C_1_t[1], -self.weight_board, self.weight_board)
-            self.C_2_t[0] = np.clip(self.C_2_t[1], -self.weight_board, self.weight_board)
-            self.d[0] = np.clip(self.d[1], -self.weight_board, self.weight_board)
+            for coef in self.coefs:
+                coef[0] = np.clip(coef[1], -self.weight_board, self.weight_board)
         except Exception as e:
             logging.error(f"Failed to upgrade weights: {str(e)}")
             raise NetworkError("Weight upgrade failed") from e
@@ -225,3 +245,4 @@ class Network:
         except Exception as e:
             logging.error(f"Failed to save results: {str(e)}")
             raise NetworkError("Failed to save network weights") from e
+
