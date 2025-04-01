@@ -15,7 +15,7 @@ Gradients are computed via chain rule and updated using:
 θ_new = θ - η∇E(θ) where η = c/||∇E(θ)||₂
 """
 
-from math import exp, log10
+from math import exp, log10, trunc
 from network import Adam, Network
 from params import *
 
@@ -59,21 +59,12 @@ try:
             # Calculate L2 norm of gradients for step size
             norm = net.norm(*(coef[2] for coef in net.coefs))
 
-            error = net.norm(net.E())/net.L
-            er_del = abs(error - er_old)
-            """ sigma = lambda x: 1/(1+exp(-x))
-            er_w = lambda x: sigma(20*(x-3.5)/13)
-            del_w = lambda x: 0.91 - 0.7*sigma(10*(x-1)) + 0.7*sigma(5*(x-3)) + 0.0001*sigma(0.5*(x-10)) """
+            error = net.norm(net.e)/net.L
+            er_del = error - er_old
 
-            # conn = -7 + 8 * (er_w(log10(error)) + del_w(log10(error/(er_del + 10**(-10)))))**0.5
-            
-            # Compute adaptive learning rate
-            # step = -((10**(conn)/(norm)))
-            
-            # Update parameters using gradient descent
             net.update(optimizer)
             
-            print(f"del: {norm-norm_old:.3e}\t st: {net.norm(*(coef[1]-coef[0] for coef in net.coefs)):.3e}\t erdel: {er_del:.3e}\t er: {error:.3e}\t {log10(error/(er_del + 10**(-10))):.2e}")
+            print(f"iter: {optimizer.t} \t del: {norm-norm_old:.4e} \t st: {net.norm(*(coef[1] - coef[0] for coef in net.coefs)):.4e} \t erdel: {er_del:.4e} \t er: {error:.4e} \t alpha: {optimizer.alpha:.2e}")
             
             # Clip weights to prevent overflow
             net.upgrade()

@@ -157,7 +157,9 @@ class Network:
     def F(self) -> NDArray:
         try:
             # Calculate network output F = clip((Z⊙T)1ₙ + d1ₗ, -β, β)
-            return np.clip(np.matmul(np.multiply(self.Z(), self.T()), self.N_1)
+            self.t = self.T()
+            self.z = self.Z()
+            return np.clip(np.matmul(np.multiply(self.z, self.t), self.N_1)
                           + (self.d[0] * self.L_1), 
                             -self.beta, self.beta)
         except Exception as e:
@@ -167,8 +169,9 @@ class Network:
     def E(self) -> NDArray:
         try:
             # Calculate error E = (Y-F)⊙M_F where M_F is output clip mask
-            return np.matmul(
-                np.multiply(self.Y - self.F(), ((self.F() >= -self.beta) & (self.F() <= self.beta))),
+            self.f = self.F()
+            self.e = np.matmul(
+                np.multiply(self.Y - self.f, ((self.f >= -self.beta) & (self.f <= self.beta))),
                 self.N_1.T)
         except Exception as e:
             logging.error(f"Failed to calculate E: {str(e)}")
@@ -178,24 +181,25 @@ class Network:
         try:
             # Calculate gradients for all network parameters
             # dA = X₁ᵀ(E⊙T⊙M_Z)
+            self.E()
             self.A_t[2] = np.matmul(self.X_1.T, 
-                           (self.E() * self.T() * ((self.Z() >= -self.alpha) &(self.Z() <= self.alpha))))
+                           (self.e * self.t * ((self.z >= -self.alpha) &(self.z <= self.alpha))))
             
             # dB = 1ₗᵀ(E⊙T⊙M_Z)
             self.B_t[2] = np.matmul(self.L_1.T, 
-                           (self.E() * self.T() * ((self.Z() >= -self.alpha) &(self.Z() <= self.alpha))))
+                           (self.e * self.t * ((self.z >= -self.alpha) &(self.z <= self.alpha))))
 
             # dC₁ = X₂ᵀ(E⊙Z)
             self.C_1_t[2] = np.matmul(self.X_2.T, 
-                             (self.E() * self.Z()))
+                             (self.e * self.z))
             
             # dC₂ = (1-X₂)ᵀ(E⊙Z)
             self.C_2_t[2] = np.matmul(np.logical_not(self.X_2).T, 
-                             (self.E() * self.Z()))
+                             (self.e * self.z))
 
             # dd = 1ₗᵀ(E⊙M_F)
             self.d[2] = np.matmul(self.L_1.T, 
-                           np.multiply(self.Y - self.F(), ((self.F() >= -self.beta) &(self.F() <= self.beta))))
+                           np.multiply(self.Y - self.f, ((self.f >= -self.beta) &(self.f <= self.beta))))
         except Exception as e:
             logging.error(f"Failed to calculate gradients: {str(e)}")
             raise NetworkError("Gradient calculation failed") from e
@@ -217,7 +221,6 @@ class Network:
                 m_hat = optim.m[i] / (1 - optim.beta1 ** optim.t)
                 v_hat = optim.v[i] / (1 - optim.beta2 ** optim.t)
 
-                
                 # Обновление параметров
                 coef[1] += optim.alpha * m_hat / (np.sqrt(v_hat) + optim.eps)
         except Exception as e:
