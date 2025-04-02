@@ -1,17 +1,15 @@
-in_f = './data/test.json'    # input file path            
-coefs = './data/network.json' # coefs file path              
-L = 1000                # data count d.4*10^6
-M = 768                  # input layer size d.768
-N = 1024                 # inner layer size d.2048
-er = 10**(-3)            # error rate        
-con = 100                # iteration step of gradient descent
-gamma = 0.9  # коэффициент инерции
-velocity = 0  # начальная скорость
+in_f = './data/input.json'    # путь к входному файлу            
+coefs = './data/result.json' # путь к файлу с коэффициентами       
+L = 1000                # количество данных d.4*10^6
+M = 768                 # размер входного слоя d.768
+N = 1024                # размер внутреннего слоя d.2048
+er = 10**(-2)           # коэффициент ошибки        
+alpha = 0.01            # шаг итерации градиентного спуска
 
-in_bord = 6
-out_bord = 32000
-weight_board = 65504
+in_bord = 6             # граница входных значений
+out_bord = 32000        # граница выходных значений
+weight_board = 65504    # граница весов
 
-input_type = 'bool'
-output_type = 'int16'
-weight_type = 'float32'
+input_type = 'bool'     # тип входных данных
+output_type = 'int16'   # тип выходных данных
+weight_type = 'float32' # тип весов

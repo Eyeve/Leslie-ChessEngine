@@ -1,62 +1,65 @@
 """
-Mathematical Overview:
-The network implements gradient descent optimization for a neural network with the following structure:
-- Input layer (M=768 binary neurons) represents chess position
-- Hidden layer (N=1024 neurons) with clipped ReLU activation in range [-6,6]
-- Output layer (1 neuron) with clipped activation in range [-32000,32000]
+Математический обзор:
+Сеть реализует оптимизацию градиентного спуска для нейронной сети со следующей структурой:
+- Входной слой (M=768 бинарных нейронов) представляет шахматную позицию
+- Скрытый слой (N=1024 нейрона) с активацией ReLU, ограниченной в диапазоне [-6,6]
+- Выходной слой (1 нейрон) с ограниченной активацией в диапазоне [-32000,32000]
 
-The loss function E(θ) is MSE between predicted and target values:
+Функция потерь E(θ) - это среднеквадратичная ошибка между предсказанными и целевыми значениями:
 E(θ) = 1/2||Y - f(X,θ)||^2 
 
-Where f(X,θ) is the full network function:
+Где f(X,θ) - полная функция сети:
 f(X,θ) = clip((clip(XA + B, -α, α) ⊙ C) + d, -β, β)
 
-Gradients are computed via chain rule and updated using:
-θ_new = θ - η∇E(θ) where η = c/||∇E(θ)||₂
+Градиенты вычисляются по правилу цепи и обновляются с помощью:
+θ_new = θ - η∇E(θ) где η = c/||∇E(θ)||₂
 """
 
+from datetime import datetime
 from math import exp, log10, trunc
-from network import Adam, Network
+from network.cpu import *
 from params import *
 
 try:
-    # Initialize network with specified parameters
+    # Инициализация сети с заданными параметрами
     net = Network(N, M, L, weight_type, input_type, output_type, in_bord, out_bord, weight_board)
 except Exception as e:
-    print(f"Error initializing network: {e}")
+    print(f"Ошибка инициализации сети: {e}")
     exit(1)
 
 try:
-    # Load training data and initial weights
+    # Загрузка обучающих данных и начальных весов
     net.read_db(in_f)
-    print("Choose the mood (1 - read coefs, 2 - new coefs): ")
+    print("Выберите режим (1 - загрузить коэффициенты, 2 - новые коэффициенты): ")
     mood = input()
     if mood == '2':
         net.create_coefs()
     elif mood == '1':
         net.read_coefs(coefs)
     else:
-        print("Wrong mood")
+        print("Неверный режим")
         exit(1)
 except FileNotFoundError:
-    print("Error: Training data or coefficient files not found")
+    print("Ошибка: Файлы с обучающими данными или коэффициентами не найдены")
     exit(1)
 except Exception as e:
-    print(f"Error loading data: {e}")
+    print(f"Ошибка загрузки данных: {e}")
     exit(1)
 
 try:
-    # Main training loop
+    # Основной цикл обучения
+    start = datetime.now()
     norm_old = 0
     er_old = 0
     er_del_old = 0
     optimizer = Adam(5, alpha)
     while True:
         try:
-            # Calculate gradients of loss wrt all parameters
+            # Вычисление градиентов функции потерь по всем параметрам
+            a = datetime.now()
             net.grad()
             
-            # Calculate L2 norm of gradients for step size
+            # Вычисление L2-нормы градиентов для размера шага
             norm = net.norm(*(coef[2] for coef in net.coefs))
 
             error = net.norm(net.e)/net.L
@@ -64,20 +67,20 @@ try:
 
             net.update(optimizer)
             
-            print(f"iter: {optimizer.t} \t del: {norm-norm_old:.4e} \t st: {net.norm(*(coef[1] - coef[0] for coef in net.coefs)):.4e} \t erdel: {er_del:.4e} \t er: {error:.4e} \t alpha: {optimizer.alpha:.2e}")
+            print(f"итерация: {optimizer.t} \t изменение: {norm-norm_old:.4e} \t шаг: {net.norm(*(coef[1] - coef[0] for coef in net.coefs)):.4e} \t изм_ошибки: {er_del:.4e} \t ошибка: {error:.4e} \t alpha: {optimizer.alpha:.2e}\t время: {datetime.now() - a}с")
             
-            # Clip weights to prevent overflow
+            # Ограничение весов для предотвращения переполнения
             net.upgrade()
 
             norm_old = norm
             er_old = error
 
-            # Check convergence criterion
+            # Проверка критерия сходимости
             if norm < er:
                 break
                 
         except ZeroDivisionError:
-            print("Error: Division by zero in gradient calculation")
+            print("Ошибка: Деление на ноль при вычислении градиента")
             break
         except KeyboardInterrupt:
             print("\nОбучение прервано пользователем (Ctrl+C). Сохраняем модель...")
@@ -89,12 +92,13 @@ try:
                 continue
 
         except Exception as e:
-            print(f"Error in training iteration: {e}")
+            print(f"Ошибка в итерации обучения: {e}")
             break
 
-    # Save trained network parameters
-    net.result()
+    # Сохранение параметров обученной сети
+    net.result(coefs)
+    print(datetime.now() - start)
     
 except Exception as e:
-    print(f"Error saving results: {e}")
+    print(f"Ошибка сохранения результатов: {e}")
     exit(1)
