@@ -148,16 +148,3 @@ plt.title('Function Approximations of Error vs Iteration')
 plt.legend()
 plt.grid()
 plt.savefig('function_approximations.png')  # Save the plot as a PNG file
-
-# Вывод данных в формате, удобном для копирования
-print("\nData in format suitable for copying:")
-print("x = np.array([", end="")
-print(", ".join(map(str, x)), end="")
-print("])")
-print("y = np.array([")
-for i in range(0, len(y), 5):
-    if i + 5 < len(y):
-        print("    " + ", ".join([f"{val:.4e}" for val in y[i:i+5]]) + ",")
-    else:
-        print("    " + ", ".join([f"{val:.4e}" for val in y[i:]]))
-print("])")
