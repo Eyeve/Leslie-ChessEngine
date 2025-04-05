@@ -10,8 +10,19 @@ leslie::nnue::Nnue::Nnue(Position& position_) : position_(position_) {
 int16_t leslie::nnue::Nnue::Eval(leslie::Position& position) {
   position_ = position;
 
-  // TODO ReLU
   y_ = accumulator_weights_ * InputVector() + accumulator_biases_;
+
+  // maybe casts to Eigen::Array and back ya hz
+  // cwiseMax cwiseMin ваще int возвращают и это я у инта вызывал cwiseMin ахах
+  // крч не строка а бред но мб сработает
+  y_ = y_.cwiseMax(CRELU_BOT).cwiseMin(CRELU_TOP);
+
+  // лучше так
+  // no casts
+  //  y_ = y_.unaryExpr([](int16_t x) {
+  //    return std::clamp<int16_t>(x, CRELU_BOT, CRELU_TOP);
+  //  });
+
   if (position_.GetMyColor() == Color::kWhite)
     estimation_ = white_output_weights_.transpose() * y_ + output_bias_;
   else
@@ -42,10 +53,6 @@ Eigen::Vector<int16_t, INPUT_SIZE> Nnue::InputVector() {
     }
   }
   return result;
-}
-
-int16_t Nnue::CReLu(int16_t i, int16_t min, int16_t max) {
-  return std::max(min, std::min(i, max));
 }
 
 int Nnue::ColorToInt(Color color) { return color == Color::kWhite ? 1 : 0; }

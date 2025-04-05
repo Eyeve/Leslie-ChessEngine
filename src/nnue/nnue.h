@@ -8,6 +8,8 @@
 
 #define INPUT_SIZE 768
 #define HL_SIZE 2048
+#define CRELU_BOT 0
+#define CRELU_TOP 127
 
 namespace leslie::nnue {
 
@@ -30,7 +32,6 @@ class Nnue {
   int16_t estimation_;
 
   Eigen::Vector<int16_t, INPUT_SIZE> InputVector();
-  int16_t CReLu(int16_t i, int16_t min, int16_t max);
   int ColorToInt(Color color);
   int TypeToInt(PieceType type);
 };
