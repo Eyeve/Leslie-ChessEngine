@@ -1,10 +1,55 @@
 #include "nnue.h"
 
+#include <fstream>
+#include <stdexcept>
+
+#include "../../libs/json.hpp"
+
 namespace leslie::nnue {
 
 leslie::nnue::Nnue::Nnue(Position& position_) : position_(position_) {
   accumulator_weights_.resize(INPUT_SIZE, HL_SIZE);
-  // TODO read coeff
+
+  try {
+    const std::string coeffs_file = "path";  // TODO
+
+    if (coeffs_file.empty()) {
+      throw std::invalid_argument("Invalid NNUE coefficients file path");
+    }
+
+    std::ifstream file(coeffs_file);
+    if (!file.is_open()) {
+      throw std::runtime_error("NNUE coefficients file not found: " +
+                               coeffs_file);
+    }
+
+    nlohmann::json data;
+    file >> data;
+
+    if (!data.contains("A") || !data.contains("B") || !data.contains("C_1") ||
+        !data.contains("C_2") || !data.contains("d")) {
+      throw std::runtime_error("Missing required NNUE coefficients in file");
+    }
+
+    std::vector<std::vector<int16_t>> A =
+        data["A"].get<std::vector<std::vector<int16_t>>>();
+    for (int i = 0; i < INPUT_SIZE; ++i) {
+      for (int j = 0; j < HL_SIZE; ++j) {
+        accumulator_weights_(i, j) = A[i][j];
+      }
+    }
+
+    accumulator_biases_ = Eigen::Map<Eigen::Vector<int16_t, HL_SIZE>>(
+        data["B"].get<std::vector<int16_t>>().data());
+    white_output_weights_ = Eigen::Map<Eigen::Vector<int16_t, HL_SIZE>>(
+        data["C_1"].get<std::vector<int16_t>>().data());
+    black_output_weights_ = Eigen::Map<Eigen::Vector<int16_t, HL_SIZE>>(
+        data["C_2"].get<std::vector<int16_t>>().data());
+    output_bias_ = data["d"].get<int16_t>();
+  } catch (const std::exception& e) {
+    // std::cerr << "Failed to read coefficients: " << e.what() << std::endl;
+    throw std::runtime_error("Failed to load NNUE coefficients");
+  }
 }
 
 int16_t leslie::nnue::Nnue::Eval(leslie::Position& position) {
