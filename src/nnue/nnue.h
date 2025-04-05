@@ -31,6 +31,8 @@ class Nnue {
 
   Eigen::Vector<int16_t, INPUT_SIZE> InputVector();
   int16_t CReLu(int16_t i, int16_t min, int16_t max);
+  int ColorToInt(Color color);
+  int TypeToInt(PieceType type);
 };
 
 }  // namespace leslie::nnue

@@ -28,13 +28,36 @@ int16_t leslie::nnue::Nnue::Update(leslie::Move& move) {
 int16_t Nnue::Eval() { return estimation_; }
 
 Eigen::Vector<int16_t, INPUT_SIZE> Nnue::InputVector() {
-  // TODO
   Eigen::Vector<int16_t, INPUT_SIZE> result;
   result.setZero();
+  for (int i = 0; i < 64; i++) {
+    BitboardType bb = 1ull << (7 - (i % 8));
+    bb <<= i - (i % 8);
+
+    Piece piece = position_.WhatPieceOnSquare(bb);
+    if (TypeToInt(piece.type) > 0) {
+      int index = 64 * 6 * ColorToInt(piece.color) +
+                  64 * (TypeToInt(piece.type) - 1) + i;
+      result[index] = 1;
+    }
+  }
   return result;
 }
+
 int16_t Nnue::CReLu(int16_t i, int16_t min, int16_t max) {
   return std::max(min, std::min(i, max));
+}
+
+int Nnue::ColorToInt(Color color) { return color == Color::kWhite ? 1 : 0; }
+
+int Nnue::TypeToInt(PieceType type) {
+  if (type == PieceType::kPawn) return 1;
+  if (type == PieceType::kKnight) return 2;
+  if (type == PieceType::kBishop) return 3;
+  if (type == PieceType::kRook) return 4;
+  if (type == PieceType::kQueen) return 5;
+  if (type == PieceType::kKing) return 6;
+  return -1;
 }
 
 }  // namespace leslie::nnue
