@@ -79,7 +79,7 @@ TEST(position, position_ctr) {
   EXPECT_STREQ(expected.c_str(), actual.c_str());
 }
 
-namespace Leslie::test {
+namespace Leslie::Test {
 
 void PositionTest(const std::string& fen, const MoveContainerType& res) {
   std::unordered_set<Move, MoveHash> expected;

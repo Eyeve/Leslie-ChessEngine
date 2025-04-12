@@ -2,7 +2,7 @@
 
 #include "tests.h"
 
-namespace Leslie::test {
+namespace Leslie::Test {
 
 TEST(knight, test1) {
   PositionTest("N7/8/8/8/6k1/8/1K6/8 w - - 0 1",

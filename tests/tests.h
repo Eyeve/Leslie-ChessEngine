@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace Leslie::test {
+namespace Leslie::Test {
 
 struct PieceMoves {
   PieceType type;
