@@ -3,7 +3,7 @@
 #include "board.h"
 #include "position.h"
 
-namespace leslie {
+namespace Leslie {
 
 std::string ToStr(const BitboardType bitboard) {
   char str[Board::GetStrBoardSize()];
@@ -71,4 +71,4 @@ char ConvertPieceToChar(Piece piece) {
   return is_upper ? static_cast<char>(toupper(c)) : c;
 }
 
-}  // namespace leslie
+}  // namespace Leslie

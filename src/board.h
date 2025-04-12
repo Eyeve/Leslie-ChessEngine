@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-namespace leslie {
+namespace Leslie {
 
 class Board {
  public:
@@ -54,6 +54,6 @@ constexpr bool Board::IsEndLine(const BitboardType sq) {
   return std::countr_zero(sq) % 8 == 0;
 }
 
-}  // namespace leslie
+}  // namespace Leslie
 
 #endif

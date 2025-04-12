@@ -24,6 +24,8 @@ add_executable(${PROJECT_NAME} tests/tests.cpp
         src/nnue/nnue.h
         src/types.cpp
         tests/nnue_test.cpp
+        src/thread.cpp
+        src/thread.h
 )
 
 include_directories(src)

@@ -9,7 +9,7 @@
 #include "position.h"
 #include "types.h"
 
-namespace leslie {
+namespace Leslie {
 
 class Position {
  public:
@@ -71,6 +71,6 @@ class Position {
                              BitboardType blockers) const;
 };
 
-}  // namespace leslie
+}  // namespace Leslie
 
 #endif

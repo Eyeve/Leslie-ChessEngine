@@ -5,7 +5,7 @@
 
 #include "types.h"
 
-namespace leslie {
+namespace Leslie {
 
 enum class MoveType {
   kCheck,
@@ -32,6 +32,6 @@ struct MoveHash {
   std::size_t HashCombine(std::size_t seed, T value) const;
 };
 
-}  // namespace leslie
+}  // namespace Leslie
 
 #endif

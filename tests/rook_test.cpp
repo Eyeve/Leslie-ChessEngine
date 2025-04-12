@@ -2,7 +2,7 @@
 
 #include "tests.h"
 
-namespace leslie::test {
+namespace Leslie::test {
 
 TEST(rook, test1) {
   PositionTest(

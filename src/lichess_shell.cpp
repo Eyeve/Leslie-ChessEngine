@@ -2,8 +2,8 @@
 
 #include "return_codes.h"
 
-namespace leslie {
+namespace Leslie {
 
 int LichessShell::Start() { return SUCCESS; }
 
-}  // namespace leslie
+}  // namespace Leslie

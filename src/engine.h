@@ -3,8 +3,9 @@
 
 #include "options.h"
 #include "position.h"
+#include "thread.h"
 
-namespace leslie {
+namespace Leslie {
 
 struct Magic {
   MagicsType rook_magic;
@@ -40,6 +41,7 @@ class Engine {
   void SetPosition(const std::string& fen);
 
  private:
+  ThreadManager thread_manager_;
   Position position_;
   Options options_;
   Magic magic_;
@@ -58,6 +60,6 @@ class Engine {
                           int sq_index) const;
 };
 
-}  // namespace leslie
+}  // namespace Leslie
 
 #endif

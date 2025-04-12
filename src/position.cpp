@@ -9,7 +9,7 @@
 #include "board.h"
 #include "engine.h"
 
-namespace leslie {
+namespace Leslie {
 
 Position::Position(const std::string& fen)
     : pieces_(),
@@ -254,4 +254,4 @@ BitboardType Position::GetPieceMoves(MovesGetter getter, BitboardType sqs,
   return res;
 }
 
-}  // namespace leslie
+}  // namespace Leslie

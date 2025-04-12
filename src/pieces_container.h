@@ -6,7 +6,7 @@
 #include "move.h"
 #include "types.h"
 
-namespace leslie {
+namespace Leslie {
 
 class PiecesContainer {
  public:
@@ -23,6 +23,6 @@ class PiecesContainer {
   std::array<std::array<BitboardType, 8>, 2> pieces_data_;
 };
 
-}  // namespace leslie
+}  // namespace Leslie
 
 #endif

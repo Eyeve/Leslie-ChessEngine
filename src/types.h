@@ -10,7 +10,7 @@
   sq1 = kFileA & rank, sq2 = sq1 >> 1, sq3 = sq1 >> 2, sq4 = sq1 >> 3, \
   sq5 = sq1 >> 4, sq6 = sq1 >> 5, sq7 = sq1 >> 6, sq8 = sq1 >> 7
 
-namespace leslie {
+namespace Leslie {
 
 using BitboardType = uint64_t;
 using CounterType = uint8_t;
@@ -94,14 +94,14 @@ enum class Direction {
   kUpLeft,
 };
 
-class Position;
-
 std::string ToStr(BitboardType bitboard);
+
+class Position;
 std::string ToStr(const Position& position);
 
 Piece ConvertCharToPiece(char c);
 char ConvertPieceToChar(Piece piece);
 
-}  // namespace leslie
+}  // namespace Leslie
 
 #endif

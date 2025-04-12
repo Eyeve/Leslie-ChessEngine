@@ -3,7 +3,7 @@
 
 #include "engine.h"
 
-namespace leslie {
+namespace Leslie {
 
 class LichessShell {
  public:
@@ -19,6 +19,6 @@ class LichessShell {
   Engine engine_;
 };
 
-}  // namespace leslie
+}  // namespace Leslie
 
 #endif

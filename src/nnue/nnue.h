@@ -11,7 +11,7 @@
 #define CRELU_BOT 0
 #define CRELU_TOP 127
 
-namespace leslie::nnue {
+namespace Leslie::nnue {
 
 class Nnue {
 

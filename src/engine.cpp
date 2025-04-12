@@ -4,20 +4,16 @@
 
 #include <utility>
 
-namespace leslie {
+namespace Leslie {
 
 Engine& Engine::Instance() {
   static Engine singleton;
   return singleton;
 }
 
-void Engine::Go() {
-  // TODO: implementation
-}
+void Engine::Go() { thread_manager_.StartSearching(); }
 
-void Engine::Stop() {
-  // TODO: implementation
-}
+void Engine::Stop() { thread_manager_.StopSearching(); }
 
 Position& Engine::GetPosition() { return position_; }
 
@@ -142,4 +138,4 @@ Engine::Engine()
   InitMagic();
 }
 
-}  // namespace leslie
+}  // namespace Leslie

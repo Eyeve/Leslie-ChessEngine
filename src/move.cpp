@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace leslie {
+namespace Leslie {
 
 Move::Move(const PieceType type, const Square from, const Square to)
     : type(type), from(from), to(to) {}
@@ -26,4 +26,4 @@ std::size_t MoveHash::HashCombine(const std::size_t seed, const T value) const {
   return seed ^ (std::hash<T>()(value) + kBitMixer + (seed << 6) + (seed >> 2));
 }
 
-}  // namespace leslie
+}  // namespace Leslie

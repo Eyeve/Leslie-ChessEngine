@@ -5,9 +5,9 @@
 
 #include "../../libs/json.hpp"
 
-namespace leslie::nnue {
+namespace Leslie::nnue {
 
-leslie::nnue::Nnue::Nnue(Position& position_) : position_(position_) {
+Leslie::nnue::Nnue::Nnue(Position& position_) : position_(position_) {
   accumulator_weights_.resize(INPUT_SIZE, HL_SIZE);
 
   try {
@@ -52,7 +52,7 @@ leslie::nnue::Nnue::Nnue(Position& position_) : position_(position_) {
   }
 }
 
-int16_t leslie::nnue::Nnue::Eval(leslie::Position& position) {
+int16_t Leslie::nnue::Nnue::Eval(Leslie::Position& position) {
   position_ = position;
 
   y_ = accumulator_weights_ * InputVector() + accumulator_biases_;
@@ -75,7 +75,7 @@ int16_t leslie::nnue::Nnue::Eval(leslie::Position& position) {
   return estimation_;
 }
 
-int16_t leslie::nnue::Nnue::Update(leslie::Move& move) {
+int16_t Leslie::nnue::Nnue::Update(Leslie::Move& move) {
   // y_ -четотам + четотам
   // estimation_ = четотам
   return estimation_;

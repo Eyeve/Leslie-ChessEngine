@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace leslie {
+namespace Leslie {
 
 PiecesContainer::PiecesContainer() : pieces_data_() {}
 
@@ -36,4 +36,4 @@ Piece PiecesContainer::WhatPieceOnSquare(const BitboardType square) const {
   return Piece(PieceType::kNone, Color::kWhite);
 }
 
-}  // namespace leslie
+}  // namespace Leslie
