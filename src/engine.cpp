@@ -28,11 +28,9 @@ Magic& Engine::GetMagic() { return magic_; }
 const Magic& Engine::GetMagic() const { return magic_; }
 
 void Engine::InitMagic() {
-  InitPieceMagic(masks_.rook_masks, magic_.rook_magic, Direction::kUp,
-                 Direction::kRight, Direction::kDown, Direction::kLeft);
-  InitPieceMagic(masks_.bishop_masks, magic_.bishop_magic, Direction::kUpRight,
-                 Direction::kUpLeft, Direction::kDownRight,
-                 Direction::kDownLeft);
+  InitPieceMagic(masks_.rook_masks, magic_.rook_magic, UP, RIGHT, DOWN, LEFT);
+  InitPieceMagic(masks_.bishop_masks, magic_.bishop_magic, UP_RIGHT, UP_LEFT,
+                 DOWN_RIGHT, DOWN_LEFT);
 }
 
 void Engine::InitMasks() {
@@ -82,14 +80,14 @@ void Engine::InitMasks() {
         }
       }
 
-      rays_[std::to_underlying(Direction::kUp)][i] = up;
-      rays_[std::to_underlying(Direction::kRight)][i] = right;
-      rays_[std::to_underlying(Direction::kDown)][i] = down;
-      rays_[std::to_underlying(Direction::kLeft)][i] = left;
-      rays_[std::to_underlying(Direction::kUpRight)][i] = up_right;
-      rays_[std::to_underlying(Direction::kUpLeft)][i] = up_left;
-      rays_[std::to_underlying(Direction::kDownRight)][i] = down_right;
-      rays_[std::to_underlying(Direction::kDownLeft)][i] = down_left;
+      rays_[std::to_underlying(UP)][i] = up;
+      rays_[std::to_underlying(RIGHT)][i] = right;
+      rays_[std::to_underlying(DOWN)][i] = down;
+      rays_[std::to_underlying(LEFT)][i] = left;
+      rays_[std::to_underlying(UP_RIGHT)][i] = up_right;
+      rays_[std::to_underlying(UP_LEFT)][i] = up_left;
+      rays_[std::to_underlying(DOWN_RIGHT)][i] = down_right;
+      rays_[std::to_underlying(DOWN_LEFT)][i] = down_left;
 
       masks_.rook_masks[i] = up | right | down | left;
       masks_.bishop_masks[i] = up_right | up_left | down_right | down_left;
@@ -123,9 +121,8 @@ BitboardType Engine::RayTracing(const BitboardType blockers,
 
   if (ray_blockers == 0ull) return ray;
 
-  const bool is_least_bit =
-      direction == Direction::kLeft | direction == Direction::kUpLeft |
-      direction == Direction::kUp | direction == Direction::kUpRight;
+  const bool is_least_bit = direction == LEFT | direction == UP_LEFT |
+                            direction == UP | direction == UP_RIGHT;
   const int index = is_least_bit ? std::countr_zero(ray_blockers)
                                  : 63 - std::countl_zero(ray_blockers);
   const BitboardType blocked = rays_[std::to_underlying(direction)][index];
@@ -133,7 +130,7 @@ BitboardType Engine::RayTracing(const BitboardType blockers,
 }
 
 Engine::Engine()
-    : position_(kStartFen), options_(), magic_(), masks_(), rays_() {
+    : position_(Board::kStartFen), options_(), magic_(), masks_(), rays_() {
   InitMasks();
   InitMagic();
 }

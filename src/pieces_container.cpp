@@ -18,12 +18,12 @@ const BitboardType& PiecesContainer::GetBitboard(const Piece piece) const {
 
 BitboardType PiecesContainer::GetBlockers(const Color color) const {
   std::array colored_pieces = pieces_data_[std::to_underlying(color)];
-  return colored_pieces[std::to_underlying(PieceType::kKing)] |
-         colored_pieces[std::to_underlying(PieceType::kQueen)] |
-         colored_pieces[std::to_underlying(PieceType::kRook)] |
-         colored_pieces[std::to_underlying(PieceType::kBishop)] |
-         colored_pieces[std::to_underlying(PieceType::kKnight)] |
-         colored_pieces[std::to_underlying(PieceType::kPawn)];
+  return colored_pieces[std::to_underlying(KING)] |
+         colored_pieces[std::to_underlying(QUEEN)] |
+         colored_pieces[std::to_underlying(ROOK)] |
+         colored_pieces[std::to_underlying(BISHOP)] |
+         colored_pieces[std::to_underlying(KNIGHT)] |
+         colored_pieces[std::to_underlying(PAWN)];
 }
 
 Piece PiecesContainer::WhatPieceOnSquare(const BitboardType square) const {
@@ -33,7 +33,7 @@ Piece PiecesContainer::WhatPieceOnSquare(const BitboardType square) const {
       if (GetBitboard(piece) & square) return piece;
     }
   }
-  return Piece(PieceType::kNone, Color::kWhite);
+  return Piece(NONE_PIECE_TYPE, WHITE);
 }
 
 }  // namespace Leslie

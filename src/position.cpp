@@ -42,7 +42,7 @@ Position::Position(const std::string& fen)
     sq = Board::Next(sq);
   }
 
-  current_ = (turn_part == "w") ? Color::kWhite : Color::kBlack;
+  current_ = (turn_part == "w") ? WHITE : BLACK;
 
   w_king_castle = castling_part.find('K') != std::string::npos;
   w_queen_castle = castling_part.find('Q') != std::string::npos;
@@ -67,15 +67,15 @@ Piece Position::WhatPieceOnSquare(const BitboardType sq) const {
 }
 
 void Position::AddPossibleMoves(std::vector<Move>& vec) const {
-  AddPieceMoves(&GetKingsMoves, PieceType::kKing, vec);
-  AddPieceMoves(&GetQueenMoves, PieceType::kQueen, vec);
-  AddPieceMoves(&GetRookMoves, PieceType::kRook, vec);
-  AddPieceMoves(&GetBishopMoves, PieceType::kBishop, vec);
-  AddPieceMoves(&GetKnightsMoves, PieceType::kKnight, vec);
-  if (current_ == Color::kWhite)
-    AddPieceMoves(&GetWhitePawnsMoves, PieceType::kPawn, vec);
+  AddPieceMoves(&GetKingsMoves, KING, vec);
+  AddPieceMoves(&GetQueenMoves, QUEEN, vec);
+  AddPieceMoves(&GetRookMoves, ROOK, vec);
+  AddPieceMoves(&GetBishopMoves, BISHOP, vec);
+  AddPieceMoves(&GetKnightsMoves, KNIGHT, vec);
+  if (current_ == WHITE)
+    AddPieceMoves(&GetWhitePawnsMoves, PAWN, vec);
   else
-    AddPieceMoves(&GetBlackPawnsMoves, PieceType::kPawn, vec);
+    AddPieceMoves(&GetBlackPawnsMoves, PAWN, vec);
 }
 
 Position Position::MakeMoves(const std::vector<Move>& moves) const {
@@ -91,19 +91,19 @@ Position Position::MakeMove(const Move move) const {
 }
 
 bool Position::IsMoveMadeValid() const {
-  const BitboardType king_sq = GetOpBitboard(PieceType::kKing);
+  const BitboardType king_sq = GetOpBitboard(KING);
   const BitboardType blockers =
       pieces_.GetBlockers(GetMyColor()) | pieces_.GetBlockers(GetOpColor());
 
-  BitboardType moves = GetKingsMoves(GetMyBitboard(PieceType::kKing), blockers);
-  moves |= GetQueensMoves(GetMyBitboard(PieceType::kQueen), blockers);
-  moves |= GetRooksMoves(GetMyBitboard(PieceType::kRook), blockers);
-  moves |= GetBishopsMoves(GetMyBitboard(PieceType::kBishop), blockers);
-  moves |= GetKnightsMoves(GetMyBitboard(PieceType::kKnight), blockers);
-  if (current_ == Color::kWhite)
-    moves |= GetWhitePawnsMoves(GetMyBitboard(PieceType::kPawn), blockers);
+  BitboardType moves = GetKingsMoves(GetMyBitboard(KING), blockers);
+  moves |= GetQueensMoves(GetMyBitboard(QUEEN), blockers);
+  moves |= GetRooksMoves(GetMyBitboard(ROOK), blockers);
+  moves |= GetBishopsMoves(GetMyBitboard(BISHOP), blockers);
+  moves |= GetKnightsMoves(GetMyBitboard(KNIGHT), blockers);
+  if (current_ == WHITE)
+    moves |= GetWhitePawnsMoves(GetMyBitboard(PAWN), blockers);
   else
-    moves |= GetBlackPawnsMoves(GetMyBitboard(PieceType::kPawn), blockers);
+    moves |= GetBlackPawnsMoves(GetMyBitboard(PAWN), blockers);
   return static_cast<bool>(~moves & king_sq);
 }
 
@@ -117,12 +117,12 @@ void Position::MakeMoveInPlace(const Move move) {
 
   ref &= ~from;
   ref |= to;
-  GetOpBitboard(PieceType::kKing) &= valid;
-  GetOpBitboard(PieceType::kQueen) &= valid;
-  GetOpBitboard(PieceType::kRook) &= valid;
-  GetOpBitboard(PieceType::kBishop) &= valid;
-  GetOpBitboard(PieceType::kKnight) &= valid;
-  GetOpBitboard(PieceType::kPawn) &= valid;
+  GetOpBitboard(KING) &= valid;
+  GetOpBitboard(QUEEN) &= valid;
+  GetOpBitboard(ROOK) &= valid;
+  GetOpBitboard(BISHOP) &= valid;
+  GetOpBitboard(KNIGHT) &= valid;
+  GetOpBitboard(PAWN) &= valid;
   ++moves_;
   current_ = GetOpColor();
 }
@@ -169,8 +169,8 @@ BitboardType& Position::GetOpBitboard(const PieceType type) {
 
 BitboardType Position::GetKingsMoves(const BitboardType sqs,
                                      const BitboardType blockers) const {
-  BitboardType res = (((sqs << 7) | (sqs >> 9) | (sqs >> 1)) & (~kFileA));
-  res |= (((sqs >> 7) | (sqs << 9) | (sqs << 1)) & (~kFileH));
+  BitboardType res = (((sqs << 7) | (sqs >> 9) | (sqs >> 1)) & (~FILE_A));
+  res |= (((sqs >> 7) | (sqs << 9) | (sqs << 1)) & (~FILE_H));
   res |= ((sqs >> 8) | (sqs << 8));
   return res;
 }
@@ -192,10 +192,10 @@ BitboardType Position::GetBishopsMoves(const BitboardType sqs,
 
 BitboardType Position::GetKnightsMoves(const BitboardType sqs,
                                        const BitboardType blockers) const {
-  const BitboardType l1 = (sqs >> 1) & ~kFileA;
-  const BitboardType l2 = (sqs >> 2) & ~(kFileA | kFileB);
-  const BitboardType r1 = (sqs << 1) & ~kFileH;
-  const BitboardType r2 = (sqs << 2) & ~(kFileH | kFileG);
+  const BitboardType l1 = (sqs >> 1) & ~FILE_A;
+  const BitboardType l2 = (sqs >> 2) & ~(FILE_A | FILE_B);
+  const BitboardType r1 = (sqs << 1) & ~FILE_H;
+  const BitboardType r2 = (sqs << 2) & ~(FILE_H | FILE_G);
   return (l1 | r1) << 16 | (l1 | r1) >> 16 | (l2 | r2) << 8 | (l2 | r2) >> 8;
 }
 
@@ -203,20 +203,20 @@ BitboardType Position::GetWhitePawnsMoves(const BitboardType sqs,
                                           const BitboardType blockers) const {
   const BitboardType short_moves = (sqs << 8) & ~blockers;
   const BitboardType long_moves =
-      ((sqs & kRank2) << 16) & ~blockers & (short_moves << 8);
+      ((sqs & RANK_2) << 16) & ~blockers & (short_moves << 8);
   const BitboardType attacks =
       (blockers | en_passant_) &
-      (((sqs << 9) & ~kFileH) | ((sqs << 7) & ~kFileA));
+      (((sqs << 9) & ~FILE_H) | ((sqs << 7) & ~FILE_A));
   return short_moves | long_moves | attacks;
 }
 BitboardType Position::GetBlackPawnsMoves(const BitboardType sqs,
                                           const BitboardType blockers) const {
   const BitboardType short_moves = (sqs >> 8) & ~blockers;
   const BitboardType long_moves =
-      ((sqs & kRank7) >> 16) & ~blockers & (short_moves >> 8);
+      ((sqs & RANK_7) >> 16) & ~blockers & (short_moves >> 8);
   const BitboardType attacks =
       (blockers | en_passant_) &
-      (((sqs >> 9) & ~kFileA) | ((sqs >> 7) & ~kFileH));
+      (((sqs >> 9) & ~FILE_A) | ((sqs >> 7) & ~FILE_H));
   return short_moves | long_moves | attacks;
 }
 

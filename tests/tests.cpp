@@ -23,12 +23,12 @@ TEST(general, to_str) {
 
 TEST(general, rank5) {
   Leslie::BitboardType expected = 0x000000FF00000000ull;
-  EXPECT_EQ(expected, Leslie::kRank5);
+  EXPECT_EQ(expected, Leslie::RANK_5);
 }
 
 TEST(general, fileF) {
   Leslie::BitboardType expected = 0x0404040404040404ull;
-  EXPECT_EQ(expected, Leslie::kFileF);
+  EXPECT_EQ(expected, Leslie::FILE_F);
 }
 
 TEST(general, rook_mask) {
@@ -98,7 +98,7 @@ void PositionTest(const std::string& fen, const MoveContainerType& res) {
   EXPECT_TRUE(expected.empty());
 }
 
-}  // namespace leslie::test
+}  // namespace Leslie::test
 
 int main(int argc, char* argv[]) {
   testing::InitGoogleTest(&argc, argv);

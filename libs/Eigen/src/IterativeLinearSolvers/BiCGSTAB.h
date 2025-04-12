@@ -23,7 +23,7 @@ namespace internal {
   *                approximation of Ax=b (regardless of b)
   * \param iters On input the max number of iteration, on output the number of performed iterations.
   * \param tol_error On input the tolerance error, on output an estimation of the relative error.
-  * \return false in the case of numerical issue, for example a break down of BiCGSTAB. 
+  * \return false in the case of numerical issue, for example a break down of BiCGSTAB.
   */
 template<typename MatrixType, typename Rhs, typename Dest, typename Preconditioner>
 bool bicgstab(const MatrixType& mat, const Rhs& rhs, Dest& x,

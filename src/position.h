@@ -7,7 +7,7 @@
 #include "move.h"
 #include "pieces_container.h"
 #include "position.h"
-#include "types.h"
+#include "utility.h"
 
 namespace Leslie {
 

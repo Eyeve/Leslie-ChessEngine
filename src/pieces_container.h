@@ -4,7 +4,7 @@
 #include <array>
 
 #include "move.h"
-#include "types.h"
+#include "utility.h"
 
 namespace Leslie {
 

@@ -6,83 +6,51 @@ namespace Leslie::test {
 TEST(advanced, test1) {
   PositionTest("8/nK6/2Nrpq1P/4P3/3P4/2r3k1/1P4N1/8 w - - 0 1",
                {
-                   {PieceType::kKing,
-                    Square::kB7,
-                    {Square::kB6, Square::kA6, Square::kA7, Square::kA8,
-                     Square::kB8, Square::kC7}},
+                   {KING, SQ_B7, {SQ_B6, SQ_A6, SQ_A7, SQ_A8, SQ_B8, SQ_C7}},
 
-                   {PieceType::kKnight,
-                    Square::kC6,
-                    {Square::kB4, Square::kA5, Square::kA7, Square::kB8,
-                     Square::kD8, Square::kE7}},
+                   {KNIGHT, SQ_C6, {SQ_B4, SQ_A5, SQ_A7, SQ_B8, SQ_D8, SQ_E7}},
 
-                   {PieceType::kKnight,
-                    Square::kG2,
-                    {Square::kE1, Square::kE3, Square::kF4, Square::kH4}},
+                   {KNIGHT, SQ_G2, {SQ_E1, SQ_E3, SQ_F4, SQ_H4}},
 
-                   {PieceType::kPawn,
-                    Square::kB2,
-                    {Square::kB3, Square::kB4, Square::kC3}},
+                   {PAWN, SQ_B2, {SQ_B3, SQ_B4, SQ_C3}},
 
-                   {PieceType::kPawn, Square::kD4, {Square::kD5}},
-                   {PieceType::kPawn, Square::kE5, {Square::kD6, Square::kF6}},
-                   {PieceType::kPawn, Square::kH6, {Square::kH7}},
+                   {PAWN, SQ_D4, {SQ_D5}},
+                   {PAWN, SQ_E5, {SQ_D6, SQ_F6}},
+                   {PAWN, SQ_H6, {SQ_H7}},
                });
 }
 
 TEST(advanced, test2) {
-  PositionTest(
-      "5k2/8/3n4/2Q3b1/8/2p2N2/PP6/4KB2 w - - 0 1",
-      {
-          {PieceType::kKing,
-           Square::kE1,
-           {Square::kD1, Square::kE2, Square::kF2}},
-          {PieceType::kKnight,
-           Square::kF3,
-           {Square::kG1, Square::kH2, Square::kH4, Square::kG5, Square::kE5,
-            Square::kD4, Square::kD2}},
-          {PieceType::kPawn, Square::kA2, {Square::kA3, Square::kA4}},
-          {PieceType::kPawn,
-           Square::kB2,
-           {Square::kB3, Square::kB4, Square::kC3}},
-          {PieceType::kBishop,
-           Square::kF1,
-           {Square::kG2, Square::kH3, Square::kE2, Square::kD3, Square::kC4,
-            Square::kB5, Square::kA6}},
-          {PieceType::kQueen,
-           Square::kC5,
-           {Square::kA5, Square::kB5, Square::kD5, Square::kE5, Square::kF5,
-            Square::kG5, Square::kC3, Square::kC4, Square::kC6, Square::kC7,
-            Square::kC8, Square::kA7, Square::kB6, Square::kD4, Square::kE3,
-            Square::kF2, Square::kG1, Square::kA3, Square::kB4, Square::kD6}},
-      });
+  PositionTest("5k2/8/3n4/2Q3b1/8/2p2N2/PP6/4KB2 w - - 0 1",
+               {
+                   {KING, SQ_E1, {SQ_D1, SQ_E2, SQ_F2}},
+                   {KNIGHT, SQ_F3, {SQ_G1, SQ_H2, SQ_H4, SQ_G5, SQ_E5, SQ_D4, SQ_D2}},
+                   {PAWN, SQ_A2, {SQ_A3, SQ_A4}},
+                   {PAWN, SQ_B2, {SQ_B3, SQ_B4, SQ_C3}},
+                   {BISHOP, SQ_F1, {SQ_G2, SQ_H3, SQ_E2, SQ_D3, SQ_C4, SQ_B5, SQ_A6}},
+                   {QUEEN, SQ_C5, {SQ_A5, SQ_B5, SQ_D5, SQ_E5, SQ_F5, SQ_G5, SQ_C3, SQ_C4, SQ_C6, SQ_C7,
+                                SQ_C8, SQ_A7, SQ_B6, SQ_D4, SQ_E3, SQ_F2, SQ_G1, SQ_A3, SQ_B4, SQ_D6}},
+               });
 }
 
 TEST(advanced, test3) {
-  PositionTest(
-      "rnbqkbnr/pp2pppp/8/3p4/1PpPP3/2P5/P4PPP/RNBQKBNR b KQkq b3 0 4",
-      {
-          {PieceType::kKnight,
-           Square::kB8,
-           {Square::kA6, Square::kC6, Square::kD7}},
-          {PieceType::kBishop,
-           Square::kC8,
-           {Square::kD7, Square::kE6, Square::kF5, Square::kG4, Square::kH3}},
-          {PieceType::kQueen,
-           Square::kD8,
-           {Square::kD7, Square::kD6, Square::kC7, Square::kB6, Square::kA5}},
-          {PieceType::kKing, Square::kE8, {Square::kD7}},
-          {PieceType::kKnight, Square::kG8, {Square::kF6, Square::kH6}},
+  PositionTest("rnbqkbnr/pp2pppp/8/3p4/1PpPP3/2P5/P4PPP/RNBQKBNR b KQkq b3 0 4",
+               {
+                   {KNIGHT, SQ_B8, {SQ_A6, SQ_C6, SQ_D7}},
+                   {BISHOP, SQ_C8, {SQ_D7, SQ_E6, SQ_F5, SQ_G4, SQ_H3}},
+                   {QUEEN, SQ_D8, {SQ_D7, SQ_D6, SQ_C7, SQ_B6, SQ_A5}},
+                   {KING, SQ_E8, {SQ_D7}},
+                   {KNIGHT, SQ_G8, {SQ_F6, SQ_H6}},
 
-          {PieceType::kPawn, Square::kA7, {Square::kA6, Square::kA5}},
-          {PieceType::kPawn, Square::kB7, {Square::kB6, Square::kB5}},
-          {PieceType::kPawn, Square::kC4, {Square::kB3}},
-          {PieceType::kPawn, Square::kD5, {Square::kE4}},
-          {PieceType::kPawn, Square::kE7, {Square::kE6, Square::kE5}},
-          {PieceType::kPawn, Square::kF7, {Square::kF6, Square::kF5}},
-          {PieceType::kPawn, Square::kG7, {Square::kG6, Square::kG5}},
-          {PieceType::kPawn, Square::kH7, {Square::kH6, Square::kH5}},
-      });
+                   {PAWN, SQ_A7, {SQ_A6, SQ_A5}},
+                   {PAWN, SQ_B7, {SQ_B6, SQ_B5}},
+                   {PAWN, SQ_C4, {SQ_B3}},
+                   {PAWN, SQ_D5, {SQ_E4}},
+                   {PAWN, SQ_E7, {SQ_E6, SQ_E5}},
+                   {PAWN, SQ_F7, {SQ_F6, SQ_F5}},
+                   {PAWN, SQ_G7, {SQ_G6, SQ_G5}},
+                   {PAWN, SQ_H7, {SQ_H6, SQ_H5}},
+               });
 }
 
-}  // namespace leslie::test
+}  // namespace Leslie::test

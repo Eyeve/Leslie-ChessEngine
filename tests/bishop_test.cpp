@@ -5,20 +5,15 @@
 namespace Leslie::test {
 
 TEST(bishop, test1) {
-  PositionTest("8/3k4/8/r5P1/5P2/8/3B1K2/2n5 w - - 0 1",
-               {
-                   {PieceType::kKing,
-                    Square::kF2,
-                    {Square::kF1, Square::kG1, Square::kG2, Square::kG3,
-                     Square::kF3, Square::kE3, Square::kE1}},
-                   {PieceType::kBishop,
-                    Square::kD2,
-                    {Square::kC1, Square::kE1, Square::kC3, Square::kB4,
-                     Square::kA5, Square::kE3}},
+  PositionTest(
+      "8/3k4/8/r5P1/5P2/8/3B1K2/2n5 w - - 0 1",
+      {
+          {KING, SQ_F2, {SQ_F1, SQ_G1, SQ_G2, SQ_G3, SQ_F3, SQ_E3, SQ_E1}},
+          {BISHOP, SQ_D2, {SQ_C1, SQ_E1, SQ_C3, SQ_B4, SQ_A5, SQ_E3}},
 
-                   {PieceType::kPawn, Square::kF4, {Square::kF5}},
-                   {PieceType::kPawn, Square::kG5, {Square::kG6}},
-               });
+          {PAWN, SQ_F4, {SQ_F5}},
+          {PAWN, SQ_G5, {SQ_G6}},
+      });
 }
 
-}  // namespace leslie::test
+}  // namespace Leslie::test

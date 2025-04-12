@@ -68,7 +68,7 @@ int16_t Leslie::nnue::Nnue::Eval(Leslie::Position& position) {
   //    return std::clamp<int16_t>(x, CRELU_BOT, CRELU_TOP);
   //  });
 
-  if (position_.GetMyColor() == Color::kWhite)
+  if (position_.GetMyColor() == WHITE)
     estimation_ = white_output_weights_.transpose() * y_ + output_bias_;
   else
     estimation_ = black_output_weights_.transpose() * y_ + output_bias_;
@@ -100,15 +100,15 @@ Eigen::Vector<int16_t, INPUT_SIZE> Nnue::InputVector() {
   return result;
 }
 
-int Nnue::ColorToInt(Color color) { return color == Color::kWhite ? 1 : 0; }
+int Nnue::ColorToInt(Color color) { return color == WHITE ? 1 : 0; }
 
 int Nnue::TypeToInt(PieceType type) {
-  if (type == PieceType::kPawn) return 1;
-  if (type == PieceType::kKnight) return 2;
-  if (type == PieceType::kBishop) return 3;
-  if (type == PieceType::kRook) return 4;
-  if (type == PieceType::kQueen) return 5;
-  if (type == PieceType::kKing) return 6;
+  if (type == PAWN) return 1;
+  if (type == KNIGHT) return 2;
+  if (type == BISHOP) return 3;
+  if (type == ROOK) return 4;
+  if (type == QUEEN) return 5;
+  if (type == KING) return 6;
   return -1;
 }
 

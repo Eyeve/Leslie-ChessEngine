@@ -3,15 +3,26 @@
 
 #include <functional>
 
-#include "types.h"
+#include "board.h"
 
 namespace Leslie {
 
-enum class MoveType {
-  kCheck,
-  kCapture,
-  kPromotion,
-  kQuiet,
+enum Direction {
+  UP,
+  UP_RIGHT,
+  RIGHT,
+  DOWN_RIGHT,
+  DOWN,
+  DOWN_LEFT,
+  LEFT,
+  UP_LEFT,
+};
+
+enum MoveType {
+  CHECK,
+  CAPTURE,
+  PROMOTION,
+  QUIET,
 };
 
 struct Move {

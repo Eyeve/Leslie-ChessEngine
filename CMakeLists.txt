@@ -10,7 +10,6 @@ add_executable(${PROJECT_NAME} tests/tests.cpp
         src/lichess_shell.cpp
         src/engine.cpp
         src/move.cpp
-        src/options.cpp
         tests/knight_test.cpp
         tests/king_test.cpp
         tests/pawn_test.cpp
@@ -22,10 +21,11 @@ add_executable(${PROJECT_NAME} tests/tests.cpp
         tests/tests.h
         src/nnue/nnue.cpp
         src/nnue/nnue.h
-        src/types.cpp
+        src/utility.cpp
         tests/nnue_test.cpp
         src/thread.cpp
         src/thread.h
+        src/piece.h
 )
 
 include_directories(src)

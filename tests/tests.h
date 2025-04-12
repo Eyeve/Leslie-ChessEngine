@@ -1,7 +1,7 @@
 #ifndef LESLIE_TESTS_H_
 #define LESLIE_TESTS_H_
 
-#include <move.h>
+#include "board.h"
 
 #include <string>
 #include <vector>
