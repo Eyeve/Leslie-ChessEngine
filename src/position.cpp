@@ -174,15 +174,15 @@ BitboardType Position::GetKingsMoves(const BitboardType sqs, const BitboardType 
 }
 
 BitboardType Position::GetQueensMoves(const BitboardType sqs, const BitboardType blockers) const {
-  return GetPieceMoves(&GetQueenMoves, sqs, blockers);
+  return GetPieceMoves(&Position::GetQueenMoves, sqs, blockers);
 }
 
 BitboardType Position::GetRooksMoves(const BitboardType sqs, const BitboardType blockers) const {
-  return GetPieceMoves(&GetRookMoves, sqs, blockers);
+  return GetPieceMoves(&Position::GetRookMoves, sqs, blockers);
 }
 
 BitboardType Position::GetBishopsMoves(const BitboardType sqs, const BitboardType blockers) const {
-  return GetPieceMoves(&GetBishopMoves, sqs, blockers);
+  return GetPieceMoves(&Position::GetBishopMoves, sqs, blockers);
 }
 
 BitboardType Position::GetKnightsMoves(const BitboardType sqs, const BitboardType blockers) const {
