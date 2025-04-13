@@ -251,7 +251,7 @@ EstimationType Position::GetSimpleEstimation() const {
     score += __builtin_popcountll(my_bb) * GetPieceCost(piece_type);
     score -= __builtin_popcountll(op_bb) * GetPieceCost(piece_type);
   }
-  return GetOpColor() == WHITE ? score : -score;
+  return GetOpColor() == WHITE ? -score : score;
 }
 
 }  // namespace Leslie

@@ -1,4 +1,4 @@
-#include "nnue/nnue"
+#include "nnue/nnue.h"
 
 #include <gtest/gtest.h>
 
