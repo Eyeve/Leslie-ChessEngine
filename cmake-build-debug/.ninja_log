@@ -1,0 +1,24 @@
+# ninja log v5
+24	946	7662792555903560	CMakeFiles/Leslie_ChessEngine.dir/src/move.cpp.obj	8398c6806b6d448f
+37	962	7662792555903560	CMakeFiles/Leslie_ChessEngine.dir/src/pieces_container.cpp.obj	d299885835471203
+19	1260	7662792558897695	CMakeFiles/Leslie_ChessEngine.dir/src/lichess_shell.cpp.obj	4f71f22301e3200f
+1261	2651	7662792572844057	CMakeFiles/Leslie_ChessEngine.dir/src/utility.cpp.obj	c7d2a2fab3645a06
+7	2660	7662792572978253	CMakeFiles/Leslie_ChessEngine.dir/src/position.cpp.obj	f3d3e9550404d3d0
+12	2666	7662792572948062	CMakeFiles/Leslie_ChessEngine.dir/src/engine.cpp.obj	45c8db4d2c6793e7
+32	2671	7662792573068650	CMakeFiles/Leslie_ChessEngine.dir/tests/pawn_test.cpp.obj	f8d8a5a3c436f47a
+16	2677	7662792573090613	CMakeFiles/Leslie_ChessEngine.dir/tests/knight_test.cpp.obj	e8476b4c0951a95d
+28	2682	7662792573090613	CMakeFiles/Leslie_ChessEngine.dir/tests/advanced_test.cpp.obj	a9a225ac2e32229e
+42	2741	7662792573811839	CMakeFiles/Leslie_ChessEngine.dir/tests/king_test.cpp.obj	5ec6aec873d7ca73
+2	2807	7662792574519099	CMakeFiles/Leslie_ChessEngine.dir/tests/tests.cpp.obj	9f79bd801ce403e9
+2661	3355	7662792580038267	CMakeFiles/Leslie_ChessEngine.dir/src/thread.cpp.obj	86cfc3d1d21987f2
+949	3371	7662792580189652	CMakeFiles/Leslie_ChessEngine.dir/tests/bishop_test.cpp.obj	89d86e08756517f0
+2677	4089	7662792587298478	_deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.obj	13a05aa9ebe77259
+2652	4161	7662792588095627	CMakeFiles/Leslie_ChessEngine.dir/tests/rook_test.cpp.obj	85a6feba0b6acea7
+962	6870	7662792615058551	CMakeFiles/Leslie_ChessEngine.dir/src/nnue/nnue.cpp.obj	6da144c3d8432c7b
+2672	12487	7662792671170123	_deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.obj	515088cedc29d5be
+4	2060	7662792864062882	CMakeFiles/Leslie_ChessEngine.dir/tests/nnue_test.cpp.obj	104f9c6805df78cc
+8	2773	7662792871199218	lib/libgtest.a	82580c7eff7c39e5
+2773	2834	7662792871814036	lib/libgtest_main.a	b55893a22fb93523
+2834	7507	7662792918323806	Leslie_ChessEngine.exe	3ad9eafc2b08b967
+5	1275	7662793807044806	CMakeFiles/Leslie_ChessEngine.dir/src/position.cpp.obj	f3d3e9550404d3d0
+1275	6061	7662793854824931	Leslie_ChessEngine.exe	3ad9eafc2b08b967

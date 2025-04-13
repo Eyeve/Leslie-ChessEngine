@@ -16,7 +16,6 @@ f(X,θ) = clip((clip(XA + B, -α, α) ⊙ C) + d, -β, β)
 """
 
 from datetime import datetime
-from math import exp, log10, trunc
 from network.cpu import *
 from params import *
 
@@ -84,7 +83,7 @@ try:
             break
         except KeyboardInterrupt:
             print("\nОбучение прервано пользователем (Ctrl+C). Сохраняем модель...")
-            net.result()
+            net.result(coefs)
             print("\nЗаписано, нажмите Enter, чтобы прервать")
             if input() == '':
                 break
