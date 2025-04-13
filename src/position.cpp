@@ -67,15 +67,15 @@ Piece Position::WhatPieceOnSquare(const BitboardType sq) const {
 }
 
 void Position::AddPossibleMoves(std::vector<Move>& vec) const {
-  AddPieceMoves(&GetKingsMoves, KING, vec);
-  AddPieceMoves(&GetQueenMoves, QUEEN, vec);
-  AddPieceMoves(&GetRookMoves, ROOK, vec);
-  AddPieceMoves(&GetBishopMoves, BISHOP, vec);
-  AddPieceMoves(&GetKnightsMoves, KNIGHT, vec);
+  AddPieceMoves(&Position::GetKingsMoves, KING, vec);
+  AddPieceMoves(&Position::GetQueenMoves, QUEEN, vec);
+  AddPieceMoves(&Position::GetRookMoves, ROOK, vec);
+  AddPieceMoves(&Position::GetBishopMoves, BISHOP, vec);
+  AddPieceMoves(&Position::GetKnightsMoves, KNIGHT, vec);
   if (current_ == WHITE)
-    AddPieceMoves(&GetWhitePawnsMoves, PAWN, vec);
+    AddPieceMoves(&Position::GetWhitePawnsMoves, PAWN, vec);
   else
-    AddPieceMoves(&GetBlackPawnsMoves, PAWN, vec);
+    AddPieceMoves(&Position::GetBlackPawnsMoves, PAWN, vec);
 }
 
 Position Position::MakeMoves(const std::vector<Move>& moves) const {
@@ -177,17 +177,17 @@ BitboardType Position::GetKingsMoves(const BitboardType sqs,
 
 BitboardType Position::GetQueensMoves(const BitboardType sqs,
                                       const BitboardType blockers) const {
-  return GetPieceMoves(&GetQueenMoves, sqs, blockers);
+  return GetPieceMoves(&Position::GetQueenMoves, sqs, blockers);
 }
 
 BitboardType Position::GetRooksMoves(const BitboardType sqs,
                                      const BitboardType blockers) const {
-  return GetPieceMoves(&GetRookMoves, sqs, blockers);
+  return GetPieceMoves(&Position::GetRookMoves, sqs, blockers);
 }
 
 BitboardType Position::GetBishopsMoves(const BitboardType sqs,
                                        const BitboardType blockers) const {
-  return GetPieceMoves(&GetBishopMoves, sqs, blockers);
+  return GetPieceMoves(&Position::GetBishopMoves, sqs, blockers);
 }
 
 BitboardType Position::GetKnightsMoves(const BitboardType sqs,
@@ -252,6 +252,32 @@ BitboardType Position::GetPieceMoves(MovesGetter getter, BitboardType sqs,
     sqs ^= sq;
   }
   return res;
+}
+
+int16_t Position::GetSimpleEstimation() const {
+  // TODO: if change enum everything will be broken
+  constexpr int piece_values[] = {
+      0,    // K
+      900,  // Q
+      500,  // R
+      310,  // B
+      300,  // K
+      100   // P
+  };
+
+  int16_t my_score = 0;
+  int16_t op_score = 0;
+
+  // TODO: if change enum everything will be broken
+  for (int pt = KING; pt <= PAWN; ++pt) {
+    BitboardType my_bb = GetMyBitboard(static_cast<PieceType>(pt));
+    BitboardType op_bb = GetOpBitboard(static_cast<PieceType>(pt));
+
+    my_score += __builtin_popcountll(my_bb) * piece_values[pt];
+    op_score += __builtin_popcountll(op_bb) * piece_values[pt];
+  }
+
+  return (-1 * GetMyColor()) * (my_score - op_score);
 }
 
 }  // namespace Leslie
