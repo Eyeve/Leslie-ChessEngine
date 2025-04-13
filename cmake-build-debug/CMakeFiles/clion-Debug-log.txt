@@ -1,1 +1,0 @@
-CMakeLists.txt not found in C:\Users\Mi\LEARNING\Leslie-ChessEngine Select CMakeLists.txt
