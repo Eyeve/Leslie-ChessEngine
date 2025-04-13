@@ -277,7 +277,7 @@ int16_t Position::GetSimpleEstimation() const {
     op_score += __builtin_popcountll(op_bb) * piece_values[pt];
   }
 
-  return (-1 * GetMyColor()) * (my_score - op_score);
+  return (-1 + 2 * GetOpColor()) * (my_score - op_score);
 }
 
 }  // namespace Leslie
