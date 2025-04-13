@@ -1,9 +1,30 @@
 #include "utility.h"
 
+#include <stdexcept>
+
 #include "board.h"
 #include "position.h"
 
 namespace Leslie {
+
+EstimationType GetPieceCost(PieceType type) {
+  switch (type) {
+    case KING:
+      return 0;
+    case QUEEN:
+      return 900;
+    case ROOK:
+      return 500;
+    case BISHOP:
+      return 310;
+    case KNIGHT:
+      return 300;
+    case PAWN:
+      return 100;
+    default:
+      throw std::runtime_error("Unknown type");
+  }
+}
 
 std::string ToStr(const BitboardType bitboard) {
   char str[Board::kStrFormatSize];

@@ -241,30 +241,17 @@ BitboardType Position::GetPieceMoves(MovesGetter getter, BitboardType sqs,
   return res;
 }
 
-int16_t Position::GetSimpleEstimation() const {
-  // TODO: if change enum everything will be broken
-  constexpr int piece_values[] = {
-      0,    // K
-      900,  // Q
-      500,  // R
-      310,  // B
-      300,  // K
-      100   // P
-  };
+EstimationType Position::GetSimpleEstimation() const {
+  EstimationType score = 0;
+  for (const PieceType piece_type : kPieceTypes) {
+    const BitboardType my_bb = GetMyBitboard(piece_type);
+    const BitboardType op_bb = GetOpBitboard(piece_type);
 
-  int16_t my_score = 0;
-  int16_t op_score = 0;
-
-  // TODO: if change enum everything will be broken
-  for (int pt = KING; pt <= PAWN; ++pt) {
-    BitboardType my_bb = GetMyBitboard(static_cast<PieceType>(pt));
-    BitboardType op_bb = GetOpBitboard(static_cast<PieceType>(pt));
-
-    my_score += __builtin_popcountll(my_bb) * piece_values[pt];
-    op_score += __builtin_popcountll(op_bb) * piece_values[pt];
+    // TODO: type convert redo
+    score += __builtin_popcountll(my_bb) * GetPieceCost(piece_type);
+    score -= __builtin_popcountll(op_bb) * GetPieceCost(piece_type);
   }
-
-  return (-1 + 2 * GetOpColor()) * (my_score - op_score);
+  return GetOpColor() == WHITE ? score : -score;
 }
 
 }  // namespace Leslie

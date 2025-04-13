@@ -25,7 +25,7 @@ class Position {
   Position MakeMoves(const std::vector<Move>& moves) const;
   Position MakeMove(Move move) const;
 
-  int16_t GetSimpleEstimation() const;
+  EstimationType GetSimpleEstimation() const;
 
  private:
   using MovesGetter = BitboardType (Position::*)(BitboardType, BitboardType) const;

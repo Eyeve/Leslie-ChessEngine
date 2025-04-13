@@ -11,11 +11,11 @@
 #define CRELU_BOT 0
 #define CRELU_TOP 127
 
-namespace Leslie::nnue {
+namespace Leslie::NNUE {
 
-class Nnue {
+class NNUE {
  public:
-  Nnue(Position& position_);
+  explicit NNUE(Position& position_);
   int16_t Eval(Position& position);
   int16_t Eval();
   int16_t Update(Move& move);
@@ -35,6 +35,6 @@ class Nnue {
   int TypeToInt(PieceType type);
 };
 
-}  // namespace Leslie::nnue
+}  // namespace Leslie::NNUE
 
 #endif

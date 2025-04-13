@@ -5,13 +5,13 @@
 
 #include "../../libs/json.hpp"
 
-namespace Leslie::nnue {
+namespace Leslie::NNUE {
 
-Leslie::nnue::Nnue::Nnue(Position& position_) : position_(position_) {
+NNUE::NNUE(Position& position_) : position_(position_), estimation_() {
   accumulator_weights_.resize(INPUT_SIZE, HL_SIZE);
 
   try {
-    const std::string coeffs_file = "path";  // TODO
+    const std::string coeffs_file = "path";  // TODO: change path
 
     if (coeffs_file.empty()) {
       throw std::invalid_argument("Invalid NNUE coefficients file path");
@@ -45,12 +45,11 @@ Leslie::nnue::Nnue::Nnue(Position& position_) : position_(position_) {
         Eigen::Map<Eigen::Vector<int16_t, HL_SIZE>>(data["C_2"].get<std::vector<int16_t>>().data());
     output_bias_ = data["d"].get<int16_t>();
   } catch (const std::exception& e) {
-    // std::cerr << "Failed to read coefficients: " << e.what() << std::endl;
     throw std::runtime_error("Failed to load NNUE coefficients");
   }
 }
 
-int16_t Leslie::nnue::Nnue::Eval(Leslie::Position& position) {
+int16_t Leslie::NNUE::NNUE::Eval(Leslie::Position& position) {
   position_ = position;
 
   y_ = accumulator_weights_ * InputVector() + accumulator_biases_;
@@ -73,15 +72,15 @@ int16_t Leslie::nnue::Nnue::Eval(Leslie::Position& position) {
   return estimation_;
 }
 
-int16_t Leslie::nnue::Nnue::Update(Leslie::Move& move) {
+int16_t Leslie::NNUE::NNUE::Update(Leslie::Move& move) {
   // y_ -четотам + четотам
   // estimation_ = четотам
   return estimation_;
 }
 
-int16_t Nnue::Eval() { return estimation_; }
+int16_t NNUE::Eval() { return estimation_; }
 
-Eigen::Vector<int16_t, INPUT_SIZE> Nnue::InputVector() {
+Eigen::Vector<int16_t, INPUT_SIZE> NNUE::InputVector() {
   Eigen::Vector<int16_t, INPUT_SIZE> result;
   result.setZero();
   for (int i = 0; i < 64; i++) {
@@ -97,9 +96,9 @@ Eigen::Vector<int16_t, INPUT_SIZE> Nnue::InputVector() {
   return result;
 }
 
-int Nnue::ColorToInt(Color color) { return color == WHITE ? 1 : 0; }
+int NNUE::ColorToInt(Color color) { return color == WHITE ? 1 : 0; }
 
-int Nnue::TypeToInt(PieceType type) {
+int NNUE::TypeToInt(PieceType type) {
   if (type == PAWN) return 1;
   if (type == KNIGHT) return 2;
   if (type == BISHOP) return 3;
@@ -109,4 +108,4 @@ int Nnue::TypeToInt(PieceType type) {
   return -1;
 }
 
-}  // namespace Leslie::nnue
+}  // namespace Leslie::NNUE
