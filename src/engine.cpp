@@ -11,9 +11,9 @@ Engine& Engine::Instance() {
   return singleton;
 }
 
-void Engine::Go() { thread_manager_.StartSearching(); }
+void Engine::Go() { task_manager_.StartSearching(); }
 
-void Engine::Stop() { thread_manager_.StopSearching(); }
+void Engine::Stop() { task_manager_.StopSearching(); }
 
 Position& Engine::GetPosition() { return position_; }
 
@@ -29,8 +29,8 @@ const Magic& Engine::GetMagic() const { return magic_; }
 
 void Engine::InitMagic() {
   InitPieceMagic(masks_.rook_masks, magic_.rook_magic, UP, RIGHT, DOWN, LEFT);
-  InitPieceMagic(masks_.bishop_masks, magic_.bishop_magic, UP_RIGHT, UP_LEFT,
-                 DOWN_RIGHT, DOWN_LEFT);
+  InitPieceMagic(masks_.bishop_masks, magic_.bishop_magic, UP_RIGHT, UP_LEFT, DOWN_RIGHT,
+                 DOWN_LEFT);
 }
 
 void Engine::InitMasks() {
@@ -95,9 +95,8 @@ void Engine::InitMasks() {
   }
 }
 
-void Engine::InitPieceMagic(const MasksType& masks, MagicsType& magic,
-                            const Direction d1, const Direction d2,
-                            const Direction d3, const Direction d4) const {
+void Engine::InitPieceMagic(const MasksType& masks, MagicsType& magic, const Direction d1,
+                            const Direction d2, const Direction d3, const Direction d4) const {
   for (int i = 0; i < 64; ++i) {
     const BitboardType mask = masks[i];
     const BitboardType limit = 1ull << std::popcount(mask);
@@ -113,24 +112,22 @@ void Engine::InitPieceMagic(const MasksType& masks, MagicsType& magic,
   }
 }
 
-BitboardType Engine::RayTracing(const BitboardType blockers,
-                                const Direction direction,
+BitboardType Engine::RayTracing(const BitboardType blockers, const Direction direction,
                                 const int sq_index) const {
   const BitboardType ray = rays_[std::to_underlying(direction)][sq_index];
   const BitboardType ray_blockers = blockers & ray;
 
   if (ray_blockers == 0ull) return ray;
 
-  const bool is_least_bit = direction == LEFT | direction == UP_LEFT |
-                            direction == UP | direction == UP_RIGHT;
-  const int index = is_least_bit ? std::countr_zero(ray_blockers)
-                                 : 63 - std::countl_zero(ray_blockers);
+  const bool is_least_bit =
+      direction == LEFT | direction == UP_LEFT | direction == UP | direction == UP_RIGHT;
+  const int index =
+      is_least_bit ? std::countr_zero(ray_blockers) : 63 - std::countl_zero(ray_blockers);
   const BitboardType blocked = rays_[std::to_underlying(direction)][index];
   return ray ^ blocked;
 }
 
-Engine::Engine()
-    : position_(Board::kStartFen), options_(), magic_(), masks_(), rays_() {
+Engine::Engine() : position_(Board::kStartFen), options_(), magic_(), masks_(), rays_() {
   InitMasks();
   InitMagic();
 }

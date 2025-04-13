@@ -41,7 +41,7 @@ class Engine {
   void SetPosition(const std::string& fen);
 
  private:
-  ThreadManager thread_manager_;
+  TaskManager task_manager_;
   Position position_;
   Options options_;
   Magic magic_;
@@ -54,10 +54,9 @@ class Engine {
   void InitMagic();
   void InitMasks();
 
-  void InitPieceMagic(const MasksType& masks, MagicsType& magic, Direction d1,
-                      Direction d2, Direction d3, Direction d4) const;
-  BitboardType RayTracing(BitboardType blockers, Direction direction,
-                          int sq_index) const;
+  void InitPieceMagic(const MasksType& masks, MagicsType& magic, Direction d1, Direction d2,
+                      Direction d3, Direction d4) const;
+  BitboardType RayTracing(BitboardType blockers, Direction direction, int sq_index) const;
 };
 
 }  // namespace Leslie

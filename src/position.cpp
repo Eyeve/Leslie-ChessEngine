@@ -25,8 +25,7 @@ Position::Position(const std::string& fen)
   std::istringstream iss(fen);
   std::string board_part, turn_part, castling_part, en_passant_part;
 
-  iss >> board_part >> turn_part >> castling_part >> en_passant_part >>
-      rule_50_ >> moves_;
+  iss >> board_part >> turn_part >> castling_part >> en_passant_part >> rule_50_ >> moves_;
 
   BitboardType sq = Board::Start();
   for (const char c : board_part) {
@@ -72,10 +71,7 @@ void Position::AddPossibleMoves(std::vector<Move>& vec) const {
   AddPieceMoves(&GetRookMoves, ROOK, vec);
   AddPieceMoves(&GetBishopMoves, BISHOP, vec);
   AddPieceMoves(&GetKnightsMoves, KNIGHT, vec);
-  if (current_ == WHITE)
-    AddPieceMoves(&GetWhitePawnsMoves, PAWN, vec);
-  else
-    AddPieceMoves(&GetBlackPawnsMoves, PAWN, vec);
+  AddPieceMoves(current_ == WHITE ? &GetWhitePawnsMoves : &GetBlackPawnsMoves, PAWN, vec);
 }
 
 Position Position::MakeMoves(const std::vector<Move>& moves) const {
@@ -167,31 +163,26 @@ BitboardType& Position::GetOpBitboard(const PieceType type) {
   return pieces_.GetBitboard(Piece(type, GetOpColor()));
 }
 
-BitboardType Position::GetKingsMoves(const BitboardType sqs,
-                                     const BitboardType blockers) const {
+BitboardType Position::GetKingsMoves(const BitboardType sqs, const BitboardType blockers) const {
   BitboardType res = (((sqs << 7) | (sqs >> 9) | (sqs >> 1)) & (~FILE_A));
   res |= (((sqs >> 7) | (sqs << 9) | (sqs << 1)) & (~FILE_H));
   res |= ((sqs >> 8) | (sqs << 8));
   return res;
 }
 
-BitboardType Position::GetQueensMoves(const BitboardType sqs,
-                                      const BitboardType blockers) const {
+BitboardType Position::GetQueensMoves(const BitboardType sqs, const BitboardType blockers) const {
   return GetPieceMoves(&GetQueenMoves, sqs, blockers);
 }
 
-BitboardType Position::GetRooksMoves(const BitboardType sqs,
-                                     const BitboardType blockers) const {
+BitboardType Position::GetRooksMoves(const BitboardType sqs, const BitboardType blockers) const {
   return GetPieceMoves(&GetRookMoves, sqs, blockers);
 }
 
-BitboardType Position::GetBishopsMoves(const BitboardType sqs,
-                                       const BitboardType blockers) const {
+BitboardType Position::GetBishopsMoves(const BitboardType sqs, const BitboardType blockers) const {
   return GetPieceMoves(&GetBishopMoves, sqs, blockers);
 }
 
-BitboardType Position::GetKnightsMoves(const BitboardType sqs,
-                                       const BitboardType blockers) const {
+BitboardType Position::GetKnightsMoves(const BitboardType sqs, const BitboardType blockers) const {
   const BitboardType l1 = (sqs >> 1) & ~FILE_A;
   const BitboardType l2 = (sqs >> 2) & ~(FILE_A | FILE_B);
   const BitboardType r1 = (sqs << 1) & ~FILE_H;
@@ -202,31 +193,25 @@ BitboardType Position::GetKnightsMoves(const BitboardType sqs,
 BitboardType Position::GetWhitePawnsMoves(const BitboardType sqs,
                                           const BitboardType blockers) const {
   const BitboardType short_moves = (sqs << 8) & ~blockers;
-  const BitboardType long_moves =
-      ((sqs & RANK_2) << 16) & ~blockers & (short_moves << 8);
+  const BitboardType long_moves = ((sqs & RANK_2) << 16) & ~blockers & (short_moves << 8);
   const BitboardType attacks =
-      (blockers | en_passant_) &
-      (((sqs << 9) & ~FILE_H) | ((sqs << 7) & ~FILE_A));
+      (blockers | en_passant_) & (((sqs << 9) & ~FILE_H) | ((sqs << 7) & ~FILE_A));
   return short_moves | long_moves | attacks;
 }
 BitboardType Position::GetBlackPawnsMoves(const BitboardType sqs,
                                           const BitboardType blockers) const {
   const BitboardType short_moves = (sqs >> 8) & ~blockers;
-  const BitboardType long_moves =
-      ((sqs & RANK_7) >> 16) & ~blockers & (short_moves >> 8);
+  const BitboardType long_moves = ((sqs & RANK_7) >> 16) & ~blockers & (short_moves >> 8);
   const BitboardType attacks =
-      (blockers | en_passant_) &
-      (((sqs >> 9) & ~FILE_A) | ((sqs >> 7) & ~FILE_H));
+      (blockers | en_passant_) & (((sqs >> 9) & ~FILE_A) | ((sqs >> 7) & ~FILE_H));
   return short_moves | long_moves | attacks;
 }
 
-BitboardType Position::GetQueenMoves(const BitboardType sq,
-                                     const BitboardType blockers) const {
+BitboardType Position::GetQueenMoves(const BitboardType sq, const BitboardType blockers) const {
   return GetRookMoves(sq, blockers) | GetBishopMoves(sq, blockers);
 }
 
-BitboardType Position::GetRookMoves(const BitboardType sq,
-                                    const BitboardType blockers) const {
+BitboardType Position::GetRookMoves(const BitboardType sq, const BitboardType blockers) const {
   Engine& engine = Engine::Instance();
   const int index = std::countr_zero(sq);
   const BitboardType mask = engine.GetMasks().rook_masks[index];
@@ -234,8 +219,7 @@ BitboardType Position::GetRookMoves(const BitboardType sq,
   return engine.GetMagic().rook_magic[index][key];
 }
 
-BitboardType Position::GetBishopMoves(const BitboardType sq,
-                                      const BitboardType blockers) const {
+BitboardType Position::GetBishopMoves(const BitboardType sq, const BitboardType blockers) const {
   Engine& engine = Engine::Instance();
   const int index = std::countr_zero(sq);
   const BitboardType mask = engine.GetMasks().bishop_masks[index];

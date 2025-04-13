@@ -22,6 +22,9 @@ enum MoveType {
   CHECK,
   CAPTURE,
   PROMOTION,
+  ATTACK,
+  CASTLING,
+  ENPASSANT,
   QUIET,
 };
 

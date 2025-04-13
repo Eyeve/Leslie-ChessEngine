@@ -9,8 +9,7 @@ std::string ToStr(const BitboardType bitboard) {
   char str[Board::kStrFormatSize];
   char* ptr = str;
 
-  for (BitboardType sq = Board::Start(); Board::IsEnd(sq);
-       sq = Board::Next(sq)) {
+  for (BitboardType sq = Board::Start(); Board::IsEnd(sq); sq = Board::Next(sq)) {
     *ptr++ = bitboard & sq ? '1' : '0';
     if (Board::IsEndLine(sq)) *ptr++ = '\n';
   }
@@ -22,8 +21,7 @@ std::string ToStr(const Position& position) {
   char str[Board::kStrFormatSize];
   char* ptr = str;
 
-  for (BitboardType sq = Board::Start(); Board::IsEnd(sq);
-       sq = Board::Next(sq)) {
+  for (BitboardType sq = Board::Start(); Board::IsEnd(sq); sq = Board::Next(sq)) {
     *ptr++ = ConvertPieceToChar(position.WhatPieceOnSquare(sq));
     if (Board::IsEndLine(sq)) *ptr++ = '\n';
   }

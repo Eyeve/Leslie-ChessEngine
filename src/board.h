@@ -3,9 +3,8 @@
 
 #include "utility.h"
 
-#define LESLIE_RANK(sq1, sq2, sq3, sq4, sq5, sq6, sq7, sq8, rank)      \
-  sq1 = FILE_A & rank, sq2 = sq1 >> 1, sq3 = sq1 >> 2, sq4 = sq1 >> 3, \
-  sq5 = sq1 >> 4, sq6 = sq1 >> 5, sq7 = sq1 >> 6, sq8 = sq1 >> 7
+#define LESLIE_RANK(a, b, c, d, e, f, g, h, R) \
+  a = FILE_A & R, b = a >> 1, c = a >> 2, d = a >> 3, e = a >> 4, f = a >> 5, g = a >> 6, h = a >> 7
 
 namespace Leslie {
 
@@ -45,18 +44,13 @@ enum Square : BitboardType {
  */
 class Board {
  public:
-  static constexpr auto kStartFen =
-      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  static constexpr auto kStartFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   static constexpr SizeType kSideLength = 8;
   static constexpr SizeType kSize = 64;
   static constexpr SizeType kStrFormatSize = kSize + kSideLength + 1;
 
   Board() = delete;
   ~Board() = delete;
-  Board(const Board&) = delete;
-  Board(Board&&) = delete;
-  Board& operator=(const Board&) = delete;
-  Board& operator=(Board&&) = delete;
 
   static constexpr BitboardType Start();
   static constexpr BitboardType Next(BitboardType sq);
@@ -78,9 +72,7 @@ constexpr BitboardType Board::NextRank(const BitboardType sq) {
   return sq >> (std::countr_zero(sq) % kSideLength + 1);
 }
 
-constexpr BitboardType Board::Shift(const BitboardType sq, const int off) {
-  return sq >> off;
-}
+constexpr BitboardType Board::Shift(const BitboardType sq, const int off) { return sq >> off; }
 
 constexpr bool Board::IsEnd(const BitboardType sq) { return sq > 0ull; }
 

@@ -26,8 +26,7 @@ class Position {
   Position MakeMove(Move move) const;
 
  private:
-  using MovesGetter = BitboardType (Position::*)(BitboardType,
-                                                 BitboardType) const;
+  using MovesGetter = BitboardType (Position::*)(BitboardType, BitboardType) const;
 
   PiecesContainer pieces_;
 
@@ -45,8 +44,7 @@ class Position {
 
   void MakeMoveInPlace(Move move);
 
-  void AddPieceMoves(MovesGetter getter, PieceType type,
-                     std::vector<Move>& moves) const;
+  void AddPieceMoves(MovesGetter getter, PieceType type, std::vector<Move>& moves) const;
 
   const BitboardType& GetMyBitboard(PieceType type) const;
   const BitboardType& GetOpBitboard(PieceType type) const;
@@ -58,17 +56,14 @@ class Position {
   BitboardType GetRooksMoves(BitboardType sqs, BitboardType blockers) const;
   BitboardType GetBishopsMoves(BitboardType sqs, BitboardType blockers) const;
   BitboardType GetKnightsMoves(BitboardType sqs, BitboardType blockers) const;
-  BitboardType GetWhitePawnsMoves(BitboardType sqs,
-                                  BitboardType blockers) const;
-  BitboardType GetBlackPawnsMoves(BitboardType sqs,
-                                  BitboardType blockers) const;
+  BitboardType GetWhitePawnsMoves(BitboardType sqs, BitboardType blockers) const;
+  BitboardType GetBlackPawnsMoves(BitboardType sqs, BitboardType blockers) const;
 
   BitboardType GetQueenMoves(BitboardType sq, BitboardType blockers) const;
   BitboardType GetRookMoves(BitboardType sq, BitboardType blockers) const;
   BitboardType GetBishopMoves(BitboardType sq, BitboardType blockers) const;
 
-  BitboardType GetPieceMoves(MovesGetter getter, BitboardType sqs,
-                             BitboardType blockers) const;
+  BitboardType GetPieceMoves(MovesGetter getter, BitboardType sqs, BitboardType blockers) const;
 };
 
 }  // namespace Leslie

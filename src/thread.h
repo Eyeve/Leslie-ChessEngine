@@ -12,16 +12,18 @@ class Thread {
   ~Thread() = default;
 };
 
-class ThreadManager {
+class TaskManager {
  public:
-  ThreadManager() = default;
-  ~ThreadManager() = default;
+  TaskManager() = default;
+  ~TaskManager() = default;
 
-  void StartSearching() {}
-  void StopSearching() {}
+  void StartSearching();
+  void StopSearching();
 
  private:
-  std::vector<std::unique_ptr<Thread>> threads;
+  std::vector<std::unique_ptr<Thread>> threads_;
+  float alpha_limit_ = 0.f;
+  float beta_limit_ = 0.f;
 };
 
 }  // namespace Leslie

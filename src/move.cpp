@@ -8,9 +8,7 @@ Move::Move(const PieceType type, const Square from, const Square to)
     : type(type), from(from), to(to) {}
 
 Move::Move(const PieceType type, const BitboardType from, const BitboardType to)
-    : type(type),
-      from(static_cast<Square>(from)),
-      to(static_cast<Square>(to)) {}
+    : type(type), from(static_cast<Square>(from)), to(static_cast<Square>(to)) {}
 
 std::size_t MoveHash::operator()(const Move& obj) const {
   std::size_t hash = 0;
