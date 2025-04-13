@@ -14,7 +14,6 @@
 namespace Leslie::nnue {
 
 class Nnue {
-
  public:
   Nnue(Position& position_);
   int16_t Eval(Position& position);
@@ -36,6 +35,6 @@ class Nnue {
   int TypeToInt(PieceType type);
 };
 
-}  // namespace leslie::nnue
+}  // namespace Leslie::nnue
 
 #endif

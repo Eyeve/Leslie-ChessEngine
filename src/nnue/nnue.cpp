@@ -19,8 +19,7 @@ Leslie::nnue::Nnue::Nnue(Position& position_) : position_(position_) {
 
     std::ifstream file(coeffs_file);
     if (!file.is_open()) {
-      throw std::runtime_error("NNUE coefficients file not found: " +
-                               coeffs_file);
+      throw std::runtime_error("NNUE coefficients file not found: " + coeffs_file);
     }
 
     nlohmann::json data;
@@ -31,20 +30,19 @@ Leslie::nnue::Nnue::Nnue(Position& position_) : position_(position_) {
       throw std::runtime_error("Missing required NNUE coefficients in file");
     }
 
-    std::vector<std::vector<int16_t>> A =
-        data["A"].get<std::vector<std::vector<int16_t>>>();
+    std::vector<std::vector<int16_t>> A = data["A"].get<std::vector<std::vector<int16_t>>>();
     for (int i = 0; i < INPUT_SIZE; ++i) {
       for (int j = 0; j < HL_SIZE; ++j) {
         accumulator_weights_(i, j) = A[i][j];
       }
     }
 
-    accumulator_biases_ = Eigen::Map<Eigen::Vector<int16_t, HL_SIZE>>(
-        data["B"].get<std::vector<int16_t>>().data());
-    white_output_weights_ = Eigen::Map<Eigen::Vector<int16_t, HL_SIZE>>(
-        data["C_1"].get<std::vector<int16_t>>().data());
-    black_output_weights_ = Eigen::Map<Eigen::Vector<int16_t, HL_SIZE>>(
-        data["C_2"].get<std::vector<int16_t>>().data());
+    accumulator_biases_ =
+        Eigen::Map<Eigen::Vector<int16_t, HL_SIZE>>(data["B"].get<std::vector<int16_t>>().data());
+    white_output_weights_ =
+        Eigen::Map<Eigen::Vector<int16_t, HL_SIZE>>(data["C_1"].get<std::vector<int16_t>>().data());
+    black_output_weights_ =
+        Eigen::Map<Eigen::Vector<int16_t, HL_SIZE>>(data["C_2"].get<std::vector<int16_t>>().data());
     output_bias_ = data["d"].get<int16_t>();
   } catch (const std::exception& e) {
     // std::cerr << "Failed to read coefficients: " << e.what() << std::endl;
@@ -92,8 +90,7 @@ Eigen::Vector<int16_t, INPUT_SIZE> Nnue::InputVector() {
 
     Piece piece = position_.WhatPieceOnSquare(bb);
     if (TypeToInt(piece.type) > 0) {
-      int index = 64 * 6 * ColorToInt(piece.color) +
-                  64 * (TypeToInt(piece.type) - 1) + i;
+      int index = 64 * 6 * ColorToInt(piece.color) + 64 * (TypeToInt(piece.type) - 1) + i;
       result[index] = 1;
     }
   }
@@ -112,4 +109,4 @@ int Nnue::TypeToInt(PieceType type) {
   return -1;
 }
 
-}  // namespace leslie::nnue
+}  // namespace Leslie::nnue
