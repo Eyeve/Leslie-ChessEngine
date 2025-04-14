@@ -16,9 +16,9 @@ namespace Leslie::NNUE {
 class NNUE {
  public:
   explicit NNUE(Position& position_);
-  int16_t Eval(Position& position);
-  int16_t Eval();
-  int16_t Update(Move& move);
+  EstimationType Eval(Position& position);
+  EstimationType Eval();
+  EstimationType Update(Move& move);
 
  private:
   Eigen::Matrix<int16_t, Eigen::Dynamic, Eigen::Dynamic> accumulator_weights_;
@@ -26,9 +26,9 @@ class NNUE {
   Eigen::Vector<int16_t, HL_SIZE> white_output_weights_;
   Eigen::Vector<int16_t, HL_SIZE> black_output_weights_;
   Eigen::Vector<int16_t, HL_SIZE> y_;
-  int16_t output_bias_;
+  EstimationType output_bias_;
   Position& position_;
-  int16_t estimation_;
+  EstimationType estimation_;
 
   Eigen::Vector<int16_t, INPUT_SIZE> InputVector();
   int ColorToInt(Color color);

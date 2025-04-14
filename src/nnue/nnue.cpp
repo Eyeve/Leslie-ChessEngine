@@ -93,7 +93,7 @@ Eigen::Vector<int16_t, INPUT_SIZE> NNUE::InputVector() {
       result[index] = 1;
     }
   }
-  return result;
+  return std::move(result);
 }
 
 int NNUE::ColorToInt(Color color) { return color == WHITE ? 1 : 0; }
