@@ -4,24 +4,22 @@
 
 namespace Leslie {
 
-Move::Move(const PieceType type, const Square from, const Square to)
-    : type(type), from(from), to(to) {}
-
-Move::Move(const PieceType type, const BitboardType from, const BitboardType to)
-    : type(type), from(static_cast<Square>(from)), to(static_cast<Square>(to)) {}
-
-std::size_t MoveHash::operator()(const Move& obj) const {
-  std::size_t hash = 0;
-  hash = HashCombine(hash, obj.type);
-  hash = HashCombine(hash, obj.from);
-  hash = HashCombine(hash, obj.to);
-  return hash;
+Move MoveHandler::EncodeMove(const PieceType type, const SquareShift from, const SquareShift to,
+                             const PieceType capture, const PieceType promotion,
+                             const bool en_passant, const bool castling, const bool attack,
+                             const bool check) {
+  return EncodeMoveProcessing(type, from, to, capture, promotion, en_passant, castling, attack,
+                              check);
 }
 
-template <typename T>
-std::size_t MoveHash::HashCombine(const std::size_t seed, const T value) const {
-  static constexpr size_t kBitMixer = 0x9e3779b9;
-  return seed ^ (std::hash<T>()(value) + kBitMixer + (seed << 6) + (seed >> 2));
+Move MoveHandler::EncodeMoveProcessing(const Move type, const Move from, const Move to,
+                                       const Move capture, const Move promotion,
+                                       const Move en_passant, const Move castling,
+                                       const Move attack, const Move check) {
+  return (type << LESLIE_TYPE_SHIFT) | (from << LESLIE_FROM_SHIFT) | (to << LESLIE_TO_SHIFT) |
+         (capture << LESLIE_CAPTURE_SHIFT) | (promotion << LESLIE_PROMOTION_SHIFT) |
+         (en_passant << LESLIE_EN_PASSANT_SHIFT) | (castling << LESLIE_CASTLING_SHIFT) |
+         (attack << LESLIE_ATTACK_SHIFT) | (check << LESLIE_CHECK_SHIFT);
 }
 
 }  // namespace Leslie

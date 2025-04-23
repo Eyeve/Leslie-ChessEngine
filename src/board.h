@@ -46,7 +46,7 @@ class Board {
  public:
   static constexpr auto kStartFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   static constexpr SizeType kSideLength = 8;
-  static constexpr SizeType kSize = 64;
+  static constexpr SizeType kSize = kSideLength * kSideLength;
   static constexpr SizeType kStrFormatSize = kSize + kSideLength + 1;
 
   Board() = delete;

@@ -11,11 +11,12 @@ namespace Leslie {
 class PiecesContainer {
  public:
   PiecesContainer();
-  PiecesContainer(const PiecesContainer& other, const Move& move, Color color);
+  PiecesContainer(const PiecesContainer& other, Move move, Color color);
 
-  BitboardType& GetBitboard(Piece piece);
-  const BitboardType& GetBitboard(Piece piece) const;
+  BitboardType GetBitboard(Piece piece) const;
   BitboardType GetBlockers(Color color) const;
+
+  void SetBitboard(Piece piece, BitboardType value);
 
   Piece WhatPieceOnSquare(BitboardType square) const;
 

@@ -1,28 +1,21 @@
 #ifndef LESLIE_ENGINE_H_
 #define LESLIE_ENGINE_H_
 
-#include "options.h"
+#include <memory>
+
 #include "position.h"
 #include "thread.h"
 
 namespace Leslie {
 
-struct Magic {
-  MagicsType rook_magic;
-  MagicsType bishop_magic;
-};
-
-struct Masks {
-  MasksType rook_masks;
-  MasksType bishop_masks;
-};
-
 class Engine {
  public:
-  static Engine& Instance();
+  struct Options {
+    size_t thread_count;
+    size_t max_depth;
+  };
 
-  Engine& operator=(const Engine& other) = delete;
-  Engine& operator=(Engine&& other) = delete;
+  Engine(const Options& options);
 
   // call to start searching moves
   void Go();
@@ -32,24 +25,14 @@ class Engine {
   Position& GetPosition();
   const Position& GetPosition() const;
 
-  Masks& GetMasks();
-  const Masks& GetMasks() const;
-
-  Magic& GetMagic();
-  const Magic& GetMagic() const;
-
   void SetPosition(const std::string& fen);
 
  private:
-  TaskManager task_manager_;
   Position position_;
   Options options_;
-  Magic magic_;
-  Masks masks_;
-  RaysType rays_;
-
-  Engine();
-  ~Engine() = default;
+  std::vector<std::unique_ptr<Thread>> threads_;
+  float alpha_limit_ = 0.f;
+  float beta_limit_ = 0.f;
 
   void InitMagic();
   void InitMasks();

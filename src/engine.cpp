@@ -11,9 +11,11 @@ Engine& Engine::Instance() {
   return singleton;
 }
 
-void Engine::Go() { task_manager_.StartSearching(); }
+void Engine::Go() {
+  
+}
 
-void Engine::Stop() { task_manager_.StopSearching(); }
+void Engine::Stop() {}
 
 Position& Engine::GetPosition() { return position_; }
 

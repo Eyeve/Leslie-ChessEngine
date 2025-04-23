@@ -15,11 +15,11 @@ constexpr std::array kColors{WHITE, BLACK};
 enum PieceType {
   NONE_PIECE_TYPE = -1,
   KING,
-  QUEEN,
-  ROOK,
-  BISHOP,
-  KNIGHT,
   PAWN,
+  KNIGHT,
+  BISHOP,
+  ROOK,
+  QUEEN,
 };
 
 constexpr std::array kPieceTypes = {KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};

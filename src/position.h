@@ -2,7 +2,6 @@
 #define LESLIE_POSITION_H_
 
 #include <string>
-#include <vector>
 
 #include "move.h"
 #include "pieces_container.h"
@@ -15,57 +14,38 @@ class Position {
  public:
   explicit Position(const std::string& fen);
 
+  const PiecesContainer& GetPieceContainer() const;
   Color GetMyColor() const;
   Color GetOpColor() const;
+  BitboardType GetMyBitboard(PieceType type) const;
+  BitboardType GetOpBitboard(PieceType type) const;
+  BitboardType GetMyBlockers() const;
+  BitboardType GetOpBlockers() const;
 
-  Piece WhatPieceOnSquare(BitboardType sq) const;
+  void SetMyBitboard(PieceType type, BitboardType value);
+  void SetOpBitboard(PieceType type, BitboardType value);
 
-  void AddPossibleMoves(std::vector<Move>& vec) const;
+  Piece WhatPieceOnSquare(BitboardType square) const;
 
-  Position MakeMoves(const std::vector<Move>& moves) const;
   Position MakeMove(Move move) const;
-
-  EstimationType GetSimpleEstimation() const;
+  bool IsKingSafe(Color color) const;
 
  private:
-  using MovesGetter = BitboardType (Position::*)(BitboardType, BitboardType) const;
-
   PiecesContainer pieces_;
+  std::array<BitboardType, 2> blockers_;
 
   BitboardType en_passant_;
   CounterType rule_50_;
   CounterType moves_;
 
-  Color current_;
+  Color turn_;
   bool w_king_castle;
   bool w_queen_castle;
   bool b_king_castle;
   bool b_queen_castle;
 
-  bool IsMoveMadeValid() const;
-
+  void UpdateBlockers();
   void MakeMoveInPlace(Move move);
-
-  void AddPieceMoves(MovesGetter getter, PieceType type, std::vector<Move>& moves) const;
-
-  const BitboardType& GetMyBitboard(PieceType type) const;
-  const BitboardType& GetOpBitboard(PieceType type) const;
-  BitboardType& GetMyBitboard(PieceType type);
-  BitboardType& GetOpBitboard(PieceType type);
-
-  BitboardType GetKingsMoves(BitboardType sqs, BitboardType blockers) const;
-  BitboardType GetQueensMoves(BitboardType sqs, BitboardType blockers) const;
-  BitboardType GetRooksMoves(BitboardType sqs, BitboardType blockers) const;
-  BitboardType GetBishopsMoves(BitboardType sqs, BitboardType blockers) const;
-  BitboardType GetKnightsMoves(BitboardType sqs, BitboardType blockers) const;
-  BitboardType GetWhitePawnsMoves(BitboardType sqs, BitboardType blockers) const;
-  BitboardType GetBlackPawnsMoves(BitboardType sqs, BitboardType blockers) const;
-
-  BitboardType GetQueenMoves(BitboardType sq, BitboardType blockers) const;
-  BitboardType GetRookMoves(BitboardType sq, BitboardType blockers) const;
-  BitboardType GetBishopMoves(BitboardType sq, BitboardType blockers) const;
-
-  BitboardType GetPieceMoves(MovesGetter getter, BitboardType sqs, BitboardType blockers) const;
 };
 
 }  // namespace Leslie

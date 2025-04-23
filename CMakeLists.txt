@@ -26,6 +26,8 @@ add_executable(${PROJECT_NAME} tests/tests.cpp
         src/thread.cpp
         src/thread.h
         src/piece.h
+        src/move_table.cpp
+        src/move_table.h
 )
 
 include_directories(src)
