@@ -35,24 +35,16 @@ enum Direction {
  *
  * Bit layout (from least significant to most significant bit):
  *
- *                  ---> bigger
- *               |     13 bits     |
- * 000000 000000 X X XXX X XXX XXX X 0000000
- *
  * Bits  0 -  5   (6 bits):  From square (0–63)
  * Bits  6 - 11   (6 bits):  To square (0–63)
  * Bit     12     (1 bit):   En passant flag (1 if the move is an en passant capture)
  * Bit     13     (1 bit):   Castling flag (1 if the move is a castling move)
  * Bits 14 - 16   (3 bits):  Moving piece type (look PieceType enum)
- * Bit     17     (1 bit):   Attacked flag (1 if this move attacks an enemy piece)
- * Bits 18 - 20   (3 bits):  Captured piece type (king if no piece captured))
- * Bits 21 - 23   (3 bits):  Promotion piece type (king if no promotion occurred)
- * Bit     24     (1 bit):   Check flag (1 if the move gives check)
- * Bits 25 - 31   (7 bits):  Reserved for future use
- *
- * This encoding enables fast access and comparison of moves
- * while supporting detailed move properties such as captures,
- * promotions, special moves (castling, en passant), and tactical flags.
+ * Bits 17 - 22   (6 bit):   Attack estimation
+ * Bits 23 - 25   (3 bits):  Captured piece type (king if no piece captured))
+ * Bits 26 - 28   (3 bits):  Promotion piece type (king if no promotion occurred)
+ * Bit     29     (1 bit):   Check flag (1 if the move gives check)
+ * Bits 30 - 31   (2 bits):  Reserved for future use
  *
  * The bits are arranged in such a way as to give a rough estimate of the move,
  * the higher the value, the more promising the move.
@@ -76,8 +68,8 @@ class MoveHandler {
   MoveHandler() = delete;
 
   static Move EncodeMove(PieceType type, SquareShift from, SquareShift to, PieceType capture,
-                         PieceType promotion, bool en_passant, bool castling, bool attack,
-                         bool check);
+                         PieceType promotion, bool en_passant, bool castling, bool check,
+                         uint8_t attack_est);
   static PieceType GetType(Move move);
   static Square GetFrom(Move move);
   static Square GetTo(Move move);

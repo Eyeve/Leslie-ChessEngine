@@ -1,6 +1,8 @@
 #ifndef LESLIE_MOVE_TABLE_H
 #define LESLIE_MOVE_TABLE_H
 
+#include <bmi2intrin.h>
+
 #include <array>
 #include <cstdint>
 #include <vector>
@@ -64,9 +66,14 @@ class OrderManager {
   std::vector<Data> data_;
 };
 
-class MoveTable {
- public:
+struct MoveTable {
   using MagicKeyType = uint16_t;
+
+  std::array<std::unordered_map<MagicKeyType, BitboardType>, Board::kSize> rook_magic;
+  std::array<std::unordered_map<MagicKeyType, BitboardType>, Board::kSize> bishop_magic;
+  std::array<BitboardType, Board::kSize> rook_masks;
+  std::array<BitboardType, Board::kSize> bishop_masks;
+  std::array<std::array<BitboardType, Board::kSize>, Board::kSideLength> rays;
 
   static void Init();
   /**
@@ -78,39 +85,12 @@ class MoveTable {
    *
    * @return MoveTable& reference to the single instance of the MoveTable.
    */
-  static MoveTable& Instance();
+  static const MoveTable& Instance();
 
   void RefreshValidMoves(const Position& position, std::vector<OrderManager::Data>& out);
-  template <PieceType T>
-  struct InsertWrapper {
-    static void Insert(const Position& position, Color turn, BitboardType blockers, BitboardType valid,
-               std::vector<OrderManager::Data>& out);
-  };
-
-  static BitboardType GetKingsMoves(BitboardType sqs, BitboardType blockers);
-  BitboardType GetQueensMoves(BitboardType sqs, BitboardType blockers) const;
-  BitboardType GetRooksMoves(BitboardType sqs, BitboardType blockers) const;
-  BitboardType GetBishopsMoves(BitboardType sqs, BitboardType blockers) const;
-  static BitboardType GetKnightsMoves(BitboardType sqs, BitboardType blockers);
-  static BitboardType GetPawnsMoves(BitboardType sqs, BitboardType blockers,
-                                    BitboardType en_passant, Color color);
-
-  BitboardType GetQueenMoves(BitboardType sq, BitboardType blockers) const;
-  BitboardType GetRookMoves(BitboardType sq, BitboardType blockers) const;
-  BitboardType GetBishopMoves(BitboardType sq, BitboardType blockers) const;
 
  private:
-  using MovesGetter = BitboardType (MoveTable::*)(BitboardType, BitboardType) const;
-
-  std::array<std::unordered_map<MagicKeyType, BitboardType>, Board::kSize> rook_magic_;
-  std::array<std::unordered_map<MagicKeyType, BitboardType>, Board::kSize> bishop_magic_;
-  std::array<BitboardType, Board::kSize> rook_masks_;
-  std::array<BitboardType, Board::kSize> bishop_masks_;
-  std::array<std::array<BitboardType, Board::kSize>, Board::kSideLength> rays_;
-
   MoveTable();
-
-  BitboardType GetPieceMoves(MovesGetter getter, BitboardType sqs, BitboardType blockers) const;
 
   void InitMasks();
   void InitMagic(const MasksType& masks, MagicsType& magic, Direction d1, Direction d2,
@@ -118,33 +98,174 @@ class MoveTable {
   BitboardType RayTracing(BitboardType blockers, Direction direction, int sq_index) const;
 };
 
+template <PieceType T>
+class PieceHandler {
+ public:
+  PieceHandler() = delete;
+  static void Insert(const Position& position, Color turn, BitboardType blockers,
+                     BitboardType valid, std::vector<OrderManager::Data>& out);
+  static BitboardType GetDestinations(BitboardType sqs, BitboardType blockers,
+                                      BitboardType en_passant, Color turn);
+  static BitboardType GetDestination(BitboardType sq, BitboardType blockers,
+                                     BitboardType en_passant, Color turn);
+
+ private:
+  static BitboardType Multiplier(BitboardType sqs, BitboardType blockers, BitboardType en_passant,
+                                 Color turn);
+};
+
 /*
- * MOVE TABLE DEFINITIONS
+ * PIECE HANDLER DEFINITIONS
  */
-template <>
-inline void MoveTable::InsertWrapper<KING>::Insert(const Position& position, Color turn,
-                                            BitboardType blockers, BitboardType valid,
-                                            std::vector<OrderManager::Data>& out) {
-  BitboardType res = (((sqs << 7) | (sqs >> 9) | (sqs >> 1)) & (~FILE_A));
-  res |= (((sqs >> 7) | (sqs << 9) | (sqs << 1)) & (~FILE_H));
-  res |= ((sqs >> 8) | (sqs << 8));
+
+template <PieceType T>
+void PieceHandler<T>::Insert(const Position& position, BitboardType my_blockers, Color turn,
+                             BitboardType op_blockers, BitboardType valid,
+                             std::vector<OrderManager::Data>& out) {
+  static BitboardType promotion_cells = RANK_1 | RANK_8;
+  BitboardType from = position.GetPieceContainer().GetBitboard(Piece(T, turn));
+  while (from) {
+    const BitboardType from_sq = 1ull << std::countr_zero(from);
+
+    // Move type, Move from, Move to, Move capture, Move promotion,
+    //                                Move en_passant, Move castling, Move attack, Move check
+    BitboardType to = GetDestination(from_sq, blockers, en_passant, turn) & valid;
+    while (to) {
+      const BitboardType to_sq = 1ull << std::countr_zero(to);
+      const bool capture = to_sq & op_blockers;
+      bool promotion = false;
+      bool en_passant_capture = false;
+      bool castling = false;
+      GetDestination(to_sq, blockers, 0, turn);
+
+      if constexpr (T == PAWN) {
+        promotion = to_sq & promotion_cells;
+        en_passant_capture = to_sq == en_passant;
+      } else if constexpr (T == KING) {
+        castling = (from_sq << 2) == to_sq || (from_sq >> 2) == to_sq;
+      }
+      Move move = MoveHandler::EncodeMove(T, from_sq, to_sq, capture, promotion, en_passant_capture,
+                                          castling);
+      const Position updated = position.MakeMove(move);
+      if (!updated.IsKingSafe(turn)) continue;
+      const BitboardType updated_blockers = updated.GetMyBlockers() | updated.GetOpBlockers();
+
+      PieceHandler<KING>::GetDestinations(updated.GetOpBitboard(KING), updated_blockers, 0, turn);
+      PieceHandler<QUEEN>::GetDestinations(updated.GetOpBitboard(QUEEN), updated_blockers, 0, turn);
+      PieceHandler<ROOK>::GetDestinations(updated.GetOpBitboard(ROOK), updated_blockers, 0, turn);
+      PieceHandler<BISHOP>::GetDestinations(updated.GetOpBitboard(BISHOP), updated_blockers, 0, turn);
+      PieceHandler<KNIGHT>::GetDestinations(updated.GetOpBitboard(KNIGHT), updated_blockers, 0, turn);
+      PieceHandler<PAWN>::GetDestinations(updated.GetOpBitboard(PAWN), updated_blockers, 0, turn);
+
+      if (MakeMove(move).IsMoveMadeValid()) moves.push_back(move);
+      to ^= to_sq;
+    }
+    from ^= from_sq;
+  }
+}
+
+template <PieceType T>
+BitboardType PieceHandler<T>::GetDestinations(const BitboardType sqs, const BitboardType blockers,
+                                              const BitboardType en_passant, const Color turn) {
+  return GetDestination(sqs, blockers, turn, en_passant, turn);
+}
+
+template <PieceType T>
+BitboardType PieceHandler<T>::Multiplier(BitboardType sqs, const BitboardType blockers,
+                                         const BitboardType en_passant, const Color turn) {
+  BitboardType res = 0ull;
+  while (sqs) {
+    const BitboardType sq = 1ull << std::countr_zero(sqs);
+    res |= GetDestination(sq, blockers, en_passant, turn);
+    sqs ^= sq;
+  }
   return res;
 }
 
+template <>
+BitboardType PieceHandler<KING>::GetDestination(const BitboardType sq, const BitboardType blockers,
+                                                const BitboardType en_passant, const Color turn) {
+  BitboardType des = (((sq << 7) | (sq >> 9) | (sq >> 1)) & (~FILE_A));
+  des |= (((sq >> 7) | (sq << 9) | (sq << 1)) & (~FILE_H));
+  des |= ((sq >> 8) | (sq << 8));
+  return des;
+}
 
-BitboardType MoveTable::GetPawnsMoves(const BitboardType sqs, const BitboardType blockers,
-                                      const BitboardType en_passant, const Color color) {
-  if (color == WHITE) {
-    const BitboardType short_moves = (sqs << 8) & ~blockers;
-    const BitboardType long_moves = ((sqs & RANK_2) << 16) & ~blockers & (short_moves << 8);
+template <>
+BitboardType PieceHandler<QUEEN>::GetDestinations(const BitboardType sqs,
+                                                  const BitboardType blockers,
+                                                  const BitboardType en_passant, const Color turn) {
+  return Multiplier(sqs, blockers, en_passant, turn);
+}
+
+template <>
+BitboardType PieceHandler<QUEEN>::GetDestination(const BitboardType sq, const BitboardType blockers,
+                                                 const BitboardType en_passant, const Color turn) {
+  return PieceHandler<ROOK>::GetDestination(sq, blockers, en_passant, turn) |
+         PieceHandler<BISHOP>::GetDestination(sq, blockers, en_passant, turn);
+}
+
+template <>
+BitboardType PieceHandler<ROOK>::GetDestinations(const BitboardType sqs,
+                                                 const BitboardType blockers,
+                                                 const BitboardType en_passant, const Color turn) {
+  return Multiplier(sqs, blockers, en_passant, turn);
+}
+
+template <>
+BitboardType PieceHandler<ROOK>::GetDestination(const BitboardType sq, const BitboardType blockers,
+                                                const BitboardType en_passant, const Color turn) {
+  const int index = std::countr_zero(sq);
+  const MoveTable& mt = MoveTable::Instance();
+  const BitboardType mask = mt.rook_masks[index];
+  const auto key = static_cast<MagicKeyType>(_pext_u64(blockers, mask));
+  return mt.rook_magic[index].at(key);
+}
+
+template <>
+BitboardType PieceHandler<BISHOP>::GetDestinations(const BitboardType sqs,
+                                                   const BitboardType blockers,
+                                                   const BitboardType en_passant,
+                                                   const Color turn) {
+  return Multiplier(sqs, blockers, en_passant, turn);
+}
+
+template <>
+BitboardType PieceHandler<BISHOP>::GetDestination(const BitboardType sq,
+                                                  const BitboardType blockers,
+                                                  const BitboardType en_passant, const Color turn) {
+  const int index = std::countr_zero(sq);
+  const MoveTable& mt = MoveTable::Instance();
+  const BitboardType mask = mt.bishop_masks[index];
+  const auto key = static_cast<MagicKeyType>(_pext_u64(blockers, mask));
+  return mt.bishop_magic[index].at(key);
+}
+
+template <>
+BitboardType PieceHandler<KNIGHT>::GetDestination(const BitboardType sq,
+                                                  const BitboardType blockers,
+                                                  const BitboardType en_passant, const Color turn) {
+  const BitboardType l1 = (sq >> 1) & ~FILE_A;
+  const BitboardType l2 = (sq >> 2) & ~(FILE_A | FILE_B);
+  const BitboardType r1 = (sq << 1) & ~FILE_H;
+  const BitboardType r2 = (sq << 2) & ~(FILE_H | FILE_G);
+  return (l1 | r1) << 16 | (l1 | r1) >> 16 | (l2 | r2) << 8 | (l2 | r2) >> 8;
+}
+
+template <>
+BitboardType PieceHandler<PAWN>::GetDestination(const BitboardType sq, const BitboardType blockers,
+                                                const BitboardType en_passant, const Color turn) {
+  if (turn == WHITE) {
+    const BitboardType short_moves = (sq << 8) & ~blockers;
+    const BitboardType long_moves = ((sq & RANK_2) << 16) & ~blockers & (short_moves << 8);
     const BitboardType attacks =
-        (blockers | en_passant) & (((sqs << 9) & ~FILE_H) | ((sqs << 7) & ~FILE_A));
+        (blockers | en_passant) & (((sq << 9) & ~FILE_H) | ((sq << 7) & ~FILE_A));
     return short_moves | long_moves | attacks;
   }
-  const BitboardType short_moves = (sqs >> 8) & ~blockers;
-  const BitboardType long_moves = ((sqs & RANK_7) >> 16) & ~blockers & (short_moves >> 8);
+  const BitboardType short_moves = (sq >> 8) & ~blockers;
+  const BitboardType long_moves = ((sq & RANK_7) >> 16) & ~blockers & (short_moves >> 8);
   const BitboardType attacks =
-      (blockers | en_passant) & (((sqs >> 9) & ~FILE_A) | ((sqs >> 7) & ~FILE_H));
+      (blockers | en_passant) & (((sq >> 9) & ~FILE_A) | ((sq >> 7) & ~FILE_H));
   return short_moves | long_moves | attacks;
 }
 

@@ -22,6 +22,8 @@ enum PieceType {
   QUEEN,
 };
 
+constexpr std::array<uint8_t, 6> kPiecesCost = {255, 10, 30, 31, 50, 90};
+
 constexpr std::array kPieceTypes = {KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};
 
 struct Piece {
