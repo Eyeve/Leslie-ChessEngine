@@ -3,3 +3,6 @@ cmake-build-debug/
 cmake-build-debug-coverage/
 __pycache__/
 /build/
+/build-cmake/
+/build-cmake-ninja/
+/build-vs/

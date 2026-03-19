@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <unordered_set>
 
 #include "engine.h"
@@ -81,6 +82,17 @@ TEST(position, position_ctr) {
 
 namespace Leslie::Test {
 
+std::vector<Move> CollectMoves(const std::string& fen) {
+  Position position(fen);
+  std::vector<Move> moves;
+  position.AddPossibleMoves(moves);
+  return moves;
+}
+
+bool HasMove(const std::vector<Move>& moves, const Move& move) {
+  return std::find(moves.begin(), moves.end(), move) != moves.end();
+}
+
 void PositionTest(const std::string& fen, const MoveContainerType& res) {
   std::unordered_set<Move, MoveHash> expected;
   for (const auto& [type, from, moves] : res) {
@@ -89,9 +101,7 @@ void PositionTest(const std::string& fen, const MoveContainerType& res) {
     }
   }
 
-  Position position(fen);
-  std::vector<Move> actual;
-  position.AddPossibleMoves(actual);
+  std::vector<Move> actual = CollectMoves(fen);
 
   EXPECT_EQ(expected.size(), actual.size());
   for (Move move : actual) expected.erase(move);

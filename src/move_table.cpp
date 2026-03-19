@@ -144,6 +144,32 @@ BitboardType MoveTable::GetPawnsMoves(BitboardType sqs, const BitboardType block
   return result;
 }
 
+BitboardType MoveTable::GetPawnAttacks(BitboardType sqs, const Color turn) const {
+  if (turn == WHITE) {
+    return ((sqs << 9) & ~FILE_H) | ((sqs << 7) & ~FILE_A);
+  }
+  return ((sqs >> 9) & ~FILE_A) | ((sqs >> 7) & ~FILE_H);
+}
+
+bool MoveTable::IsSquareAttacked(const Position& position, const BitboardType square,
+                                 const Color by_color) const {
+  const BitboardType blockers = position.GetPieceContainer().GetBlockers(WHITE) |
+                                position.GetPieceContainer().GetBlockers(BLACK);
+
+  BitboardType attacks = 0ull;
+  attacks |= GetKingsMoves(position.GetPieceContainer().GetBitboard(Piece(KING, by_color)), blockers);
+  attacks |=
+      GetQueensMoves(position.GetPieceContainer().GetBitboard(Piece(QUEEN, by_color)), blockers);
+  attacks |= GetRooksMoves(position.GetPieceContainer().GetBitboard(Piece(ROOK, by_color)), blockers);
+  attacks |=
+      GetBishopsMoves(position.GetPieceContainer().GetBitboard(Piece(BISHOP, by_color)), blockers);
+  attacks |=
+      GetKnightsMoves(position.GetPieceContainer().GetBitboard(Piece(KNIGHT, by_color)), blockers);
+  attacks |= GetPawnAttacks(position.GetPieceContainer().GetBitboard(Piece(PAWN, by_color)), by_color);
+
+  return (attacks & square) != 0ull;
+}
+
 void MoveTable::RefreshValidMoves(const Position& position,
                                   std::vector<OrderManager::Data>& out) const {
   const Color turn = position.GetMyColor();
@@ -162,6 +188,43 @@ void MoveTable::RefreshValidMoves(const Position& position,
 
       if (type == KING) {
         to_sqs = GetKingsMoves(from_sq, blockers);
+
+        const Color op_color = static_cast<Color>(turn ^ 0b1);
+        if (turn == WHITE && from_sq == SQ_E1) {
+          if (position.CanCastleKingSide(WHITE) &&
+              (position.GetPieceContainer().GetBitboard(Piece(ROOK, WHITE)) & SQ_H1) != 0ull &&
+              (blockers & (SQ_F1 | SQ_G1)) == 0ull &&
+              !IsSquareAttacked(position, SQ_E1, op_color) &&
+              !IsSquareAttacked(position, SQ_F1, op_color) &&
+              !IsSquareAttacked(position, SQ_G1, op_color)) {
+            to_sqs |= SQ_G1;
+          }
+          if (position.CanCastleQueenSide(WHITE) &&
+              (position.GetPieceContainer().GetBitboard(Piece(ROOK, WHITE)) & SQ_A1) != 0ull &&
+              (blockers & (SQ_B1 | SQ_C1 | SQ_D1)) == 0ull &&
+              !IsSquareAttacked(position, SQ_E1, op_color) &&
+              !IsSquareAttacked(position, SQ_D1, op_color) &&
+              !IsSquareAttacked(position, SQ_C1, op_color)) {
+            to_sqs |= SQ_C1;
+          }
+        } else if (turn == BLACK && from_sq == SQ_E8) {
+          if (position.CanCastleKingSide(BLACK) &&
+              (position.GetPieceContainer().GetBitboard(Piece(ROOK, BLACK)) & SQ_H8) != 0ull &&
+              (blockers & (SQ_F8 | SQ_G8)) == 0ull &&
+              !IsSquareAttacked(position, SQ_E8, op_color) &&
+              !IsSquareAttacked(position, SQ_F8, op_color) &&
+              !IsSquareAttacked(position, SQ_G8, op_color)) {
+            to_sqs |= SQ_G8;
+          }
+          if (position.CanCastleQueenSide(BLACK) &&
+              (position.GetPieceContainer().GetBitboard(Piece(ROOK, BLACK)) & SQ_A8) != 0ull &&
+              (blockers & (SQ_B8 | SQ_C8 | SQ_D8)) == 0ull &&
+              !IsSquareAttacked(position, SQ_E8, op_color) &&
+              !IsSquareAttacked(position, SQ_D8, op_color) &&
+              !IsSquareAttacked(position, SQ_C8, op_color)) {
+            to_sqs |= SQ_C8;
+          }
+        }
       } else if (type == QUEEN) {
         to_sqs = GetQueensMoves(from_sq, blockers);
       } else if (type == ROOK) {

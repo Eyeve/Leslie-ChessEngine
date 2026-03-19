@@ -47,6 +47,7 @@ add_executable(LeslieTests
   tests/bishop_test.cpp
   tests/king_test.cpp
   tests/knight_test.cpp
+  tests/legality_test.cpp
   tests/nnue_test.cpp
   tests/pawn_test.cpp
   tests/rook_test.cpp

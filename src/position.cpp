@@ -94,6 +94,14 @@ BitboardType Position::GetOpBlockers() const { return blockers_[GetOpColor()]; }
 
 BitboardType Position::GetEnPassant() const { return en_passant_; }
 
+bool Position::CanCastleKingSide(const Color color) const {
+  return color == WHITE ? w_king_castle : b_king_castle;
+}
+
+bool Position::CanCastleQueenSide(const Color color) const {
+  return color == WHITE ? w_queen_castle : b_queen_castle;
+}
+
 void Position::SetMyBitboard(const PieceType type, const BitboardType value) {
   pieces_.SetBitboard(Piece(type, GetMyColor()), value);
 }
@@ -129,19 +137,7 @@ bool Position::IsKingSafe(const Color color) const {
   if (king_sq == 0ull) {
     return false;
   }
-
-  const BitboardType blockers = pieces_.GetBlockers(WHITE) | pieces_.GetBlockers(BLACK);
-  const MoveTable& mt = MoveTable::Instance();
-
-  BitboardType attacks = 0ull;
-  attacks |= mt.GetKingsMoves(pieces_.GetBitboard(Piece(KING, op_color)), blockers);
-  attacks |= mt.GetQueensMoves(pieces_.GetBitboard(Piece(QUEEN, op_color)), blockers);
-  attacks |= mt.GetRooksMoves(pieces_.GetBitboard(Piece(ROOK, op_color)), blockers);
-  attacks |= mt.GetBishopsMoves(pieces_.GetBitboard(Piece(BISHOP, op_color)), blockers);
-  attacks |= mt.GetKnightsMoves(pieces_.GetBitboard(Piece(KNIGHT, op_color)), blockers);
-  attacks |= mt.GetPawnsMoves(pieces_.GetBitboard(Piece(PAWN, op_color)), blockers, 0ull, op_color);
-
-  return (attacks & king_sq) == 0ull;
+  return !MoveTable::Instance().IsSquareAttacked(*this, king_sq, op_color);
 }
 
 EstimationType Position::GetSimpleEstimation() const {
@@ -192,6 +188,33 @@ void Position::MakeMoveInPlace(const Move move) {
       const BitboardType rook_to = from << 1;
       SetMyBitboard(ROOK, (GetMyBitboard(ROOK) & ~rook_from) | rook_to);
     }
+  }
+
+  if (move.type == KING) {
+    if (turn_ == WHITE) {
+      w_king_castle = false;
+      w_queen_castle = false;
+    } else {
+      b_king_castle = false;
+      b_queen_castle = false;
+    }
+  }
+
+  if (move.type == ROOK) {
+    if (turn_ == WHITE) {
+      if (from == SQ_H1) w_king_castle = false;
+      if (from == SQ_A1) w_queen_castle = false;
+    } else {
+      if (from == SQ_H8) b_king_castle = false;
+      if (from == SQ_A8) b_queen_castle = false;
+    }
+  }
+
+  if (move.capture == ROOK || move.en_passant) {
+    if (to == SQ_H1) w_king_castle = false;
+    if (to == SQ_A1) w_queen_castle = false;
+    if (to == SQ_H8) b_king_castle = false;
+    if (to == SQ_A8) b_queen_castle = false;
   }
 
   en_passant_ = 0ull;

@@ -24,6 +24,8 @@ class Position {
   BitboardType GetMyBlockers() const;
   BitboardType GetOpBlockers() const;
   BitboardType GetEnPassant() const;
+  bool CanCastleKingSide(Color color) const;
+  bool CanCastleQueenSide(Color color) const;
 
   void SetMyBitboard(PieceType type, BitboardType value);
   void SetOpBitboard(PieceType type, BitboardType value);

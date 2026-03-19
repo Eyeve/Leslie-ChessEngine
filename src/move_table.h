@@ -48,6 +48,9 @@ class MoveTable {
   BitboardType GetKnightsMoves(BitboardType sqs, BitboardType blockers) const;
   BitboardType GetPawnsMoves(BitboardType sqs, BitboardType blockers,
                              BitboardType en_passant, Color turn) const;
+  BitboardType GetPawnAttacks(BitboardType sqs, Color turn) const;
+  bool IsSquareAttacked(const Position& position, BitboardType square,
+                        Color by_color) const;
 
   const MasksType& GetRookMasks() const;
   const MasksType& GetBishopMasks() const;

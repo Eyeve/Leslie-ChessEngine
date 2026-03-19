@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "board.h"
+#include "move.h"
 
 namespace Leslie::Test {
 
@@ -17,6 +18,8 @@ struct PieceMoves {
 using MoveContainerType = std::vector<PieceMoves>;
 
 void PositionTest(const std::string& fen, const MoveContainerType& res);
+std::vector<Move> CollectMoves(const std::string& fen);
+bool HasMove(const std::vector<Move>& moves, const Move& move);
 
 }  // namespace Leslie::Test
 
