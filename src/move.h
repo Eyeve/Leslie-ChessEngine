@@ -33,11 +33,14 @@ struct Move {
 
   constexpr Move() = default;
 
-  constexpr Move(const PieceType move_type, const BitboardType move_from, const BitboardType move_to,
+  constexpr Move(const PieceType move_type, const BitboardType move_from,
+                 const BitboardType move_to,
                  const PieceType move_capture = NONE_PIECE_TYPE,
                  const PieceType move_promotion = NONE_PIECE_TYPE,
-                 const bool move_en_passant = false, const bool move_castling = false,
-                 const bool move_check = false, const uint8_t move_attack_est = 0)
+                 const bool move_en_passant = false,
+                 const bool move_castling = false,
+                 const bool move_check = false,
+                 const uint8_t move_attack_est = 0)
       : type(move_type),
         from(move_from),
         to(move_to),

@@ -1,7 +1,6 @@
 #ifndef LESLIE_THREAD_MANAGER_H_
 #define LESLIE_THREAD_MANAGER_H_
 
-
 namespace Leslie {
 
 class Thread {

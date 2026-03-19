@@ -38,15 +38,16 @@ class MoveTable {
   static void Init();
   static const MoveTable& Instance();
 
-  void RefreshValidMoves(const Position& position, std::vector<OrderManager::Data>& out) const;
+  void RefreshValidMoves(const Position& position,
+                         std::vector<OrderManager::Data>& out) const;
 
   BitboardType GetKingsMoves(BitboardType sqs, BitboardType blockers) const;
   BitboardType GetQueensMoves(BitboardType sqs, BitboardType blockers) const;
   BitboardType GetRooksMoves(BitboardType sqs, BitboardType blockers) const;
   BitboardType GetBishopsMoves(BitboardType sqs, BitboardType blockers) const;
   BitboardType GetKnightsMoves(BitboardType sqs, BitboardType blockers) const;
-  BitboardType GetPawnsMoves(BitboardType sqs, BitboardType blockers, BitboardType en_passant,
-                             Color turn) const;
+  BitboardType GetPawnsMoves(BitboardType sqs, BitboardType blockers,
+                             BitboardType en_passant, Color turn) const;
 
   const MasksType& GetRookMasks() const;
   const MasksType& GetBishopMasks() const;
@@ -57,9 +58,10 @@ class MoveTable {
   MoveTable();
 
   void InitMasks();
-  void InitMagic(const MasksType& masks, MagicsType& magic, Direction d1, Direction d2,
-                 Direction d3, Direction d4) const;
-  BitboardType RayTracing(BitboardType blockers, Direction direction, int sq_index) const;
+  void InitMagic(const MasksType& masks, MagicsType& magic, Direction d1,
+                 Direction d2, Direction d3, Direction d4) const;
+  BitboardType RayTracing(BitboardType blockers, Direction direction,
+                          int sq_index) const;
 
   static BitboardType PopLeastBit(BitboardType& bb);
   static BitboardType GetKingDestinations(BitboardType sq);
