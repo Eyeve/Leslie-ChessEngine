@@ -1,60 +1,57 @@
-#ifndef LESLIE_ENGINE_H_
+﻿#ifndef LESLIE_ENGINE_H_
 #define LESLIE_ENGINE_H_
 
-#include "options.h"
+#include <cstddef>
+#include <string>
+
+#include "move_table.h"
 #include "position.h"
 
-namespace leslie {
-
-struct Magic {
-  MagicsType rook_magic;
-  MagicsType bishop_magic;
-};
+namespace Leslie {
 
 struct Masks {
-  MasksType rook_masks;
-  MasksType bishop_masks;
+  MasksType rook_masks{};
+  MasksType bishop_masks{};
+};
+
+struct Magic {
+  MagicsType rook_magic{};
+  MagicsType bishop_magic{};
 };
 
 class Engine {
  public:
+  struct Options {
+    std::size_t thread_count = 1;
+    std::size_t max_depth = 1;
+  };
+
   static Engine& Instance();
 
-  // call to start searching moves
+  Engine();
+  explicit Engine(const Options& options);
+
   void Go();
-  // call to stop searching moves
   void Stop();
 
   Position& GetPosition();
   const Position& GetPosition() const;
 
-  Masks& GetMasks();
-  const Masks& GetMasks() const;
-
-  Magic& GetMagic();
-  const Magic& GetMagic() const;
-
   void SetPosition(const std::string& fen);
+
+  const Options& GetOptions() const;
+  Options& GetOptions();
+
+  const Masks& GetMasks() const;
+  const Magic& GetMagic() const;
 
  private:
   Position position_;
   Options options_;
-  Magic magic_;
   Masks masks_;
-  RaysType rays_;
-
-  Engine();
-  ~Engine() = default;
-
-  void InitMagic();
-  void InitMasks();
-
-  void InitPieceMagic(const MasksType& masks, MagicsType& magic, Direction d1,
-                      Direction d2, Direction d3, Direction d4) const;
-  BitboardType RayTracing(BitboardType blockers, Direction direction,
-                          int sq_index) const;
+  Magic magic_;
 };
 
-}  // namespace leslie
+}  // namespace Leslie
 
 #endif

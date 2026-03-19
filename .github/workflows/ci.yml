@@ -25,7 +25,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y clang-format
       - name: Check formatting
         run: |
-          find . -name "*.cpp" -o -name "*.h" | xargs clang-format --dry-run --Werror --style="{BasedOnStyle: Google, PointerAlignment: Left}"
+          find . \( -path "./libs" -prune \) -o \( -name "*.cpp" -o -name "*.h" -print \) | xargs clang-format --dry-run --Werror --style="{BasedOnStyle: Google, PointerAlignment: Left}"
 
   ubuntu:
     needs: clang-format
@@ -69,6 +69,6 @@ jobs:
       - name: Configure
         run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.profile }} -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_CXX_STANDARD=23
       - name: Build
-        run: cmake --build build --config ${{ matrix.profile }}
+        run: cmake --build build --config ${{ matrix.profile }} -DCMAKE_CXX_STANDARD=23
       - name: Run tests
         run: ctest --test-dir build --output-on-failure

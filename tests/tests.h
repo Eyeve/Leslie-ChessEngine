@@ -1,12 +1,12 @@
 #ifndef LESLIE_TESTS_H_
 #define LESLIE_TESTS_H_
 
-#include <move.h>
-
 #include <string>
 #include <vector>
 
-namespace leslie::test {
+#include "board.h"
+
+namespace Leslie::Test {
 
 struct PieceMoves {
   PieceType type;
@@ -18,6 +18,6 @@ using MoveContainerType = std::vector<PieceMoves>;
 
 void PositionTest(const std::string& fen, const MoveContainerType& res);
 
-}  // namespace leslie::test
+}  // namespace Leslie::Test
 
 #endif

@@ -1,19 +1,20 @@
-#ifndef LESLIE_PIECES_CONTAINER_H_
+﻿#ifndef LESLIE_PIECES_CONTAINER_H_
 #define LESLIE_PIECES_CONTAINER_H_
 
 #include <array>
 
-#include "types.h"
+#include "utility.h"
 
-namespace leslie {
+namespace Leslie {
 
 class PiecesContainer {
  public:
   PiecesContainer();
 
-  BitboardType& GetBitboard(Piece piece);
-  const BitboardType& GetBitboard(Piece piece) const;
+  BitboardType GetBitboard(Piece piece) const;
   BitboardType GetBlockers(Color color) const;
+
+  void SetBitboard(Piece piece, BitboardType value);
 
   Piece WhatPieceOnSquare(BitboardType square) const;
 
@@ -21,6 +22,6 @@ class PiecesContainer {
   std::array<std::array<BitboardType, 8>, 2> pieces_data_;
 };
 
-}  // namespace leslie
+}  // namespace Leslie
 
 #endif
