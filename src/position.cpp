@@ -1,5 +1,6 @@
-#include "position.h"
+﻿#include "position.h"
 
+#include <cctype>
 #include <immintrin.h>
 
 #include <bit>
@@ -12,25 +13,38 @@
 namespace Leslie {
 
 Position::Position(const std::string& fen)
-    : en_passant_(),
-      rule_50_(),
-      moves_(),
-      turn_(),
-      w_king_castle(),
-      w_queen_castle(),
-      b_king_castle(),
-      b_queen_castle() {
-  // TODO: add checks for invalid input
+    : en_passant_(0ull),
+      rule_50_(0),
+      moves_(0),
+      turn_(WHITE),
+      w_king_castle(false),
+      w_queen_castle(false),
+      b_king_castle(false),
+      b_queen_castle(false) {
   std::istringstream iss(fen);
-  std::string board_part, turn_part, castling_part, en_passant_part;
+  std::string board_part;
+  std::string turn_part;
+  std::string castling_part;
+  std::string en_passant_part;
+  int rule_50 = 0;
+  int moves = 0;
 
-  iss >> board_part >> turn_part >> castling_part >> en_passant_part >> rule_50_ >> moves_;
+  if (!(iss >> board_part >> turn_part >> castling_part >> en_passant_part >> rule_50 >> moves)) {
+    board_part = Board::kStartFen;
+    std::istringstream fallback(Board::kStartFen);
+    fallback >> board_part >> turn_part >> castling_part >> en_passant_part >> rule_50 >> moves;
+  }
+
+  rule_50_ = static_cast<CounterType>(rule_50);
+  moves_ = static_cast<CounterType>(moves);
 
   BitboardType sq = Board::Start();
   for (const char c : board_part) {
-    if (c == '/') continue;
+    if (c == '/') {
+      continue;
+    }
 
-    if (isdigit(c)) {
+    if (std::isdigit(static_cast<unsigned char>(c))) {
       sq = Board::Shift(sq, c - '0');
       continue;
     }
@@ -48,23 +62,23 @@ Position::Position(const std::string& fen)
   b_king_castle = castling_part.find('k') != std::string::npos;
   b_queen_castle = castling_part.find('q') != std::string::npos;
 
-  if (en_passant_part != "-") {
+  en_passant_ = 0ull;
+  if (en_passant_part.size() == 2 && en_passant_part != "-") {
     const int file = 'h' - en_passant_part[0];
     const int rank = en_passant_part[1] - '1';
-    en_passant_ = (1ull << (rank * 8 + file));
+    if (file >= 0 && file < 8 && rank >= 0 && rank < 8) {
+      en_passant_ = 1ull << (rank * 8 + file);
+    }
   }
+
   UpdateBlockers();
 }
 
-const PiecesContainer& Position::GetPieceContainer() const {
-  return pieces_;
-}
+const PiecesContainer& Position::GetPieceContainer() const { return pieces_; }
 
 Color Position::GetMyColor() const { return turn_; }
 
-Color Position::GetOpColor() const {
-  return static_cast<Color>(turn_ ^ 0b1);
-}
+Color Position::GetOpColor() const { return static_cast<Color>(turn_ ^ 0b1); }
 
 BitboardType Position::GetMyBitboard(const PieceType type) const {
   return pieces_.GetBitboard(Piece(type, GetMyColor()));
@@ -74,37 +88,34 @@ BitboardType Position::GetOpBitboard(const PieceType type) const {
   return pieces_.GetBitboard(Piece(type, GetOpColor()));
 }
 
-BitboardType Position::GetMyBlockers() const {
-  return pieces_.GetBlockers(GetMyColor());
-}
+BitboardType Position::GetMyBlockers() const { return blockers_[GetMyColor()]; }
 
-BitboardType Position::GetOpBlockers() const {
-  return pieces_.GetBlockers(GetOpColor());
-}
+BitboardType Position::GetOpBlockers() const { return blockers_[GetOpColor()]; }
+
+BitboardType Position::GetEnPassant() const { return en_passant_; }
 
 void Position::SetMyBitboard(const PieceType type, const BitboardType value) {
-  return pieces_.SetBitboard(Piece(type, GetMyColor()), value);
+  pieces_.SetBitboard(Piece(type, GetMyColor()), value);
 }
 
 void Position::SetOpBitboard(const PieceType type, const BitboardType value) {
-  return pieces_.SetBitboard(Piece(type, GetOpColor()), value);
+  pieces_.SetBitboard(Piece(type, GetOpColor()), value);
 }
 
 Piece Position::WhatPieceOnSquare(const BitboardType square) const {
   return pieces_.WhatPieceOnSquare(square);
 }
 
-// void Position::AddPossibleMoves(std::vector<Move>& vec) const {
-//   AddPieceMoves(&Position::GetKingsMoves, KING, vec);
-//   AddPieceMoves(&Position::GetQueenMoves, QUEEN, vec);
-//   AddPieceMoves(&Position::GetRookMoves, ROOK, vec);
-//   AddPieceMoves(&Position::GetBishopMoves, BISHOP, vec);
-//   AddPieceMoves(&Position::GetKnightsMoves, KNIGHT, vec);
-//   if (turn_ == WHITE)
-//     AddPieceMoves(&Position::GetWhitePawnsMoves, PAWN, vec);
-//   else
-//     AddPieceMoves(&Position::GetBlackPawnsMoves, PAWN, vec);
-// }
+void Position::AddPossibleMoves(std::vector<Move>& out) const {
+  std::vector<OrderManager::Data> data;
+  MoveTable::Instance().RefreshValidMoves(*this, data);
+
+  out.clear();
+  out.reserve(data.size());
+  for (const auto& item : data) {
+    out.push_back(item.move);
+  }
+}
 
 Position Position::MakeMove(const Move move) const {
   Position my_copy(*this);
@@ -113,78 +124,94 @@ Position Position::MakeMove(const Move move) const {
 }
 
 bool Position::IsKingSafe(const Color color) const {
-  // TODO: redo
-  const BitboardType king_sq = GetOpBitboard(KING);
-  const BitboardType blockers =
-      GetMyBlockers() | GetOpBlockers();
+  const Color op_color = static_cast<Color>(color ^ 0b1);
+  const BitboardType king_sq = pieces_.GetBitboard(Piece(KING, color));
+  if (king_sq == 0ull) {
+    return false;
+  }
+
+  const BitboardType blockers = pieces_.GetBlockers(WHITE) | pieces_.GetBlockers(BLACK);
   const MoveTable& mt = MoveTable::Instance();
 
-  BitboardType moves = mt.GetKingsMoves(GetMyBitboard(KING), blockers);
-  moves |= mt.GetQueensMoves(GetMyBitboard(QUEEN), blockers);
-  moves |= mt.GetRooksMoves(GetMyBitboard(ROOK), blockers);
-  moves |= mt.GetBishopsMoves(GetMyBitboard(BISHOP), blockers);
-  moves |= mt.GetKnightsMoves(GetMyBitboard(KNIGHT), blockers);
-  moves |= mt.GetPawnsMoves(GetMyBitboard(PAWN), blockers, en_passant_, GetMyColor());
-  return static_cast<bool>(~moves & king_sq);
+  BitboardType attacks = 0ull;
+  attacks |= mt.GetKingsMoves(pieces_.GetBitboard(Piece(KING, op_color)), blockers);
+  attacks |= mt.GetQueensMoves(pieces_.GetBitboard(Piece(QUEEN, op_color)), blockers);
+  attacks |= mt.GetRooksMoves(pieces_.GetBitboard(Piece(ROOK, op_color)), blockers);
+  attacks |= mt.GetBishopsMoves(pieces_.GetBitboard(Piece(BISHOP, op_color)), blockers);
+  attacks |= mt.GetKnightsMoves(pieces_.GetBitboard(Piece(KNIGHT, op_color)), blockers);
+  attacks |= mt.GetPawnsMoves(pieces_.GetBitboard(Piece(PAWN, op_color)), blockers, 0ull, op_color);
+
+  return (attacks & king_sq) == 0ull;
+}
+
+EstimationType Position::GetSimpleEstimation() const {
+  EstimationType score = 0;
+  for (const PieceType piece_type : kPieceTypes) {
+    const BitboardType my_bb = GetMyBitboard(piece_type);
+    const BitboardType op_bb = GetOpBitboard(piece_type);
+    score += static_cast<EstimationType>(std::popcount(my_bb)) * GetPieceCost(piece_type);
+    score -= static_cast<EstimationType>(std::popcount(op_bb)) * GetPieceCost(piece_type);
+  }
+  return GetOpColor() == WHITE ? -score : score;
 }
 
 void Position::UpdateBlockers() {
-  // TODO: can be optimized
   blockers_[WHITE] = pieces_.GetBlockers(WHITE);
   blockers_[BLACK] = pieces_.GetBlockers(BLACK);
 }
 
-
 void Position::MakeMoveInPlace(const Move move) {
-  // TODO: pawn promoting implementation
-  // TODO: en passant capture implementation
-  const BitboardType bitboard = GetMyBitboard(move.type);
-  SetMyBitboard(move.type, bitboard & ~move.from | move.to);
+  const BitboardType from = move.from;
+  const BitboardType to = move.to;
 
-  const BitboardType mask = ~move.to;
-  for (const PieceType type: kPieceTypes)
-    SetOpBitboard(type, GetOpBitboard(type) & mask);
+  SetMyBitboard(move.type, GetMyBitboard(move.type) & ~from);
+
+  if (move.promotion != NONE_PIECE_TYPE && move.type == PAWN) {
+    SetMyBitboard(move.promotion, GetMyBitboard(move.promotion) | to);
+  } else {
+    SetMyBitboard(move.type, GetMyBitboard(move.type) | to);
+  }
+
+  if (move.en_passant && move.type == PAWN) {
+    const BitboardType captured = (turn_ == WHITE) ? (to >> 8) : (to << 8);
+    SetOpBitboard(PAWN, GetOpBitboard(PAWN) & ~captured);
+  } else {
+    const BitboardType clear_mask = ~to;
+    for (const PieceType type : kPieceTypes) {
+      SetOpBitboard(type, GetOpBitboard(type) & clear_mask);
+    }
+  }
+
+  if (move.castling && move.type == KING) {
+    if ((from >> 2) == to) {
+      const BitboardType rook_from = from >> 3;
+      const BitboardType rook_to = from >> 1;
+      SetMyBitboard(ROOK, (GetMyBitboard(ROOK) & ~rook_from) | rook_to);
+    } else if ((from << 2) == to) {
+      const BitboardType rook_from = from << 4;
+      const BitboardType rook_to = from << 1;
+      SetMyBitboard(ROOK, (GetMyBitboard(ROOK) & ~rook_from) | rook_to);
+    }
+  }
+
+  en_passant_ = 0ull;
+  if (move.type == PAWN) {
+    if ((from << 16) == to) {
+      en_passant_ = from << 8;
+    } else if ((from >> 16) == to) {
+      en_passant_ = from >> 8;
+    }
+  }
+
+  if (move.type == PAWN || move.capture != NONE_PIECE_TYPE || move.en_passant) {
+    rule_50_ = 0;
+  } else {
+    ++rule_50_;
+  }
 
   ++moves_;
   turn_ = GetOpColor();
   UpdateBlockers();
 }
-
-// void Position::AddPieceMoves(const MovesGetter getter, const PieceType type,
-//                              std::vector<Move>& moves) const {
-//   // TODO: move general parts outside
-//   const BitboardType my_blockers = pieces_.GetBlockers(GetMyColor());
-//   const BitboardType op_blockers = pieces_.GetBlockers(GetOpColor());
-//   const BitboardType valid_squares = ~my_blockers;
-//   const BitboardType blockers = my_blockers | op_blockers;
-//
-//   BitboardType from = GetMyBitboard(type);
-//   while (from) {
-//     const BitboardType from_sq = 1ull << std::countr_zero(from);
-//
-//     BitboardType to = (this->*getter)(from_sq, blockers) & valid_squares;
-//     while (to) {
-//       const BitboardType to_sq = 1ull << std::countr_zero(to);
-//       const Move move(type, from_sq, to_sq);
-//
-//       if (MakeMove(move).IsMoveMadeValid()) moves.push_back(move);
-//       to ^= to_sq;
-//     }
-//     from ^= from_sq;
-//   }
-// }
-
-// EstimationType Position::GetSimpleEstimation() const {
-//   EstimationType score = 0;
-//   for (const PieceType piece_type : kPieceTypes) {
-//     const BitboardType my_bb = GetMyBitboard(piece_type);
-//     const BitboardType op_bb = GetOpBitboard(piece_type);
-//
-//     // TODO: type convert redo
-//     score += __builtin_popcountll(my_bb) * GetPieceCost(piece_type);
-//     score -= __builtin_popcountll(op_bb) * GetPieceCost(piece_type);
-//   }
-//   return GetOpColor() == WHITE ? -score : score;
-// }
 
 }  // namespace Leslie

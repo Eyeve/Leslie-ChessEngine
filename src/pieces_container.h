@@ -1,9 +1,8 @@
-#ifndef LESLIE_PIECES_CONTAINER_H_
+﻿#ifndef LESLIE_PIECES_CONTAINER_H_
 #define LESLIE_PIECES_CONTAINER_H_
 
 #include <array>
 
-#include "move.h"
 #include "utility.h"
 
 namespace Leslie {
@@ -11,7 +10,6 @@ namespace Leslie {
 class PiecesContainer {
  public:
   PiecesContainer();
-  PiecesContainer(const PiecesContainer& other, Move move, Color color);
 
   BitboardType GetBitboard(Piece piece) const;
   BitboardType GetBlockers(Color color) const;

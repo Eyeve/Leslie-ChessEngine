@@ -1,53 +1,61 @@
-cmake_minimum_required(VERSION 3.27.8)
-project(Leslie_ChessEngine)
+﻿cmake_minimum_required(VERSION 3.27.8)
+project(Leslie_ChessEngine LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(${PROJECT_NAME} tests/tests.cpp
-        src/position.cpp
-        src/lichess_shell.cpp
-        src/engine.cpp
-        src/move.cpp
-        tests/knight_test.cpp
-        tests/king_test.cpp
-        tests/pawn_test.cpp
-        tests/advanced_test.cpp
-        src/pieces_container.cpp
-        src/pieces_container.h
-        tests/rook_test.cpp
-        tests/bishop_test.cpp
-        tests/tests.h
-        src/nnue/nnue.cpp
-        src/nnue/nnue.h
-        src/utility.cpp
-        tests/nnue_test.cpp
-        src/thread.cpp
-        src/thread.h
-        src/piece.h
-        src/move_table.cpp
-        src/move_table.h
-)
-
-include_directories(src)
-
 include(FetchContent)
 FetchContent_Declare(
-        googletest
-        URL https://github.com/google/googletest/archive/release-1.12.1.zip
-        DOWNLOAD_EXTRACT_TIMESTAMP true
+  googletest
+  URL https://github.com/google/googletest/archive/release-1.12.1.zip
+  DOWNLOAD_EXTRACT_TIMESTAMP true
+)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+add_library(leslie_core
+  src/engine.cpp
+  src/move.cpp
+  src/move_table.cpp
+  src/pieces_container.cpp
+  src/position.cpp
+  src/thread.cpp
+  src/utility.cpp
+  src/nnue/nnue.cpp
 )
 
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+target_include_directories(leslie_core
+  PUBLIC
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/libs/Eigen
+)
+
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mbmi2")
+  target_compile_options(leslie_core PRIVATE -mbmi2)
 endif()
 
-FetchContent_MakeAvailable(googletest)
-include_directories(${CMAKE_SOURCE_DIR}/libs/Eigen)
+add_executable(${PROJECT_NAME}
+  src/main.cpp
+  src/lichess_shell.cpp
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE leslie_core)
 
-target_link_libraries(${PROJECT_NAME} gtest gtest_main)
+add_executable(LeslieTests
+  tests/tests.cpp
+  tests/advanced_test.cpp
+  tests/bishop_test.cpp
+  tests/king_test.cpp
+  tests/knight_test.cpp
+  tests/nnue_test.cpp
+  tests/pawn_test.cpp
+  tests/rook_test.cpp
+)
+target_link_libraries(LeslieTests PRIVATE leslie_core gtest gtest_main)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(LeslieTests PRIVATE -mbmi2)
+endif()
 
 enable_testing()
-add_test(NAME LeslieTests COMMAND ${PROJECT_NAME})
+add_test(NAME LeslieTests COMMAND LeslieTests)

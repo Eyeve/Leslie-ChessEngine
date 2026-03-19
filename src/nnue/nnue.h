@@ -1,4 +1,4 @@
-#ifndef LESLIE_NNUE_H_
+﻿#ifndef LESLIE_NNUE_H_
 #define LESLIE_NNUE_H_
 
 #include <Eigen>
@@ -18,7 +18,7 @@ class NNUE {
   explicit NNUE(Position& position_);
   EstimationType Eval(Position& position);
   EstimationType Eval();
-  EstimationType Update(Move& move);
+  EstimationType Update(const Move& move);
 
  private:
   Eigen::Matrix<int16_t, Eigen::Dynamic, Eigen::Dynamic> accumulator_weights_;

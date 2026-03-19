@@ -1,4 +1,4 @@
-#include "nnue.h"
+﻿#include "nnue.h"
 
 #include <fstream>
 #include <stdexcept>
@@ -54,16 +54,7 @@ int16_t Leslie::NNUE::NNUE::Eval(Leslie::Position& position) {
 
   y_ = accumulator_weights_ * InputVector() + accumulator_biases_;
 
-  // maybe casts to Eigen::Array and back ya hz
-  // cwiseMax cwiseMin ваще int возвращают и это я у инта вызывал cwiseMin ахах
-  // крч не строка а бред но мб сработает
   y_ = y_.cwiseMax(CRELU_BOT).cwiseMin(CRELU_TOP);
-
-  // лучше так
-  // no casts
-  //  y_ = y_.unaryExpr([](int16_t x) {
-  //    return std::clamp<int16_t>(x, CRELU_BOT, CRELU_TOP);
-  //  });
 
   if (position_.GetMyColor() == WHITE)
     estimation_ = white_output_weights_.transpose() * y_ + output_bias_;
@@ -72,9 +63,7 @@ int16_t Leslie::NNUE::NNUE::Eval(Leslie::Position& position) {
   return estimation_;
 }
 
-int16_t Leslie::NNUE::NNUE::Update(Leslie::Move& move) {
-  // y_ -четотам + четотам
-  // estimation_ = четотам
+int16_t Leslie::NNUE::NNUE::Update(const Leslie::Move& move) {
   return estimation_;
 }
 
@@ -93,7 +82,7 @@ Eigen::Vector<int16_t, INPUT_SIZE> NNUE::InputVector() {
       result[index] = 1;
     }
   }
-  return std::move(result);
+  return result;
 }
 
 int NNUE::ColorToInt(Color color) { return color == WHITE ? 1 : 0; }
@@ -109,3 +98,4 @@ int NNUE::TypeToInt(PieceType type) {
 }
 
 }  // namespace Leslie::NNUE
+

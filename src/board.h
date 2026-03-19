@@ -1,6 +1,8 @@
 #ifndef LESLIE_BOARD_H_
 #define LESLIE_BOARD_H_
 
+#include <bit>
+
 #include "utility.h"
 
 #define LESLIE_RANK(a, b, c, d, e, f, g, h, R) \

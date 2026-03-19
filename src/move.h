@@ -1,18 +1,11 @@
-#ifndef LESLIE_MOVE_H_
+﻿#ifndef LESLIE_MOVE_H_
 #define LESLIE_MOVE_H_
 
-#include "board.h"
+#include <cstddef>
+#include <cstdint>
+#include <functional>
 
-#define LESLIE_IDENTITY(h, g, f, e, d, c, b, a) h, g, f, e, d, c, b, a
-#define LESLIE_FROM_SHIFT 0
-#define LESLIE_TO_SHIFT 6
-#define LESLIE_EN_PASSANT_SHIFT 12
-#define LESLIE_CASTLING_SHIFT 13
-#define LESLIE_TYPE_SHIFT 14
-#define LESLIE_ATTACK_SHIFT 17
-#define LESLIE_CAPTURE_SHIFT 18
-#define LESLIE_PROMOTION_SHIFT 21
-#define LESLIE_CHECK_SHIFT 24
+#include "board.h"
 
 namespace Leslie {
 
@@ -27,62 +20,46 @@ enum Direction {
   UP_LEFT,
 };
 
-/**
- * Move Representation (32-bit packed format)
- *
- * This structure encodes all necessary information about a chess move
- * into a single 32-bit unsigned integer for performance and memory efficiency.
- *
- * Bit layout (from least significant to most significant bit):
- *
- * Bits  0 -  5   (6 bits):  From square (0–63)
- * Bits  6 - 11   (6 bits):  To square (0–63)
- * Bit     12     (1 bit):   En passant flag (1 if the move is an en passant capture)
- * Bit     13     (1 bit):   Castling flag (1 if the move is a castling move)
- * Bits 14 - 16   (3 bits):  Moving piece type (look PieceType enum)
- * Bits 17 - 22   (6 bit):   Attack estimation
- * Bits 23 - 25   (3 bits):  Captured piece type (king if no piece captured))
- * Bits 26 - 28   (3 bits):  Promotion piece type (king if no promotion occurred)
- * Bit     29     (1 bit):   Check flag (1 if the move gives check)
- * Bits 30 - 31   (2 bits):  Reserved for future use
- *
- * The bits are arranged in such a way as to give a rough estimate of the move,
- * the higher the value, the more promising the move.
- */
+struct Move {
+  PieceType type = NONE_PIECE_TYPE;
+  BitboardType from = 0ull;
+  BitboardType to = 0ull;
+  PieceType capture = NONE_PIECE_TYPE;
+  PieceType promotion = NONE_PIECE_TYPE;
+  bool en_passant = false;
+  bool castling = false;
+  bool check = false;
+  uint8_t attack_est = 0;
 
-enum SquareShift : uint8_t {
-  LESLIE_IDENTITY(H1, G1, F1, E1, D1, C1, B1, A1),
-  LESLIE_IDENTITY(H2, G2, F2, E2, D2, C2, B2, A2),
-  LESLIE_IDENTITY(H3, G3, F3, E3, D3, C3, B3, A3),
-  LESLIE_IDENTITY(H4, G4, F4, E4, D4, C4, B4, A4),
-  LESLIE_IDENTITY(H5, G5, F5, E5, D5, C5, B5, A5),
-  LESLIE_IDENTITY(H6, G6, F6, E6, D6, C6, B6, A6),
-  LESLIE_IDENTITY(H7, G7, F7, E7, D7, C7, B7, A7),
-  LESLIE_IDENTITY(H8, G8, F8, E8, D8, C8, B8, A8),
+  constexpr Move() = default;
+
+  constexpr Move(const PieceType move_type, const BitboardType move_from, const BitboardType move_to,
+                 const PieceType move_capture = NONE_PIECE_TYPE,
+                 const PieceType move_promotion = NONE_PIECE_TYPE,
+                 const bool move_en_passant = false, const bool move_castling = false,
+                 const bool move_check = false, const uint8_t move_attack_est = 0)
+      : type(move_type),
+        from(move_from),
+        to(move_to),
+        capture(move_capture),
+        promotion(move_promotion),
+        en_passant(move_en_passant),
+        castling(move_castling),
+        check(move_check),
+        attack_est(move_attack_est) {}
+
+  friend bool operator==(const Move& lhs, const Move& rhs) {
+    return lhs.type == rhs.type && lhs.from == rhs.from && lhs.to == rhs.to;
+  }
 };
 
-using Move = uint32_t;
-
-class MoveHandler {
- public:
-  MoveHandler() = delete;
-
-  static Move EncodeMove(PieceType type, SquareShift from, SquareShift to, PieceType capture,
-                         PieceType promotion, bool en_passant, bool castling, bool check,
-                         uint8_t attack_est);
-  static PieceType GetType(Move move);
-  static Square GetFrom(Move move);
-  static Square GetTo(Move move);
-  static PieceType GetCapture(Move move);
-  static PieceType GetPromotion(Move move);
-  static bool GetEnPassant(Move move);
-  static bool GetCastling(Move move);
-  static bool GetAttack(Move move);
-  static bool GetCheck(Move move);
-
- private:
-  static Move EncodeMoveProcessing(Move type, Move from, Move to, Move capture, Move promotion,
-                                   Move en_passant, Move castling, Move attack, Move check);
+struct MoveHash {
+  std::size_t operator()(const Move& move) const noexcept {
+    const std::size_t h1 = std::hash<int>()(static_cast<int>(move.type));
+    const std::size_t h2 = std::hash<BitboardType>()(move.from);
+    const std::size_t h3 = std::hash<BitboardType>()(move.to);
+    return h1 ^ (h2 << 1) ^ (h3 << 2);
+  }
 };
 
 }  // namespace Leslie
